@@ -1,0 +1,39 @@
+[
+  {
+    "query": "agents -> tools where destructive and server.auth = none",
+    "paths": ["claude-desktop -> https://crm.example/mcp -> delete_record"]
+  },
+  {
+    "query": "agents -> tools where destructive",
+    "paths": [
+      "claude-desktop -> https://crm.example/mcp -> delete_record",
+      "claude-desktop -> https://mail.example/mcp -> send_email",
+      "claude-desktop -> npx @example/shell-mcp -> run_shell",
+      "cursor -> https://mail.example/mcp -> send_email"
+    ]
+  },
+  {
+    "query": "agents -> servers where not attested",
+    "paths": ["claude-desktop -> npx @example/shell-mcp"]
+  },
+  {
+    "query": "agents -> servers where attestation_age_days > 30",
+    "paths": ["claude-desktop -> https://mail.example/mcp", "cursor -> https://mail.example/mcp"]
+  },
+  {
+    "query": "servers where critical",
+    "paths": ["https://crm.example/mcp"]
+  },
+  {
+    "query": "identities -> servers where scopes contains admin",
+    "paths": ["ops-agent -> https://files.example/mcp"]
+  },
+  {
+    "query": "agents -> identities where identity.client = 'reader-agent'",
+    "paths": ["claude-desktop -> https://mail.example/mcp -> reader-agent", "cursor -> https://mail.example/mcp -> reader-agent"]
+  },
+  {
+    "query": "servers -> attestations where grade = F or score >= 95",
+    "paths": ["https://crm.example/mcp -> crm.intoto.json", "https://files.example/mcp -> files.intoto.json"]
+  }
+]

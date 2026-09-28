@@ -1,0 +1,278 @@
+{
+  "version": "https://satellion.com/graph/v1",
+  "nodes": [
+    {
+      "id": "agent:e97e3c06855cb99395f84bb106425b09cefa9ed9697b37ba124fe8eeab5183ac",
+      "kind": "agent",
+      "label": "claude-desktop",
+      "agent": {
+        "client": "claude-desktop",
+        "configFile": "/home/dev/claude_desktop_config.json"
+      }
+    },
+    {
+      "id": "agent:f003396d629f3e1f6a3da1e2ac25108665b57b151e72f3fbe76427e5c8d37680",
+      "kind": "agent",
+      "label": "cursor",
+      "agent": {
+        "client": "cursor",
+        "configFile": "/home/dev/.cursor/mcp.json"
+      }
+    },
+    {
+      "id": "attestation:d23cd0ec3854afd3c9130e83300beb093c6fe1f2e87cd16b90c16c6face48c79",
+      "kind": "attestation",
+      "label": "files.intoto.json",
+      "attestation": {
+        "digest": "d23cd0ec3854afd3c9130e83300beb093c6fe1f2e87cd16b90c16c6face48c79",
+        "predicateType": "https://satellion.com/attestation/mcp-evaluation/v1",
+        "ranAt": "2026-09-26T12:00:00Z"
+      }
+    },
+    {
+      "id": "attestation:df490e486bc80e8fc00ed12b7a4c4849cdd49dfd0a88f355043aa519b2d5544b",
+      "kind": "attestation",
+      "label": "crm.intoto.json",
+      "attestation": {
+        "digest": "df490e486bc80e8fc00ed12b7a4c4849cdd49dfd0a88f355043aa519b2d5544b",
+        "predicateType": "https://satellion.com/attestation/mcp-evaluation/v1",
+        "ranAt": "2026-09-25T12:00:00Z"
+      }
+    },
+    {
+      "id": "attestation:ebdc639d188ce623603ebcd9d0a339586af9106523be63ab3791e7aa2ea26765",
+      "kind": "attestation",
+      "label": "mail.intoto.json",
+      "attestation": {
+        "digest": "ebdc639d188ce623603ebcd9d0a339586af9106523be63ab3791e7aa2ea26765",
+        "predicateType": "https://satellion.com/attestation/mcp-evaluation/v1",
+        "ranAt": "2026-08-18T12:00:00Z"
+      }
+    },
+    {
+      "id": "identity:af7b607a4751cffc47645773c1b9e5dc203a3adb5a1c4d06b551765f4cadf77c",
+      "kind": "identity",
+      "label": "ops-agent",
+      "identity": {
+        "issuer": "https://auth.example",
+        "clientId": "ops-agent"
+      }
+    },
+    {
+      "id": "identity:e15d8852d5bce3778bfc2407a99c90416fe0e870dda19f543e95ac4e49b94158",
+      "kind": "identity",
+      "label": "reader-agent",
+      "identity": {
+        "issuer": "https://auth.example",
+        "clientId": "reader-agent"
+      }
+    },
+    {
+      "id": "server:7eeba208fc596f03c63891331db720fcea090817f570dac70c5c1cf928dd314a",
+      "kind": "server",
+      "label": "npx @example/shell-mcp",
+      "server": {
+        "transport": "stdio",
+        "endpoint": "npx @example/shell-mcp"
+      }
+    },
+    {
+      "id": "server:8e1c897272dd6289b83532e8ccf0304a816e94f5e064e4b346e46edea6571c34",
+      "kind": "server",
+      "label": "https://mail.example/mcp",
+      "server": {
+        "transport": "http",
+        "endpoint": "https://mail.example/mcp",
+        "name": "mail",
+        "auth": "oauth",
+        "score": 88,
+        "grade": "B",
+        "attestation": "ebdc639d188ce623603ebcd9d0a339586af9106523be63ab3791e7aa2ea26765"
+      }
+    },
+    {
+      "id": "server:f919b01d588df38b48965bdcdd670c015153ece3dc0e879ac38946df8b077954",
+      "kind": "server",
+      "label": "https://crm.example/mcp",
+      "server": {
+        "transport": "http",
+        "endpoint": "https://crm.example/mcp",
+        "name": "crm",
+        "auth": "none",
+        "score": 41.5,
+        "grade": "F",
+        "attestation": "df490e486bc80e8fc00ed12b7a4c4849cdd49dfd0a88f355043aa519b2d5544b",
+        "failing": [
+          {
+            "id": "auth.unauthenticated_tools",
+            "severity": "critical"
+          }
+        ]
+      }
+    },
+    {
+      "id": "server:fe6dc013c2c221564244ebab0f566eb219d77a472336be4982d60fedc743d5ff",
+      "kind": "server",
+      "label": "https://files.example/mcp",
+      "server": {
+        "transport": "http",
+        "endpoint": "https://files.example/mcp",
+        "name": "files",
+        "auth": "oauth",
+        "score": 95,
+        "grade": "A",
+        "attestation": "d23cd0ec3854afd3c9130e83300beb093c6fe1f2e87cd16b90c16c6face48c79"
+      }
+    },
+    {
+      "id": "tool:0f58062345bf589d192d768a18cbe9d5a4879dab0c8a4e9e606c75efaf139513",
+      "kind": "tool",
+      "label": "send_email",
+      "tool": {
+        "name": "send_email"
+      }
+    },
+    {
+      "id": "tool:7af25e5caf5d5f4ecdd3143788c5a7389b3121a3de54cb1c1b6aac9867809771",
+      "kind": "tool",
+      "label": "run_shell",
+      "tool": {
+        "name": "run_shell"
+      }
+    },
+    {
+      "id": "tool:874ae6a98855072ae06361f37fd8218408f165b7a785de4c4f12a265bd5b3cde",
+      "kind": "tool",
+      "label": "delete_record",
+      "tool": {
+        "name": "delete_record",
+        "readOnlyHint": false,
+        "destructiveHint": true
+      }
+    },
+    {
+      "id": "tool:d6b80d380fbd5ad7d1c8e421b6820bd246131a9fb5517d4b84ded8a87d2a2482",
+      "kind": "tool",
+      "label": "list_records",
+      "tool": {
+        "name": "list_records",
+        "readOnlyHint": true,
+        "destructiveHint": false
+      }
+    },
+    {
+      "id": "tool:f238d3942db72aa31c9f88fc51f844760d5b5549f9709afd81b1bcb24766dee5",
+      "kind": "tool",
+      "label": "read_file",
+      "tool": {
+        "name": "read_file",
+        "readOnlyHint": true,
+        "destructiveHint": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "agent:e97e3c06855cb99395f84bb106425b09cefa9ed9697b37ba124fe8eeab5183ac",
+      "to": "server:7eeba208fc596f03c63891331db720fcea090817f570dac70c5c1cf928dd314a",
+      "kind": "uses",
+      "ref": {
+        "file": "/home/dev/claude_desktop_config.json",
+        "key": "mcpServers.shell"
+      }
+    },
+    {
+      "from": "agent:e97e3c06855cb99395f84bb106425b09cefa9ed9697b37ba124fe8eeab5183ac",
+      "to": "server:8e1c897272dd6289b83532e8ccf0304a816e94f5e064e4b346e46edea6571c34",
+      "kind": "uses",
+      "ref": {
+        "file": "/home/dev/claude_desktop_config.json",
+        "key": "mcpServers.mail"
+      }
+    },
+    {
+      "from": "agent:e97e3c06855cb99395f84bb106425b09cefa9ed9697b37ba124fe8eeab5183ac",
+      "to": "server:f919b01d588df38b48965bdcdd670c015153ece3dc0e879ac38946df8b077954",
+      "kind": "uses",
+      "ref": {
+        "file": "/home/dev/claude_desktop_config.json",
+        "key": "mcpServers.crm"
+      }
+    },
+    {
+      "from": "agent:f003396d629f3e1f6a3da1e2ac25108665b57b151e72f3fbe76427e5c8d37680",
+      "to": "server:8e1c897272dd6289b83532e8ccf0304a816e94f5e064e4b346e46edea6571c34",
+      "kind": "uses",
+      "ref": {
+        "file": "/home/dev/.cursor/mcp.json",
+        "key": "mcpServers.mail"
+      }
+    },
+    {
+      "from": "agent:f003396d629f3e1f6a3da1e2ac25108665b57b151e72f3fbe76427e5c8d37680",
+      "to": "server:fe6dc013c2c221564244ebab0f566eb219d77a472336be4982d60fedc743d5ff",
+      "kind": "uses",
+      "ref": {
+        "file": "/home/dev/.cursor/mcp.json",
+        "key": "mcpServers.files"
+      }
+    },
+    {
+      "from": "identity:af7b607a4751cffc47645773c1b9e5dc203a3adb5a1c4d06b551765f4cadf77c",
+      "to": "server:fe6dc013c2c221564244ebab0f566eb219d77a472336be4982d60fedc743d5ff",
+      "kind": "authorizes",
+      "scopes": [
+        "admin",
+        "files:write"
+      ]
+    },
+    {
+      "from": "identity:e15d8852d5bce3778bfc2407a99c90416fe0e870dda19f543e95ac4e49b94158",
+      "to": "server:8e1c897272dd6289b83532e8ccf0304a816e94f5e064e4b346e46edea6571c34",
+      "kind": "authorizes",
+      "scopes": [
+        "mail:read"
+      ]
+    },
+    {
+      "from": "server:7eeba208fc596f03c63891331db720fcea090817f570dac70c5c1cf928dd314a",
+      "to": "tool:7af25e5caf5d5f4ecdd3143788c5a7389b3121a3de54cb1c1b6aac9867809771",
+      "kind": "exposes"
+    },
+    {
+      "from": "server:8e1c897272dd6289b83532e8ccf0304a816e94f5e064e4b346e46edea6571c34",
+      "to": "attestation:ebdc639d188ce623603ebcd9d0a339586af9106523be63ab3791e7aa2ea26765",
+      "kind": "attested_by"
+    },
+    {
+      "from": "server:8e1c897272dd6289b83532e8ccf0304a816e94f5e064e4b346e46edea6571c34",
+      "to": "tool:0f58062345bf589d192d768a18cbe9d5a4879dab0c8a4e9e606c75efaf139513",
+      "kind": "exposes"
+    },
+    {
+      "from": "server:f919b01d588df38b48965bdcdd670c015153ece3dc0e879ac38946df8b077954",
+      "to": "attestation:df490e486bc80e8fc00ed12b7a4c4849cdd49dfd0a88f355043aa519b2d5544b",
+      "kind": "attested_by"
+    },
+    {
+      "from": "server:f919b01d588df38b48965bdcdd670c015153ece3dc0e879ac38946df8b077954",
+      "to": "tool:874ae6a98855072ae06361f37fd8218408f165b7a785de4c4f12a265bd5b3cde",
+      "kind": "exposes"
+    },
+    {
+      "from": "server:f919b01d588df38b48965bdcdd670c015153ece3dc0e879ac38946df8b077954",
+      "to": "tool:d6b80d380fbd5ad7d1c8e421b6820bd246131a9fb5517d4b84ded8a87d2a2482",
+      "kind": "exposes"
+    },
+    {
+      "from": "server:fe6dc013c2c221564244ebab0f566eb219d77a472336be4982d60fedc743d5ff",
+      "to": "attestation:d23cd0ec3854afd3c9130e83300beb093c6fe1f2e87cd16b90c16c6face48c79",
+      "kind": "attested_by"
+    },
+    {
+      "from": "server:fe6dc013c2c221564244ebab0f566eb219d77a472336be4982d60fedc743d5ff",
+      "to": "tool:f238d3942db72aa31c9f88fc51f844760d5b5549f9709afd81b1bcb24766dee5",
+      "kind": "exposes"
+    }
+  ]
+}
