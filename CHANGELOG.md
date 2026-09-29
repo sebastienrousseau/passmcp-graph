@@ -8,7 +8,7 @@ All notable changes to passmcp-graph are documented here. The format follows
 [Semantic Versioning](https://semver.org/) shaped; before 1.0 every
 release moves the patch digit.
 
-## [0.0.1] — Unreleased
+## [0.0.1] — 2026-09-29
 
 The first release.
 
