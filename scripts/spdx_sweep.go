@@ -10,6 +10,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -19,25 +20,7 @@ var skipDirs = map[string]bool{".git": true, "build": true, "dist": true, "vendo
 
 func main() {
 	var missing []string
-	err := filepath.WalkDir(".", func(path string, d os.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		if d.IsDir() {
-			if skipDirs[d.Name()] && path != "." {
-				return filepath.SkipDir
-			}
-			return nil
-		}
-		if !wants(path) {
-			return nil
-		}
-		if !hasHeader(path) {
-			missing = append(missing, path)
-		}
-		return nil
-	})
-	if err != nil {
+	if err := filepath.WalkDir(".", visit(&missing)); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
@@ -53,13 +36,33 @@ func main() {
 	fmt.Println("spdx-check: every source file carries a license header")
 }
 
+// visit returns the WalkDir callback that skips generated and vendored
+// directories and appends every source file without a header to missing.
+func visit(missing *[]string) fs.WalkDirFunc {
+	return func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			if skipDirs[d.Name()] && path != "." {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if wants(path) && !hasHeader(path) {
+			*missing = append(*missing, path)
+		}
+		return nil
+	}
+}
+
 func wants(path string) bool {
 	base := filepath.Base(path)
 	switch base {
 	case "go.mod", "go.sum", "LICENSE", "flake.lock", "CODEOWNERS", "CITATION.cff", ".gitignore", ".gitattributes", ".DS_Store":
 		return false
 	}
-	if strings.HasPrefix(base, ".") && !strings.HasPrefix(base, ".golangci") && !strings.HasPrefix(base, ".goreleaser") && !strings.HasPrefix(base, ".pre-commit") && !strings.HasPrefix(base, ".editorconfig") && !strings.HasPrefix(base, ".markdownlint") && !strings.HasPrefix(base, ".gitleaks") {
+	if strings.HasPrefix(base, ".") && !checkedDotfile(base) {
 		return false
 	}
 	switch filepath.Ext(path) {
@@ -67,6 +70,19 @@ func wants(path string) bool {
 		return true
 	}
 	return base == "Makefile" || base == "GNUmakefile" || base == "Dockerfile" || strings.HasPrefix(base, ".editorconfig")
+}
+
+// checkedDotfiles are the prefixes of the dotfiles that carry a header;
+// every other dotfile is skipped.
+var checkedDotfiles = []string{".golangci", ".goreleaser", ".pre-commit", ".editorconfig", ".markdownlint", ".gitleaks"}
+
+func checkedDotfile(base string) bool {
+	for _, p := range checkedDotfiles {
+		if strings.HasPrefix(base, p) {
+			return true
+		}
+	}
+	return false
 }
 
 func hasHeader(path string) bool {

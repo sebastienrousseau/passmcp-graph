@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: 2026 Sebastien Rousseau <sebastian.rousseau@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/sebastienrousseau/passmcp-graph/security/advisories/new
+    about: Report privately. Do not open a public issue for a security problem.
+  - name: A verdict passmcp got wrong
+    url: https://github.com/sebastienrousseau/passmcp/issues/new/choose
+    about: passmcp-graph reads passmcp's evidence; a wrong finding is passmcp's to fix.
+  - name: A new node or edge kind
+    url: https://github.com/sebastienrousseau/passmcp-reporting/issues/new/choose
+    about: The graph data model is passmcp-reporting's; a new kind is proposed there first.

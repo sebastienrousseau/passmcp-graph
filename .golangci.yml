@@ -19,8 +19,11 @@ linters:
     - noctx
     #
     # Complexity ceilings: a function nobody can hold in their head is where
-    # a wrong answer hides. maintidx folds Halstead volume, cyclomatic complexity and
-    # length into one maintainability index.
+    # a wrong answer hides. gocyclo, gocognit and funlen enforce the
+    # portfolio's ceilings per function (cyclomatic 10, cognitive 15, 60
+    # lines); every function outside the tests is under them, so there is
+    # no baseline and a new offender fails the lint job. maintidx folds Halstead volume,
+    # cyclomatic complexity and length into one maintainability index.
     - gocyclo
     - gocognit
     - nestif
@@ -28,14 +31,14 @@ linters:
     - maintidx
   settings:
     gocyclo:
-      min-complexity: 15
+      min-complexity: 10
     gocognit:
-      min-complexity: 20
+      min-complexity: 15
     nestif:
       min-complexity: 5
     funlen:
-      lines: 80
-      statements: 50
+      lines: 60
+      statements: -1
     maintidx:
       under: 20
     revive:

@@ -82,28 +82,46 @@ func Eval(g *graph.Graph, q *Query, ctx Context) ([]Path, error) {
 			return nil, err
 		}
 	}
-	var out []Path
-	seen := map[string]bool{}
-	var walk func(i int, cur []graph.Node)
-	walk = func(i int, cur []graph.Node) {
-		if i == len(path) {
-			b := binding{g: g, nodes: cur, kinds: path, ctx: ctx}
-			if q.Where == nil || b.eval(q.Where) {
-				p := toPath(cur)
-				if key := pathKey(p); !seen[key] {
-					seen[key] = true
-					out = append(out, p)
-				}
-			}
-			return
-		}
-		for _, n := range candidates(g, path, i, cur) {
-			walk(i+1, append(append([]graph.Node(nil), cur...), n))
-		}
+	w := walker{g: g, q: q, path: path, ctx: ctx, seen: map[string]bool{}}
+	w.walk(0, nil)
+	sort.Slice(w.out, func(i, j int) bool { return pathKey(w.out[i]) < pathKey(w.out[j]) })
+	return w.out, nil
+}
+
+// walker enumerates every binding of a query's expanded path through a
+// graph, keeping the distinct paths whose bindings satisfy the filter.
+type walker struct {
+	g    *graph.Graph
+	q    *Query
+	path []string
+	ctx  Context
+	seen map[string]bool
+	out  []Path
+}
+
+// walk extends cur, the nodes bound so far, by every candidate for the next
+// kind, and records cur once every kind is bound.
+func (w *walker) walk(i int, cur []graph.Node) {
+	if i == len(w.path) {
+		w.record(cur)
+		return
 	}
-	walk(0, nil)
-	sort.Slice(out, func(i, j int) bool { return pathKey(out[i]) < pathKey(out[j]) })
-	return out, nil
+	for _, n := range candidates(w.g, w.path, i, cur) {
+		w.walk(i+1, append(append([]graph.Node(nil), cur...), n))
+	}
+}
+
+// record keeps a complete binding that satisfies the filter, once.
+func (w *walker) record(cur []graph.Node) {
+	b := binding{g: w.g, nodes: cur, kinds: w.path, ctx: w.ctx}
+	if w.q.Where != nil && !b.eval(w.q.Where) {
+		return
+	}
+	p := toPath(cur)
+	if key := pathKey(p); !w.seen[key] {
+		w.seen[key] = true
+		w.out = append(w.out, p)
+	}
 }
 
 // candidates lists the nodes of kind path[i] reachable from the previous one.

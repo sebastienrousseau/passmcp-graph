@@ -1,0 +1,34 @@
+# SPDX-FileCopyrightText: 2026 Sebastien Rousseau <sebastian.rousseau@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+name: Feature request
+description: A question the graph cannot answer yet, an input it does not read, or an export format
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What do you need to know about your agents, servers, tools or identities that passmcp-graph makes hard or impossible? Describe the situation, not the feature.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you would like passmcp-graph to do
+      description: If it needs the network, or reads a field of a client configuration that can hold a credential, say why that is safe.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What you do today instead
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - label: I have checked this is not already possible with a query, a policy or an export

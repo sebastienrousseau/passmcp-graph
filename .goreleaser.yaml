@@ -1,0 +1,111 @@
+# SPDX-FileCopyrightText: 2026 Sebastien Rousseau <sebastian.rousseau@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+version: 2
+
+project_name: passmcp-graph
+
+release:
+  # Named rather than read from the git remote, so `goreleaser check`
+  # passes in a checkout that has none.
+  github:
+    owner: sebastienrousseau
+    name: passmcp-graph
+  # Replace an existing GitHub release on re-run, so a release can be
+  # retried after a failed publish.
+  mode: replace
+  header: |
+    Full notes are in
+    [CHANGELOG.md](https://github.com/sebastienrousseau/passmcp-graph/blob/main/CHANGELOG.md).
+
+    **Verify what you downloaded:**
+
+    ```bash
+    gh attestation verify <asset> --owner sebastienrousseau
+    ```
+
+    Every asset is covered by `checksums.txt`, which is signed
+    (`checksums.txt.sigstore.json`), and SLSA build provenance ships as
+    `checksums.txt.intoto.jsonl`.
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    # -trimpath removes the build machine's absolute paths from the binary,
+    # and the pinned timestamp makes two builds of the same commit
+    # byte-identical, which is what lets a third party check provenance
+    # rather than trust it.
+    flags:
+      - -trimpath
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    main: ./cmd/passmcp-graph
+    binary: passmcp-graph
+    ldflags:
+      - -s -w -X satellion.com/passmcp-graph/internal/cli.Version={{.Version}}
+
+archives:
+  - formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files:
+      - LICENSE
+      - README.md
+      - CHANGELOG.md
+      - SECURITY.md
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else }}{{ .Arch }}{{ end }}
+
+checksum:
+  name_template: 'checksums.txt'
+
+# Keyless cosign signature over checksums.txt as a Sigstore bundle. Verify:
+#   cosign verify-blob --bundle checksums.txt.sigstore.json \
+#     --certificate-identity-regexp 'https://github.com/sebastienrousseau/passmcp-graph/.*' \
+#     --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+#     checksums.txt
+signs:
+  - cmd: cosign
+    signature: '${artifact}.sigstore.json'
+    args:
+      - sign-blob
+      - '--bundle=${signature}'
+      - '${artifact}'
+      - '--yes'
+    artifacts: checksum
+    output: true
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  groups:
+    - title: Features
+      regexp: '^feat(\([^)]*\))?!?:'
+      order: 0
+    - title: Fixes
+      regexp: '^fix(\([^)]*\))?!?:'
+      order: 1
+    - title: Security and dependencies
+      regexp: '^(sec|deps|chore\(deps\)|chore\(actions\))'
+      order: 2
+    - title: Other
+      order: 99
+  filters:
+    exclude:
+      - '^Merge pull request'
+      - '^Merge branch'
+      - '^docs:'
+      - '^test:'
+      - '^chore: '

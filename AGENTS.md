@@ -14,7 +14,14 @@ change can break for a reason the code does not state.
 | Race detector, randomised order | `make test-race` |
 | Lint at zero findings, on darwin and linux | `make lint`, `GOOS=linux make lint` |
 | SPDX header on every source file | `make spdx-check` |
-| README follows the portfolio template | `make readme-check` |
+| README follows the portfolio template, badges and ecosystem table | `make readme-check` |
+| Complexity: cyclomatic 10, cognitive 15, 60 lines per function | `make lint` (gocyclo, gocognit, funlen) |
+| Every version-bearing file names the same release | `make versions` |
+| Install contract under `PREFIX` and `DESTDIR` | `make install-smoke` |
+| Every acceptance criterion has a passing test | `make trace-check` |
+| The retired product name appears nowhere | `make name-guard` |
+
+[DEVELOPMENT.md](DEVELOPMENT.md) maps every CI job to its local command.
 
 ## Commits
 
@@ -30,6 +37,10 @@ change can break for a reason the code does not state.
 - The version lives in the newest `## [x.y.z]` heading in `CHANGELOG.md`.
   `cli.Version` is injected at build time through `-ldflags`; never
   hard-code one.
+- The family moves in lockstep: passmcp-reporting in `go.mod`, the trace
+  tool in `Makefile`, the install lines, `CITATION.cff` and the README's
+  ecosystem sentence all name the same release. `make versions` fails
+  otherwise.
 
 ## Things that are load-bearing
 

@@ -5,15 +5,18 @@ name: Manual
 
 # Builds the manual on every change to it, strictly, so a broken link or
 # nav entry fails the pull request rather than the reader; and deploys it
-# to GitHub Pages from main.
+# to GitHub Pages from main, with coverage.json beside it: the shields.io
+# endpoint document behind the README's coverage badge, measured here on
+# every push to main and never typed by hand
+# (https://sebastienrousseau.com/passmcp-graph/coverage.json).
+#
+# A push to main runs whatever it changed, because any change to the code
+# moves the coverage figure; a pull request runs only when the manual
+# changed.
 
 on:
   push:
     branches: [main]
-    paths:
-      - 'docs/**'
-      - 'mkdocs.yml'
-      - '.github/workflows/manual.yml'
   pull_request:
     branches: [main]
     paths:
@@ -55,6 +58,23 @@ jobs:
           python3 -m pip install --quiet --disable-pip-version-check \
             --require-hashes -r docs/requirements.txt
           mkdocs build --strict --site-dir public
+
+      - name: Set up Go
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+
+      # The same exclusion as the Coverage Gate in ci.yml: the entry point is
+      # a one-line main() with no behaviour of its own.
+      - name: Write coverage.json
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          go test -count=1 -coverprofile=coverage.out ./...
+          go run ./scripts/coveragebadge -profile coverage.out \
+            -exclude /cmd/passmcp-graph/main.go > public/coverage.json
+          cat public/coverage.json
 
       - name: Upload the site for Pages
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'

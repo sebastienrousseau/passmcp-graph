@@ -54,6 +54,7 @@ Commands:
   check --policy FILE [--format text|json]
   export --format json|graphml|cypher
   import FILE                    read a graph exported as JSON
+  completion bash|zsh|fish       print a shell completion script
   version
 
 Global flags:
@@ -63,10 +64,7 @@ Global flags:
 
 // Run executes one invocation and returns its exit status.
 func Run(args []string, env Env) int {
-	fs := flag.NewFlagSet("passmcp-graph", flag.ContinueOnError)
-	fs.SetOutput(env.Stderr)
-	store := fs.String("store", ".passmcp-graph", "")
-	offline := fs.Bool("offline", false, "")
+	fs, store, offline := newGlobalFlags(env)
 	fs.Usage = func() { say(env.Stderr, "%s", usage) }
 	if err := fs.Parse(args); err != nil {
 		return ExitError
@@ -92,6 +90,15 @@ func Run(args []string, env Env) int {
 	return code
 }
 
+// newGlobalFlags defines the flags that come before the command.
+func newGlobalFlags(env Env) (fs *flag.FlagSet, store *string, offline *bool) {
+	fs = flag.NewFlagSet("passmcp-graph", flag.ContinueOnError)
+	fs.SetOutput(env.Stderr)
+	store = fs.String("store", ".passmcp-graph", "")
+	offline = fs.Bool("offline", false, "")
+	return fs, store, offline
+}
+
 type command func(store string, args []string, env Env) (int, error)
 
 var commands map[string]command
@@ -99,7 +106,7 @@ var commands map[string]command
 func init() {
 	commands = map[string]command{
 		"ingest": runIngest, "analyze": runAnalyze, "query": runQuery, "check": runCheck,
-		"export": runExport, "import": runImport,
+		"export": runExport, "import": runImport, "completion": runCompletion,
 		"version": func(_ string, _ []string, env Env) (int, error) {
 			sayln(env.Stdout, "passmcp-graph "+Version)
 			return ExitOK, nil
@@ -252,33 +259,12 @@ func runCheck(store string, args []string, env Env) (int, error) {
 	if file == "" {
 		return ExitError, errors.New("check needs --policy FILE")
 	}
-	raw, err := os.ReadFile(file) // #nosec G304 -- the operator names the policy file
+	vs, err := violations(store, file, env)
 	if err != nil {
 		return ExitError, err
 	}
-	p, err := policy.Parse(raw)
-	if err != nil {
+	if err := writeViolations(f, vs, env); err != nil {
 		return ExitError, err
-	}
-	g, err := graph.Load(store)
-	if err != nil {
-		return ExitError, err
-	}
-	vs, err := p.Check(g, query.Context{Now: env.Now()})
-	if err != nil {
-		return ExitError, err
-	}
-	if f == "json" {
-		if vs == nil {
-			vs = []policy.Violation{}
-		}
-		if err := writeJSON(env.Stdout, vs); err != nil {
-			return ExitError, err
-		}
-	} else {
-		for _, v := range vs {
-			say(env.Stdout, "forbidden (%s): %s\n", v.Rule, v.Path.String())
-		}
 	}
 	if len(vs) > 0 {
 		say(env.Stderr, "%d forbidden path(s)\n", len(vs))
@@ -286,6 +272,38 @@ func runCheck(store string, args []string, env Env) (int, error) {
 	}
 	sayln(env.Stderr, "no forbidden path")
 	return ExitOK, nil
+}
+
+// violations evaluates the policy file against the stored graph.
+func violations(store, file string, env Env) ([]policy.Violation, error) {
+	raw, err := os.ReadFile(file) // #nosec G304 -- the operator names the policy file
+	if err != nil {
+		return nil, err
+	}
+	p, err := policy.Parse(raw)
+	if err != nil {
+		return nil, err
+	}
+	g, err := graph.Load(store)
+	if err != nil {
+		return nil, err
+	}
+	return p.Check(g, query.Context{Now: env.Now()})
+}
+
+// writeViolations prints the violations to stdout in the selected format;
+// JSON is always an array, empty when the policy holds.
+func writeViolations(f string, vs []policy.Violation, env Env) error {
+	if f == "json" {
+		if vs == nil {
+			vs = []policy.Violation{}
+		}
+		return writeJSON(env.Stdout, vs)
+	}
+	for _, v := range vs {
+		say(env.Stdout, "forbidden (%s): %s\n", v.Rule, v.Path.String())
+	}
+	return nil
 }
 
 func runExport(store string, args []string, env Env) (int, error) {

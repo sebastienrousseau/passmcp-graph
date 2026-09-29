@@ -8,6 +8,35 @@ All notable changes to passmcp-graph are documented here. The format follows
 [Semantic Versioning](https://semver.org/) shaped; before 1.0 every
 release moves the patch digit.
 
+## [0.0.2]
+
+The family's second release. The 0.0.1 commands, the query language, the
+policy file, the graph format and the exit statuses are unchanged; what is
+new is the `completion` command and how passmcp-graph is installed and
+released.
+
+### Added
+
+- **Shell completions.** `passmcp-graph completion bash|zsh|fish` prints a
+  completion script generated from the command table, and `make install`
+  installs all three with the binary under `PREFIX` and `DESTDIR`
+  (`GNUmakefile`).
+- **Release archives.** A tag-triggered Release workflow builds archives
+  for Linux, macOS and Windows on amd64 and arm64 with goreleaser, signs
+  `checksums.txt` with cosign keyless and attaches SLSA build provenance.
+- **Repository standard.** OpenSSF Scorecard, a coverage badge published
+  with the manual, `make versions` checking that every version-bearing
+  file names the same release, and the family's community, development
+  and architecture documents.
+
+### Changed
+
+- **passmcp-reporting is required at v0.0.1**, the family's lockstep
+  version, instead of a pre-release commit.
+- **Complexity ceilings tightened** to cyclomatic 10, cognitive 15 and 60
+  lines per function; `query.Eval`, `check` and the licence-header sweep
+  were split to meet them, with no change in behaviour.
+
 ## [0.0.1] — 2026-09-29
 
 The first release.
