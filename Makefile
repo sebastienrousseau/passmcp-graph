@@ -80,7 +80,7 @@ fixture-update:
 # ("**Repository:** sebastienrousseau/passmcp-graph"), so the trace is passmcp's own
 # tool, run at a pinned version: a closed story with an untested
 # criterion fails here, and passmcp's stories are left to passmcp.
-TRACE := go run satellion.com/passmcp/scripts/trace@v0.0.1 -repo sebastienrousseau/passmcp-graph
+TRACE := go run satellion.com/passmcp/scripts/trace@v0.0.2 -repo sebastienrousseau/passmcp-graph
 
 trace:
 	$(TRACE)

@@ -8,7 +8,7 @@ All notable changes to passmcp-graph are documented here. The format follows
 [Semantic Versioning](https://semver.org/) shaped; before 1.0 every
 release moves the patch digit.
 
-## [0.0.2]
+## [0.0.2] — 2026-09-29
 
 The family's second release. The 0.0.1 commands, the query language, the
 policy file, the graph format and the exit statuses are unchanged; what is
@@ -31,7 +31,7 @@ released.
 
 ### Changed
 
-- **passmcp-reporting is required at v0.0.1**, the family's lockstep
+- **passmcp-reporting is required at v0.0.2**, the family's lockstep
   version, instead of a pre-release commit.
 - **Complexity ceilings tightened** to cyclomatic 10, cognitive 15 and 60
   lines per function; `query.Eval`, `check` and the licence-header sweep
