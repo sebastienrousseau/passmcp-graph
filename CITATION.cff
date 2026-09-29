@@ -1,0 +1,31 @@
+# SPDX-FileCopyrightText: 2026 Sebastien Rousseau <sebastian.rousseau@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+cff-version: 1.2.0
+title: "passmcp-graph: a local graph of agents, MCP servers, tools and identities"
+message: "If you use this software, please cite it using these metadata."
+type: software
+authors:
+  - family-names: Rousseau
+    given-names: Sebastien
+    email: sebastian.rousseau@gmail.com
+repository-code: "https://github.com/sebastienrousseau/passmcp-graph"
+url: "https://sebastienrousseau.com/passmcp-graph/"
+abstract: >-
+  A command-line tool that builds a local graph of which agents use which
+  Model Context Protocol servers, which tools those servers expose and which
+  identities reach them, from passmcp's attestations and reports and from MCP
+  client configurations. It names inherited critical findings and
+  over-privileged identities, answers path queries offline, gates on
+  forbidden-path policies in CI, and exports JSON, GraphML and Cypher. It
+  makes no network request and stores no credential.
+keywords:
+  - model-context-protocol
+  - mcp
+  - graph
+  - policy
+  - attestation
+  - golang
+license: GPL-3.0-only
+version: 0.0.2
+date-released: "2026-09-29"

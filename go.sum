@@ -1,4 +1,4 @@
 go.yaml.in/yaml/v3 v3.0.5 h1:N6y/pJk8buWs9NY5ERU2HSMfm+IuD/OtfdAnq6kESPw=
 go.yaml.in/yaml/v3 v3.0.5/go.mod h1:HVTZu1O7/Vkt2N+BFy8Zza+lnLsABggaTM2ZpNIGuKg=
-satellion.com/passmcp-reporting v0.0.0-20260928222515-a0df307799cd h1:iFR3/zgaNA2I/hpAT32ybnTtPPoCFPSB4I6kWDVRmYw=
-satellion.com/passmcp-reporting v0.0.0-20260928222515-a0df307799cd/go.mod h1:5wBh+LUOqkdEcnWvrFQefKfwDySRqzXCSBh4RMEaJTA=
+satellion.com/passmcp-reporting v0.0.2 h1:0G9JdrIbxb0yVgp/63c2ReByimiZx3Sb6BeXOYudEr4=
+satellion.com/passmcp-reporting v0.0.2/go.mod h1:5wBh+LUOqkdEcnWvrFQefKfwDySRqzXCSBh4RMEaJTA=

@@ -1,0 +1,61 @@
+# SPDX-FileCopyrightText: 2026 Sebastien Rousseau <sebastian.rousseau@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
+name: Bug report
+description: A command that failed, a query or analysis that answered wrongly, or an input ingest misread
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        If this is a security issue — a credential from a configuration
+        reaching the store or any output, or passmcp-graph opening a network
+        connection — **stop** and report it privately through
+        [GitHub's private vulnerability reporting](https://github.com/sebastienrousseau/passmcp-graph/security/advisories/new)
+        instead. See [SECURITY.md](https://github.com/sebastienrousseau/passmcp-graph/blob/main/SECURITY.md).
+
+        A finding passmcp got wrong about a server belongs in
+        [passmcp's issues](https://github.com/sebastienrousseau/passmcp/issues).
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: The command you ran, its output and its exit status. Paste them, not a summary, and redact anything private.
+      render: console
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected instead
+    validations:
+      required: true
+
+  - type: textarea
+    id: input
+    attributes:
+      label: A minimal input that reproduces it
+      description: The smallest graph export, attestation or configuration that shows the problem, with secrets removed. `passmcp-graph export --format json` produces a graph.
+      render: json
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: What `passmcp-graph version` printed, or the commit you built.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - macOS
+        - Linux
+        - Windows
+        - WSL2
+    validations:
+      required: true

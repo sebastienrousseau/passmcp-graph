@@ -49,5 +49,16 @@ nav:
   - Ingesting evidence: ingest.md
   - Query language: query-language.md
   - Policies: policy.md
+  - Architecture: ARCHITECTURE.md
+  - Comparison: COMPARISON.md
+  - Benchmarks: BENCHMARKS.md
+  - Decision records:
+      - adr/README.md
+      - "0001 No network": adr/0001-no-network.md
+      - "0002 No secret reaches the store": adr/0002-no-secret-reaches-the-store.md
+      - "0003 Server identity": adr/0003-server-identity-is-the-attestation-subject.md
+      - "0004 Newer evidence wins": adr/0004-newer-evidence-wins.md
+      - "0005 Data model in passmcp-reporting": adr/0005-data-model-in-passmcp-reporting.md
   - Release notes:
+      - "0.0.2": releases/v0.0.2.md
       - "0.0.1": releases/v0.0.1.md

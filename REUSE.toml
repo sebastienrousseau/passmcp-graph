@@ -11,9 +11,10 @@ SPDX-PackageSupplier = "Sebastien Rousseau <sebastian.rousseau@gmail.com>"
 SPDX-PackageDownloadLocation = "https://github.com/sebastienrousseau/passmcp-graph"
 
 # Go module metadata, the published JSON fixtures and repository
-# configuration: formats that take no comments.
+# configuration: formats that take no comments, or whose readers are not
+# all sure to accept them (the devcontainer's JSON with comments).
 [[annotations]]
-path = ["go.mod", "go.sum", ".gitignore", "testdata/**"]
+path = ["go.mod", "go.sum", ".gitignore", "testdata/**", ".devcontainer/devcontainer.json"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 Sebastien Rousseau <sebastian.rousseau@gmail.com>"
 SPDX-License-Identifier = "GPL-3.0-only"
