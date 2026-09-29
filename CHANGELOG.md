@@ -8,6 +8,21 @@ All notable changes to passmcp-graph are documented here. The format follows
 [Semantic Versioning](https://semver.org/) shaped; before 1.0 every
 release moves the patch digit.
 
+## [0.0.3]
+
+The family's third release. The commands, the query language, the policy
+file, the graph format and the exit statuses are unchanged from 0.0.2;
+this member moves with the family and gains fuzz testing.
+
+### Added
+
+- **Fuzz targets.** `FuzzParse` checks that any query either fails with
+  an error or parses to a tree that survives being written back out and
+  parsed again, and that evaluating it never panics.
+  `FuzzConfigNeverStoresASecret` places a fuzzer-chosen secret everywhere
+  a client configuration can carry a credential and checks it never
+  reaches the graph.
+
 ## [0.0.2] — 2026-09-29
 
 The family's second release. The 0.0.1 commands, the query language, the
