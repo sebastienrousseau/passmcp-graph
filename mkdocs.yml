@@ -4,7 +4,7 @@
 site_name: passmcp-graph
 site_description: A local graph of agents, MCP servers, tools and identities, built from passmcp's evidence.
 site_url: https://sebastienrousseau.com/passmcp-graph/
-copyright: '<a href="https://sebastienrousseau.com/" rel="author">&copy; 2026 Sebastien Rousseau</a>'
+copyright: '&copy; 2026 <a href="https://sebastienrousseau.com/" rel="author">Sebastien Rousseau</a>'
 repo_url: https://github.com/sebastienrousseau/passmcp-graph
 repo_name: sebastienrousseau/passmcp-graph
 edit_uri: edit/main/docs/
