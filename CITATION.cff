@@ -27,5 +27,5 @@ keywords:
   - attestation
   - golang
 license: GPL-3.0-only
-version: 0.0.2
-date-released: "2026-09-29"
+version: 0.0.3
+date-released: "2026-09-30"
