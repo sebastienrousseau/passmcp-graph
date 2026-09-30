@@ -75,9 +75,15 @@ and `make trace-check` fails when a criterion has no passing test.
 
 ## Generated artefacts
 
-None are committed. `make build`, `make completions` and `make
-coverage-json` write to `build/`; goreleaser writes release archives and
-checksums to `dist/`. Both are ignored.
+One is committed: the README demo, `.github/demo.gif`, because GitHub renders
+it from the tree. Regenerate it with `make demo` whenever what it shows
+changes, the fixture graph included; it builds the binary and records
+`.github/demo.tape` with [VHS](https://github.com/charmbracelet/vhs)
+(`vhs`, `ttyd` and `ffmpeg` on `PATH`) in a scratch directory under `build/`.
+
+Nothing else is. `make build`, `make completions` and `make coverage-json`
+write to `build/`; goreleaser writes release archives and checksums to
+`dist/`. Both are ignored.
 
 ## Release model
 
@@ -91,14 +97,29 @@ version. A release is cut on a `feat/vX.Y.Z` branch:
    `CITATION.cff`, the passmcp-reporting requirement in `go.mod` and the
    trace version in `Makefile`.
 2. `make versions` and `goreleaser check`; optionally run the Release
-   workflow's dry run.
+   workflow's dry run, which also prints the release page.
 3. Push a signed annotated tag `vX.Y.Z` with the message
    `passmcp-graph vX.Y.Z`. The Release workflow checks the tag is on main
    and that every version agrees, builds archives for Linux, macOS and
    Windows on amd64 and arm64, signs `checksums.txt` with cosign keyless
-   and attaches SLSA build provenance.
+   and attaches SLSA build provenance, then publishes the release page.
 4. Read the tag, the release page and its assets back before calling it
    done.
+
+The release page is composed, never edited by hand. The Release
+workflow's last step runs `scripts/releasepage`, which titles the page
+`passmcp-graph X.Y.Z` and writes the highlights from `docs/releases/vX.Y.Z.md`,
+GitHub's generated `## What's Changed` (and `## New Contributors` when
+there are any), the SHA-256 of every attached asset under `## Checksums`,
+and the `**Full Changelog**` link, then reads the page back and fails
+unless GitHub shows what it composed. The dry run prints the same page for
+its snapshot artefacts. To see the page a tag has, or would have, without
+publishing anything (`gh` needs a token with contents access for GitHub's
+generated notes):
+
+```sh
+go run ./scripts/releasepage -name passmcp-graph -tag vX.Y.Z
+```
 
 ## Conventions
 

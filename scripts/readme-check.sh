@@ -7,8 +7,9 @@
 # the template's order, and no unresolved {{UPPER_SNAKE_CASE}} variable
 # outside code. The heading list is the template's; update both together.
 # It also holds the family's shared parts in place: the seven badges in
-# their order and style, a link to every component in the ecosystem
-# table, and no vague status ("Shipping", "Planned") in a table.
+# their order and style, the demo block showing .github/demo.gif under
+# them (§7.1.1), a link to every component in the ecosystem table, and no
+# vague status ("Shipping", "Planned") in a table.
 #
 #   scripts/readme-check.sh [README.md]
 set -euo pipefail
@@ -83,5 +84,19 @@ grep -Fq "| [satellion.com](https://github.com/sebastienrousseau/satellion.githu
 if grep -nE '\| *(Shipping|Shipped|Available|Planned) *\|' <<<"${outside_code}"; then
   echo "readme-check: a table uses a vague status; say 'Released in X.Y.Z' or 'Not yet released'" >&2; exit 1
 fi
+
+# The visual demo (AGENTS.md §7.1.1): the template's demo block directly
+# under the badge row, with alt text, pointing at a GIF that is committed.
+demo_block='^  <img src="\.github/demo\.gif" alt="[^"][^"]*" width="100%" />$'
+demo_line=$(grep -n "${demo_block}" "${readme}" | head -1 | cut -d: -f1 || true)
+last_badge=$(grep -n '<img src="https://img.shields.io/' "${readme}" | tail -1 | cut -d: -f1 || true)
+contents=$(grep -n '^## Contents$' "${readme}" | head -1 | cut -d: -f1 || true)
+if [ -z "${demo_line}" ] || [ -z "${last_badge}" ] || [ -z "${contents}" ] ||
+  [ "${demo_line}" -lt "${last_badge}" ] || [ "${demo_line}" -gt "${contents}" ]; then
+  echo "readme-check: no demo block under the badge row:" >&2
+  echo '  <img src=".github/demo.gif" alt="what the demo shows" width="100%" />' >&2
+  exit 1
+fi
+[ -f .github/demo.gif ] || { echo "readme-check: .github/demo.gif is missing; run make demo" >&2; exit 1; }
 
 echo "readme-check: ${readme} follows the template (${project})"

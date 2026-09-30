@@ -21,6 +21,10 @@
   <a href="https://github.com/sebastienrousseau/passmcp-graph/blob/main/DEVELOPMENT.md#requirements"><img src="https://img.shields.io/badge/go-1.26.8%2B-93450a.svg?style=for-the-badge&logo=go" alt="Go 1.26.8+" /></a>
 </p>
 
+<p align="center">
+  <img src=".github/demo.gif" alt="passmcp-graph importing the published fixture graph, naming an inherited critical risk and an over-privileged identity, and answering two path queries" width="100%" />
+</p>
+
 ---
 
 ## Contents
@@ -60,7 +64,7 @@
 ### As a Go program
 
 ```bash
-go install satellion.com/passmcp-graph/cmd/passmcp-graph@v0.0.3
+go install satellion.com/passmcp-graph/cmd/passmcp-graph@v0.0.4
 ```
 
 ### From source, with `make install`
@@ -122,7 +126,7 @@ scopes on a server whose tools are all read-only.
 
 ## The passmcp-graph ecosystem
 
-Every component is released at **0.0.3** and moves in lockstep: one version across the family, released together ([docs/ecosystem.md](https://github.com/sebastienrousseau/passmcp/blob/main/docs/ecosystem.md)).
+Every component is released at **0.0.4** and moves in lockstep: one version across the family, released together ([docs/ecosystem.md](https://github.com/sebastienrousseau/passmcp/blob/main/docs/ecosystem.md)).
 
 | Component | Purpose | Use case |
 | :--- | :--- | :--- |
