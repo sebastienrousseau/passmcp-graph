@@ -8,7 +8,11 @@ All notable changes to passmcp-graph are documented here. The format follows
 [Semantic Versioning](https://semver.org/) shaped; before 1.0 every
 release moves the patch digit.
 
-## [Unreleased]
+## [0.0.4] — 2026-09-30
+
+The family's fourth release. The commands, the query language, the policy
+file, the graph format and the exit statuses are unchanged from 0.0.3;
+this member moves with the family and gains a README demo.
 
 ### Added
 
@@ -21,6 +25,9 @@ release moves the patch digit.
 - **Release pages are published in the family layout** by the release
   workflow itself (Highlights, What's Changed, Checksums, Full Changelog),
   so no page is rewritten by hand after a release.
+- **In lockstep with passmcp 0.0.4**: passmcp-reporting is required at
+  v0.0.4, and passmcp's trace runs at v0.0.4; neither changes what this
+  repository reads or writes.
 
 ## [0.0.3] — 2026-09-30
 

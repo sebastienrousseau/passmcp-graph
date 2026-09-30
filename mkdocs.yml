@@ -61,6 +61,7 @@ nav:
       - "0004 Newer evidence wins": adr/0004-newer-evidence-wins.md
       - "0005 Data model in passmcp-reporting": adr/0005-data-model-in-passmcp-reporting.md
   - Release notes:
+      - "0.0.4": releases/v0.0.4.md
       - "0.0.3": releases/v0.0.3.md
       - "0.0.2": releases/v0.0.2.md
       - "0.0.1": releases/v0.0.1.md

@@ -13,7 +13,7 @@
 // the rest is generated here from the release as published, so no page has
 // to be rewritten after a release.
 //
-//	go run ./scripts/releasepage -name passmcp-graph -tag v0.0.3            # print
+//	go run ./scripts/releasepage -name passmcp-graph -tag v0.0.4            # print
 //	go run ./scripts/releasepage -name passmcp-graph -tag v0.0.4 -publish   # publish
 //
 // Without -publish nothing is written to GitHub: the title goes to stderr
