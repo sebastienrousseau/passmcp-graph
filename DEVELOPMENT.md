@@ -75,9 +75,15 @@ and `make trace-check` fails when a criterion has no passing test.
 
 ## Generated artefacts
 
-None are committed. `make build`, `make completions` and `make
-coverage-json` write to `build/`; goreleaser writes release archives and
-checksums to `dist/`. Both are ignored.
+One is committed: the README demo, `.github/demo.gif`, because GitHub renders
+it from the tree. Regenerate it with `make demo` whenever what it shows
+changes, the fixture graph included; it builds the binary and records
+`.github/demo.tape` with [VHS](https://github.com/charmbracelet/vhs)
+(`vhs`, `ttyd` and `ffmpeg` on `PATH`) in a scratch directory under `build/`.
+
+Nothing else is. `make build`, `make completions` and `make coverage-json`
+write to `build/`; goreleaser writes release archives and checksums to
+`dist/`. Both are ignored.
 
 ## Release model
 

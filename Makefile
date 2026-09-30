@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 
 .PHONY: all build test test-race coverage coverage-json vet lint format spdx-check readme-check \
-        fixture-update trace trace-check trace-refresh help name-guard completions versions
+        fixture-update trace trace-check trace-refresh help name-guard completions versions demo
 
 # Every gate CI runs that needs no network, in the order the cheap ones fail
 # first.
@@ -72,6 +72,15 @@ spdx-check:
 # Regenerate testdata/fixture/graph.json after a deliberate change to the
 # fixture builders. The query fixture's expected paths are hand-written and
 # are not touched.
+# The README demo (.github/demo.gif), rendered by VHS from .github/demo.tape:
+# passmcp-graph importing, analysing and querying the published fixture. It
+# runs in build/demo/work, a fresh directory whose testdata links back here,
+# so its graph store never touches .passmcp-graph. Needs vhs, ttyd and ffmpeg.
+demo: build
+	rm -rf build/demo && mkdir -p build/demo/work
+	ln -s ../../../testdata build/demo/work/testdata
+	PATH="$(CURDIR)/build:$$PATH" vhs .github/demo.tape
+
 fixture-update:
 	go test ./internal/fixture -run TestThePublishedFixtureIsCurrent -update
 
@@ -93,7 +102,7 @@ trace-refresh:
 
 help:
 	@printf '%s\n' "targets: all build completions test test-race coverage coverage-json vet lint format" \
-	  "         spdx-check readme-check name-guard versions fixture-update trace trace-check trace-refresh" \
+	  "         spdx-check readme-check name-guard versions fixture-update trace trace-check trace-refresh demo" \
 	  "GNUmakefile: install uninstall install-smoke (PREFIX, DESTDIR)"
 
 # A retired product name may not appear anywhere in the tree

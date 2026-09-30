@@ -21,6 +21,10 @@
   <a href="https://github.com/sebastienrousseau/passmcp-graph/blob/main/DEVELOPMENT.md#requirements"><img src="https://img.shields.io/badge/go-1.26.8%2B-93450a.svg?style=for-the-badge&logo=go" alt="Go 1.26.8+" /></a>
 </p>
 
+<p align="center">
+  <img src=".github/demo.gif" alt="passmcp-graph importing the published fixture graph, naming an inherited critical risk and an over-privileged identity, and answering two path queries" width="100%" />
+</p>
+
 ---
 
 ## Contents
