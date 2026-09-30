@@ -153,4 +153,4 @@ jobs:
         if: env.DRY_RUN != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: go run ./scripts/releasepage -name passmcp-graph -tag "${GITHUB_REF_passmcp-graph}" -publish
+        run: go run ./scripts/releasepage -name passmcp-graph -tag "${GITHUB_REF_NAME}" -publish
