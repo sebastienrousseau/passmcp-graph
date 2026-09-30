@@ -8,6 +8,20 @@ All notable changes to passmcp-graph are documented here. The format follows
 [Semantic Versioning](https://semver.org/) shaped; before 1.0 every
 release moves the patch digit.
 
+## [Unreleased]
+
+### Added
+
+- **A README demo**, rendered from `.github/demo.tape` by `make demo`:
+  importing a fixture graph, the analysis it finds (an inherited critical
+  finding and an over-privileged agent), and two queries answered offline.
+
+### Changed
+
+- **Release pages are published in the family layout** by the release
+  workflow itself (Highlights, What's Changed, Checksums, Full Changelog),
+  so no page is rewritten by hand after a release.
+
 ## [0.0.3] — 2026-09-30
 
 The family's third release. The commands, the query language, the policy
