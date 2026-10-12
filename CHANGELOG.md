@@ -8,6 +8,21 @@ All notable changes to passmcp-graph are documented here. The format follows
 [Semantic Versioning](https://semver.org/) shaped; before 1.0 every
 release moves the patch digit.
 
+## [0.0.5] - 2026-10-12
+
+### Fixed
+
+- **The release page is published on a tag push again.** The workflow
+  passed `${GITHUB_REF_passmcp-graph}` as the tag, which the shell reads
+  as an unset variable with the default `graph`, so v0.0.4's page step
+  failed looking for `docs/releases/graph.md`. It now passes
+  `${GITHUB_REF_NAME}`.
+
+### Changed
+
+- **In lockstep with passmcp 0.0.5**: passmcp-reporting is required at
+  v0.0.5, and passmcp's trace runs at v0.0.5.
+
 ## [0.0.4] — 2026-09-30
 
 The family's fourth release. The commands, the query language, the policy
