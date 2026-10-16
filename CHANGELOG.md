@@ -10,11 +10,23 @@ release moves the patch digit.
 
 ## [Unreleased]
 
+The family's seventh release. The commands, the query language, the
+policy file, the graph format and the exit statuses are unchanged from
+0.0.5; passmcp 0.0.6 had no passmcp-graph release, so this member goes
+from 0.0.5 to 0.0.7.
+
 ### Changed
 
 - **GitHub Actions updated**: `github/codeql-action` 4.38.3,
   `actions/upload-artifact` 7.0.2 and `ossf/scorecard-action` 2.5.0
   ([#8](https://github.com/sebastienrousseau/passmcp-graph/pull/8)).
+
+### Fixed
+
+- **The manual lists the 0.0.5 release notes.** 0.0.5 added
+  `docs/releases/v0.0.5.md` but not its entry in the mkdocs navigation.
+- **`CITATION.cff` gives 0.0.5's release date**, 2026-10-12; the 0.0.5
+  release moved the version and left the date at 0.0.4's.
 
 ### Security
 
