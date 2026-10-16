@@ -39,6 +39,9 @@ var Version = "dev"
 type Env struct {
 	Stdout, Stderr io.Writer
 	Now            func() time.Time
+	// Open shows a file the command wrote, for dashboard --open; nil uses
+	// the system's opener.
+	Open func(path string) error
 }
 
 const usage = `passmcp-graph builds a local graph of agents, MCP servers, tools and identities
@@ -54,6 +57,8 @@ Commands:
   check --policy FILE [--format text|json]
   export --format json|graphml|cypher
   import FILE                    read a graph exported as JSON
+  dashboard [--out FILE] [--open] [--share-safe] [--policy FILE] [--stale-days N] [--format html|json]
+                                 one offline HTML page summarising the graph
   completion bash|zsh|fish       print a shell completion script
   version
 
@@ -106,7 +111,7 @@ var commands map[string]command
 func init() {
 	commands = map[string]command{
 		"ingest": runIngest, "analyze": runAnalyze, "query": runQuery, "check": runCheck,
-		"export": runExport, "import": runImport, "completion": runCompletion,
+		"export": runExport, "import": runImport, "completion": runCompletion, "dashboard": runDashboard,
 		"version": func(_ string, _ []string, env Env) (int, error) {
 			sayln(env.Stdout, "passmcp-graph "+Version)
 			return ExitOK, nil

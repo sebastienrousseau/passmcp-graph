@@ -1,0 +1,33 @@
+<!-- SPDX-FileCopyrightText: 2026 Sebastien Rousseau <sebastian.rousseau@gmail.com> -->
+<!-- SPDX-License-Identifier: GPL-3.0-only -->
+<!-- Drives dashboard.html in two frames and prints what it observed; see TestInTheBrowser. -->
+<!doctype html><meta charset="utf-8"><body><pre id="out"></pre>
+<iframe id="f" src="dashboard.html#srv-1" style="width:1280px;height:900px"></iframe>
+<iframe id="n" src="dashboard.html" style="width:320px;height:900px"></iframe>
+<script>
+var out=[];function log(s){out.push(s);document.getElementById('out').textContent=out.join('\n');}
+function vis(d,sel){return [].filter.call(d.querySelectorAll(sel),function(e){return !e.classList.contains('out');}).length;}
+var loaded=0;function go(){if(++loaded<2)return;setTimeout(run,800);}
+document.getElementById('f').onload=go;document.getElementById('n').onload=go;
+function run(){try{
+ var w=document.getElementById('f').contentWindow,d=w.document;
+ log('hash srv-1 open: '+d.getElementById('srv-1').open);
+ d.querySelector('button[data-pick="cli-1"]').click();
+ log('pick cursor: paths '+vis(d,'tr[data-kind=path]')+', servers '+vis(d,'tr[data-kind=server]')+' | '+d.getElementById('scope').textContent);
+ log('topology faded nodes: '+d.querySelectorAll('.topo .it.out').length);
+ d.getElementById('clear').click();
+ var q=d.getElementById('q');q.value='crm';q.dispatchEvent(new w.Event('input'));
+ log('search crm: servers '+vis(d,'tr[data-kind=server]')+', paths '+vis(d,'tr[data-kind=path]')+', findings '+vis(d,'[data-kind=finding]'));
+ d.getElementById('clear').click();
+ d.querySelector('[data-st="st-stale"]').click();
+ log('status stale: servers '+vis(d,'tr[data-kind=server]'));
+ d.getElementById('clear').click();
+ d.querySelector('[data-bh="unann"]').click();
+ log('unannotated: paths '+vis(d,'tr[data-kind=path]'));
+ log('history state kept: '+JSON.stringify(w.history.state));
+ var n=document.getElementById('n').contentWindow.document;
+ log('320px: scrollWidth '+n.documentElement.scrollWidth+' clientWidth '+n.documentElement.clientWidth);
+ var wide=[].filter.call(n.querySelectorAll('main *'),function(e){var r=e.getBoundingClientRect();return r.right>321&&!e.closest('.scroll,.topo-wrap');});
+ log('320px overflowing elements outside scroll containers: '+wide.length+(wide.length?' e.g. '+wide.slice(0,3).map(function(e){return e.tagName+'.'+e.className;}).join(', '):''));
+}catch(e){log('ERR '+e);}}
+</script>

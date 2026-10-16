@@ -50,6 +50,7 @@ nav:
   - Ingesting evidence: ingest.md
   - Query language: query-language.md
   - Policies: policy.md
+  - Dashboard: dashboard.md
   - Architecture: ARCHITECTURE.md
   - Comparison: COMPARISON.md
   - Benchmarks: BENCHMARKS.md

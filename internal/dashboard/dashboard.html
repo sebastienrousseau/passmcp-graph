@@ -1,0 +1,864 @@
+{{- /* SPDX-FileCopyrightText: 2026 Sebastien Rousseau <sebastian.rousseau@gmail.com> */ -}}
+{{- /* SPDX-License-Identifier: GPL-3.0-only */ -}}
+{{- /* The page loads nothing from anywhere, and its Content-Security-Policy
+       has the browser enforce that: the styles and the one script are
+       inline, the logo and favicon are inlined, and every figure is in the
+       markup, so the page reads the same with scripts off. */ -}}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
+<meta name="generator" content="passmcp-graph {{.Version}}">
+<meta name="color-scheme" content="light dark">
+<title>passmcp-graph · MCP security overview</title>
+<link rel="icon" type="image/svg+xml" href="{{favicon}}">
+<script>
+  (function () {
+    var t = "system";
+    try { t = localStorage.getItem("passmcp-graph-theme") || "system"; } catch (e) {}
+    if (t === "light" || t === "dark") { document.documentElement.setAttribute("data-theme", t); }
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f4f5fb; --bg-glow-1: rgba(99, 102, 241, 0.16); --bg-glow-2: rgba(14, 165, 233, 0.12);
+  --glass: rgba(255, 255, 255, 0.78); --glass-2: rgba(255, 255, 255, 0.94);
+  --line: rgba(15, 23, 42, 0.09); --line-2: rgba(15, 23, 42, 0.16);
+  --ink: #0b1020; --ink-2: #3f4560; --muted: #585e7c; --dot: rgba(15, 23, 42, 0.07);
+  --accent: #4f46e5; --accent-2: #6366f1; --accent-soft: rgba(79, 70, 229, 0.10);
+  --flow: #6366f1; --spark: #4f46e5;
+  --brand: #e8553f;
+  --crit: #d92d3f; --unatt: #d9480f; --stale: #a86a12; --ok: #0c8a64;
+  --ro: #2a6fd0; --wr: #d9531e;
+  --shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 28px rgba(15, 23, 42, 0.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #070714; --bg-glow-1: rgba(88, 80, 255, 0.30); --bg-glow-2: rgba(245, 107, 94, 0.10);
+    --glass: rgba(255, 255, 255, 0.035); --glass-2: rgba(255, 255, 255, 0.06);
+    --line: rgba(255, 255, 255, 0.09); --line-2: rgba(255, 255, 255, 0.16);
+    --ink: #eef0ff; --ink-2: #c0c3e0; --muted: #9598bd; --dot: rgba(255, 255, 255, 0.06);
+    --accent: #9b9bff; --accent-2: #5b5bf7; --accent-soft: rgba(123, 123, 255, 0.14);
+    --flow: #5867ff; --spark: #d4d6ff;
+    --brand: #f56b5e;
+    --crit: #ff5c6c; --unatt: #ff8a4c; --stale: #f5c044; --ok: #2fd4a3;
+    --ro: #4b93ea; --wr: #f0743c;
+    --shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #070714; --bg-glow-1: rgba(88, 80, 255, 0.30); --bg-glow-2: rgba(245, 107, 94, 0.10);
+  --glass: rgba(255, 255, 255, 0.035); --glass-2: rgba(255, 255, 255, 0.06);
+  --line: rgba(255, 255, 255, 0.09); --line-2: rgba(255, 255, 255, 0.16);
+  --ink: #eef0ff; --ink-2: #c0c3e0; --muted: #9598bd; --dot: rgba(255, 255, 255, 0.06);
+  --accent: #9b9bff; --accent-2: #5b5bf7; --accent-soft: rgba(123, 123, 255, 0.14);
+  --flow: #5867ff; --spark: #d4d6ff;
+  --brand: #f56b5e;
+  --crit: #ff5c6c; --unatt: #ff8a4c; --stale: #f5c044; --ok: #2fd4a3;
+  --ro: #4b93ea; --wr: #f0743c;
+  --shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 16px; }
+body {
+  margin: 0; color: var(--ink); min-height: 100vh;
+  background:
+    radial-gradient(1100px 620px at 75% -12%, var(--bg-glow-1), transparent 62%),
+    radial-gradient(760px 520px at -5% 0%, var(--bg-glow-2), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+  font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+a.link { color: var(--accent); }
+a.link:hover { text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.num { font-weight: 300; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; overflow-wrap: anywhere; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; padding: 3px 8px; border-radius: 8px; background: var(--glass-2); border: 1px solid var(--line); overflow-wrap: anywhere; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.ico { width: 18px; height: 18px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Shell: a sidebar on wide screens, a tab bar on phones. */
+.app { display: grid; grid-template-columns: 240px minmax(0, 1fr); min-height: 100vh; }
+.side {
+  position: sticky; top: 0; height: 100vh; padding: 22px 14px; display: flex; flex-direction: column; gap: 4px;
+  border-right: 1px solid var(--line); background: var(--glass); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+}
+.brand { display: flex; align-items: center; gap: 10px; padding: 4px 12px 24px; font-weight: 600; font-size: 16px; letter-spacing: -0.01em; }
+.brand svg { flex: none; filter: drop-shadow(0 4px 14px rgba(245, 107, 94, 0.45)); }
+.nav { display: grid; gap: 4px; }
+.nav a { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 14px; color: var(--ink-2); border: 1px solid transparent; transition: background .25s, color .25s, border-color .25s; }
+.nav a:hover { color: var(--ink); background: var(--glass-2); }
+.nav a.on { color: var(--ink); background: var(--glass-2); border-color: var(--line-2); box-shadow: var(--shadow); }
+.nav a.on .ico { color: var(--accent); }
+.nav .count { margin-left: auto; font-size: 12px; color: var(--muted); }
+.side-foot { margin-top: auto; padding: 14px 12px 0; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
+
+main { padding: 18px 28px 64px; min-width: 0; }
+.top { display: flex; align-items: center; gap: 10px 14px; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; }
+.badges { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-width: 0; }
+.mbrand { display: none; align-items: center; gap: 8px; font-weight: 600; }
+.snap { display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; border-radius: 999px; font-size: 13px; color: var(--ink-2); background: var(--glass); border: 1px solid var(--line); }
+.snap b { color: var(--ink); font-weight: 600; }
+.snap.safe { border-color: color-mix(in srgb, var(--ok) 55%, var(--line)); }
+.theme { display: inline-flex; padding: 4px; gap: 2px; border-radius: 999px; background: var(--glass); border: 1px solid var(--line); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.theme button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; min-height: 28px; padding: 0 12px; border-radius: 999px; font-size: 13px; color: var(--muted); transition: background .25s, color .25s; }
+.theme button[aria-pressed="true"] { background: var(--glass-2); color: var(--ink); box-shadow: var(--shadow); }
+.theme button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.theme .ico { width: 15px; height: 15px; }
+
+.panel { background: var(--glass); border: 1px solid var(--line); border-radius: 24px; padding: 22px; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: var(--shadow); min-width: 0; }
+.panel h2 { margin: 0 0 2px; font-size: 18px; font-weight: 600; letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; }
+.panel h2 .ico { color: var(--accent); }
+.panel h3 { margin: 22px 0 10px; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.panel .sub { margin: 0 0 16px; color: var(--ink-2); font-size: 15px; }
+section { margin-bottom: 18px; }
+
+/* Top issue */
+.issue { --c: var(--crit); display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 18px 20px; border-color: color-mix(in srgb, var(--c) 50%, var(--line)); background: linear-gradient(100deg, color-mix(in srgb, var(--c) 12%, var(--glass)), var(--glass) 60%); }
+.issue.warning { --c: var(--stale); } .issue.none { --c: var(--ok); }
+.issue .k { font-size: 12.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.issue .k::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 0 var(--c); animation: ping 2.4s ease-out infinite; }
+.issue .t { font-size: 17px; font-weight: 600; margin: 2px 0; overflow-wrap: anywhere; }
+.issue .d { color: var(--ink-2); font-size: 14.5px; overflow-wrap: anywhere; }
+.issue code { display: inline-block; margin-top: 8px; }
+.issue .more { font-size: 14px; color: var(--accent); max-width: 220px; text-align: right; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; align-items: center; }
+.btn { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 14px; border-radius: 12px; font-size: 14px; font-weight: 500; color: var(--ink); background: var(--glass-2); border: 1px solid var(--line-2); }
+.btn.primary { color: #fff; background: var(--accent-2); border-color: var(--accent-2); }
+.btn:hover { border-color: var(--accent); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.cmdnote { font-size: 13px; color: var(--muted); width: 100%; }
+.breakdown { display: flex; height: 12px; gap: 2px; border-radius: 99px; overflow: hidden; margin: 14px 0 6px; background: var(--line); }
+.breakdown span { height: 100%; transform-origin: left; animation: grow 1.2s cubic-bezier(.2,.7,.2,1) both .3s; }
+.breakdown .ro { background: var(--ro); } .breakdown .mu { background: var(--wr); } .breakdown .un { background: repeating-linear-gradient(135deg, var(--muted) 0 3px, transparent 3px 6px); }
+.bkeys { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 15px; color: var(--ink-2); }
+.bkeys b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.fi { --c: var(--accent); width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; color: var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); flex: none; }
+.issue .fi { width: 44px; height: 44px; border-radius: 14px; }
+
+/* Filters */
+.filters { display: grid; gap: 12px; padding: 16px 18px; }
+.frow { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; }
+.search { flex: 1 1 260px; display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 12px; border-radius: 12px; background: var(--glass-2); border: 1px solid var(--line-2); color: var(--muted); }
+.search:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.search input { all: unset; flex: 1; min-width: 0; color: var(--ink); font-size: 15px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.chips .lbl { font-size: 12.5px; color: var(--muted); margin-right: 2px; }
+.chip { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; min-height: 32px; padding: 0 12px; border-radius: 999px; font-size: 13.5px; color: var(--ink-2); background: var(--glass-2); border: 1px solid var(--line); transition: background .2s, border-color .2s, color .2s; }
+.chip:hover { border-color: var(--line-2); color: var(--ink); }
+.chip[aria-pressed="true"] { color: var(--ink); border-color: var(--accent); background: var(--accent-soft); }
+.chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.scope { margin: 0; font-size: 14.5px; color: var(--ink-2); }
+.scope b { color: var(--ink); }
+
+/* Overview figures and the status distribution */
+.ov { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 28px; align-items: center; }
+.ov h1 { margin: 0; font-size: clamp(26px, 3.2vw, 36px); font-weight: 300; letter-spacing: -0.035em; }
+.ov .lede { margin: 6px 0 16px; color: var(--ink-2); font-size: 14.5px; max-width: 62ch; }
+.figure { display: flex; align-items: baseline; gap: 12px; }
+.figure .num { font-size: 64px; line-height: 1; }
+.figure span:last-child { color: var(--ink-2); }
+.ratios { display: grid; gap: 10px; margin-top: 14px; }
+.ratio { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; font-size: 15px; color: var(--ink-2); }
+.ratio b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.ratio .track { grid-column: 1 / -1; height: 6px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.ratio .track span { display: block; height: 100%; border-radius: 99px; background: var(--c, var(--accent)); transform-origin: left; animation: grow 1.3s cubic-bezier(.2,.7,.2,1) both .3s; }
+.dist h3 { margin-top: 0; }
+.stack { display: flex; gap: 3px; height: 16px; border-radius: 99px; overflow: hidden; background: var(--line); }
+.stack span { height: 100%; background: var(--c); transform-origin: left; animation: grow 1.2s cubic-bezier(.2,.7,.2,1) both; animation-delay: calc(var(--i, 0) * 120ms + .3s); }
+.groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+.scard { position: relative; padding: 12px 14px 12px 16px; border-radius: 16px; background: var(--glass-2); border: 1px solid var(--line-2); overflow: hidden; }
+.scard::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--c); }
+.scard .num { font-size: 28px; line-height: 1.1; }
+.scard span { display: block; font-size: 14px; color: var(--ink); }
+.scard small { color: var(--ink-2); font-size: 13.5px; }
+.prec { margin: 12px 0 0; color: var(--ink-2); font-size: 14px; }
+
+/* Topology */
+.topo-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; align-items: flex-end; }
+.topo-wrap { overflow-x: auto; margin-top: 12px; border-radius: 16px; }
+.topo { display: block; width: 100%; min-width: 760px; height: auto; }
+.topo text { fill: var(--ink-2); font-size: 14px; }
+.topo .col { fill: var(--muted); font-size: 12.5px; letter-spacing: .08em; text-transform: uppercase; }
+.topo .it { transition: opacity .35s; }
+.topo .it.out { opacity: .07; }
+.e { fill: none; stroke-linecap: round; }
+.e.cs { stroke: var(--flow); stroke-opacity: .5; stroke-width: 1.8; }
+.e.ts { stroke-width: 1.6; stroke-opacity: .65; }
+.e.b-read-only { stroke: var(--ro); } .e.b-mutating { stroke: var(--wr); } .e.b-unannotated { stroke: var(--muted); stroke-dasharray: 4 4; }
+.e.destr { stroke-width: 2.6; }
+.draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 1.4s cubic-bezier(.6,.1,.2,1) forwards; animation-delay: calc(var(--i, 0) * 45ms + .15s); }
+.e.b-unannotated.draw { animation: none; stroke-dashoffset: 0; }
+.spark { fill: none; stroke: var(--spark); stroke-width: 2.4; stroke-linecap: round; stroke-dasharray: 1.2 18; opacity: .85; animation: flow 3.2s linear infinite; animation-delay: calc(var(--i, 0) * -0.37s); pointer-events: none; }
+.n-client { fill: var(--bg); stroke: var(--accent); stroke-width: 2.5; }
+.pick { cursor: pointer; }
+.pick:hover .n-client { fill: var(--accent); }
+.n-server { fill: var(--glass-2); stroke: var(--line-2); }
+.topo a:hover .n-server, .topo a:focus-visible .n-server { stroke: var(--accent); }
+.sdot { fill: var(--c); }
+.n-tool { stroke-width: 2; }
+.n-tool.b-read-only { fill: var(--ro); stroke: var(--ro); } .n-tool.b-mutating { fill: var(--wr); stroke: var(--wr); } .n-tool.b-unannotated { fill: url(#hatch); stroke: var(--muted); }
+.n-tool.destr { stroke: var(--crit); stroke-width: 3; }
+.hatch-line { stroke: var(--muted); stroke-width: 1.5; }
+.node-in { opacity: 0; animation: rise .7s cubic-bezier(.2,.7,.2,1) forwards; animation-delay: calc(var(--i, 0) * 50ms + .2s); }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 14px; color: var(--ink-2); margin-top: 12px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 12px; height: 12px; border-radius: 50%; display: inline-block; border: 2px solid transparent; }
+.sw.ro { background: var(--ro); } .sw.mu { background: var(--wr); }
+.sw.un { background: repeating-linear-gradient(135deg, var(--muted) 0 2px, transparent 2px 4px); border-color: var(--muted); }
+.sw.de { background: transparent; border-color: var(--crit); border-width: 3px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--c, var(--muted)); display: inline-block; flex: none; }
+.st-critical { --c: var(--crit); } .st-unattested { --c: var(--unatt); } .st-stale { --c: var(--stale); } .st-ok { --c: var(--ok); }
+
+/* KPI tiles */
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.kpi { position: relative; overflow: hidden; padding: 18px; transition: transform .35s cubic-bezier(.2,.7,.2,1); }
+.kpi:hover { transform: translateY(-3px); }
+.kpi .fi { margin-bottom: 12px; }
+.kpi .num { font-size: 34px; line-height: 1.05; display: block; }
+.kpi .lbl { color: var(--ink); font-size: 14px; }
+.kpi .hint { color: var(--ink-2); font-size: 14px; }
+.kpi .hint + .hint { color: var(--muted); }
+
+.cols { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.stack-col { display: grid; gap: 18px; min-width: 0; }
+.stack-col > section { margin-bottom: 0; }
+
+/* Server bubbles */
+.bubbles { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 18px 22px; padding: 6px 0; }
+.bwrap { display: grid; justify-items: center; gap: 8px; width: max(var(--s), 132px); text-align: center; }
+.bcap { font-size: 13.5px; color: var(--ink-2); line-height: 1.35; }
+.bcap .dot { margin-right: 6px; vertical-align: 0; }
+.bubble {
+  width: var(--s); height: var(--s); border-radius: 50%; display: grid; place-items: center; text-align: center; padding: 10px;
+  border: 1.5px solid color-mix(in srgb, var(--c) 75%, transparent);
+  background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--c) 22%, transparent), color-mix(in srgb, var(--c) 4%, transparent) 70%);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--c) 7%, transparent);
+  animation: float 7s ease-in-out infinite; animation-delay: calc(var(--i, 0) * -1.3s); transition: transform .3s;
+}
+.bwrap:hover .bubble, .bwrap:focus-visible .bubble { transform: scale(1.05); }
+.bubble .num { font-size: calc(var(--s) * .26); line-height: 1; display: block; }
+.bubble b { display: block; font-weight: 500; font-size: 13px; color: var(--ink); max-width: calc(var(--s) - 22px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin: 4px auto 0; }
+
+
+/* Lists and findings */
+.rows { display: grid; gap: 10px; }
+.row { display: grid; grid-template-columns: 42px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 12px 14px; border-radius: 16px; background: var(--glass-2); border: 1px solid var(--line); }
+.avatar { width: 42px; height: 42px; border-radius: 13px; display: grid; place-items: center; font-weight: 600; color: #fff; background: linear-gradient(135deg, var(--accent-2), var(--brand)); }
+.avatar.alert { background: linear-gradient(135deg, #c02435, #c4410b); }
+.row .t { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row .d { color: var(--ink-2); font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 999px; font-size: 13.5px; color: var(--ink); background: color-mix(in srgb, var(--c, var(--muted)) 14%, transparent); max-width: 100%; overflow-wrap: anywhere; }
+.reach { width: 150px; text-align: right; }
+.reach .num { font-size: 22px; line-height: 1; }
+.reach small { color: var(--ink-2); font-size: 13px; }
+.bar { display: flex; gap: 2px; height: 7px; border-radius: 99px; overflow: hidden; background: var(--line); margin-top: 6px; }
+.bar span { height: 100%; transform-origin: left; animation: grow 1.2s cubic-bezier(.2,.7,.2,1) both .4s; }
+.bar .ro { background: var(--ro); } .bar .mu { background: var(--wr); } .bar .un { background: repeating-linear-gradient(135deg, var(--muted) 0 3px, transparent 3px 6px); }
+details.fd { border-bottom: 1px solid var(--line); }
+details.fd:last-child { border-bottom: 0; }
+details.fd > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 36px minmax(0, 1fr) 18px; gap: 12px; align-items: start; padding: 12px 4px; border-radius: 12px; }
+details.fd > summary::-webkit-details-marker { display: none; }
+details.fd > summary:hover { background: var(--glass-2); }
+.chev { color: var(--muted); transition: transform .25s; margin-top: 8px; }
+details[open] > summary .chev { transform: rotate(90deg); }
+.fd .t { font-weight: 600; overflow-wrap: anywhere; }
+.fd .d { color: var(--ink-2); font-size: 14px; overflow-wrap: anywhere; }
+dl.kv { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 16px; margin: 4px 0 14px 48px; font-size: 14px; }
+dl.kv dt { color: var(--muted); }
+dl.kv dd { margin: 0; color: var(--ink); overflow-wrap: anywhere; }
+.empty { display: flex; align-items: center; gap: 10px; color: var(--muted); padding: 8px 0; font-size: 14px; }
+.empty .fi { --c: var(--ok); width: 30px; height: 30px; border-radius: 10px; }
+
+/* Tables and detail panels */
+.scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+caption { text-align: left; color: var(--ink-2); font-size: 14px; padding: 0 10px 10px; }
+th { text-align: left; color: var(--ink-2); font-weight: 600; font-size: 13px; letter-spacing: .04em; text-transform: uppercase; padding: 8px 10px; border-bottom: 1px solid var(--line-2); white-space: nowrap; }
+td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tbody tr:hover { background: var(--glass-2); }
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+td.server { min-width: 220px; }
+td .d { color: var(--ink-2); font-size: 13.5px; }
+details.drawer { border: 1px solid var(--line); border-radius: 16px; background: var(--glass-2); margin-bottom: 10px; scroll-margin-top: 16px; }
+details.drawer > summary { cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 12px 16px; list-style: none; flex-wrap: wrap; }
+details.drawer > summary::-webkit-details-marker { display: none; }
+details.drawer[open] { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+details.drawer > .body { padding: 0 16px 16px; }
+details.drawer dl.kv { margin-left: 0; }
+.refs { display: flex; flex-wrap: wrap; gap: 6px 12px; }
+
+footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
+.reveal { opacity: 0; animation: rise .8s cubic-bezier(.2,.7,.2,1) forwards; animation-delay: calc(var(--i, 0) * 70ms + .1s); }
+.tabbar { display: none; }
+[data-f].out { display: none !important; }
+
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes flow { to { stroke-dashoffset: -19.2; } }
+@keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes float { 50% { transform: translateY(-6px); } }
+@keyframes grow { from { transform: scaleX(0); } }
+@keyframes ping { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--c) 60%, transparent); } 80%, 100% { box-shadow: 0 0 0 10px transparent; } }
+
+@media (max-width: 1180px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cols, .ov { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 860px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .side { display: none; }
+  .mbrand { display: inline-flex; }
+  main { padding: 14px 12px calc(100px + env(safe-area-inset-bottom)); }
+  .panel { padding: 18px 14px; border-radius: 20px; }
+  .theme button span { display: none; }
+  .theme button { padding: 0 9px; }
+  .tabbar { display: grid; grid-template-columns: repeat(4, 1fr); position: fixed; left: 10px; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom)); z-index: 5; padding: 6px; border-radius: 22px; background: var(--glass-2); border: 1px solid var(--line-2); backdrop-filter: blur(18px) saturate(1.4); -webkit-backdrop-filter: blur(18px) saturate(1.4); box-shadow: var(--shadow); }
+  .tabbar a { display: grid; justify-items: center; gap: 2px; padding: 6px 0 4px; border-radius: 15px; font-size: 12px; color: var(--muted); }
+  .tabbar a.on { color: var(--accent); background: var(--accent-soft); }
+}
+@media (max-width: 560px) {
+  .kpis { gap: 10px; }
+  .groups { grid-template-columns: minmax(0, 1fr); }
+  .issue { grid-template-columns: minmax(0, 1fr); } .issue .fi { display: none; } .issue .more { max-width: none; text-align: left; }
+  .row { grid-template-columns: 38px minmax(0, 1fr); } .avatar { width: 38px; height: 38px; }
+  .reach { grid-column: 2; width: auto; text-align: left; }
+  dl.kv { grid-template-columns: minmax(0, 1fr); margin-left: 0; } dl.kv dt { margin-top: 6px; }
+  details.fd > summary { grid-template-columns: minmax(0, 1fr) 18px; } details.fd > summary .fi { display: none; }
+  .figure .num { font-size: 52px; }
+}
+@media (max-width: 400px) { .kpis { grid-template-columns: minmax(0, 1fr); } }
+@media (forced-colors: active) {
+  .panel, .row, .scard, .bubble, .pill, .snap, .chip, details.drawer { border: 1px solid CanvasText; }
+  .spark, .issue .k::before { display: none; }
+  .dot, .bar span, .stack span, .sw, .n-tool, .sdot, .ratio .track span { forced-color-adjust: none; }
+  .chip[aria-pressed="true"] { outline: 3px solid Highlight; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  .draw { stroke-dashoffset: 0; } .reveal, .node-in { opacity: 1; }
+}
+@media print {
+  :root { color-scheme: light; --bg: #fff; --glass: #fff; --glass-2: #fff; --ink: #000; --ink-2: #222; --muted: #444; --line: #ccc; --line-2: #999; }
+  body { background: #fff; } .side, .tabbar, .theme, .filters, .spark { display: none; } .app { display: block; }
+  .reveal, .node-in { opacity: 1; animation: none; } .panel { box-shadow: none; break-inside: avoid; }
+  details.drawer, details.fd { break-inside: avoid; } details:not([open]) > :not(summary) { display: none; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position: absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></symbol>
+  <symbol id="i-bot" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="4"/><path d="M12 4v4M9 13h.01M15 13h.01M9 17h6"/></symbol>
+  <symbol id="i-server" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/></symbol>
+  <symbol id="i-tool" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M15 8l2 2"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4M12 17h.01"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 3c1 3 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3 0-3-1-5 1-8.5z"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></symbol>
+  <symbol id="i-graph" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><circle cx="19" cy="12" r="2"/><path d="M7 11l3-4M7 13l3 4M14 7l3 4M14 17l3-4"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+  <symbol id="i-sys" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></symbol>
+</svg>
+
+<div class="app">
+  <aside class="side" aria-label="Sections">
+    <div class="brand">{{logo}}<span>passmcp-graph</span></div>
+    <nav class="nav">
+      <a href="#overview" class="on"><svg class="ico"><use href="#i-grid"/></svg>Overview</a>
+      <a href="#topology"><svg class="ico"><use href="#i-graph"/></svg>Topology</a>
+      <a href="#findings"><svg class="ico"><use href="#i-alert"/></svg>Findings<span class="count">{{len .Findings}}</span></a>
+      <a href="#servers"><svg class="ico"><use href="#i-server"/></svg>Servers<span class="count">{{.Totals.Servers}}</span></a>
+      <a href="#clients"><svg class="ico"><use href="#i-bot"/></svg>Clients<span class="count">{{.Totals.Agents}}</span></a>
+      <a href="#paths"><svg class="ico"><use href="#i-list"/></svg>Paths<span class="count">{{.Hero.Paths}}</span></a>
+      <a href="#details"><svg class="ico"><use href="#i-key"/></svg>Details</a>
+    </nav>
+    <div class="side-foot">passmcp-graph {{.Version}}<br>Analysis as of {{.Generated}}</div>
+  </aside>
+
+  <main>
+    <div class="top">
+      <div class="badges">
+        <span class="mbrand">{{logo}}passmcp-graph</span>
+        <span class="snap"><b>Offline snapshot</b> analysis as of {{.Generated}}</span>
+        {{if .ShareSafe}}<span class="snap safe" title="Endpoints, identities, local paths and token-shaped strings are replaced"><b>Share-safe</b> identifying details replaced</span>{{end}}
+      </div>
+      <div class="theme" role="group" aria-label="Theme">
+        <button type="button" data-set-theme="system" aria-pressed="true"><svg class="ico" aria-hidden="true"><use href="#i-sys"/></svg><span>System</span></button>
+        <button type="button" data-set-theme="light" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-sun"/></svg><span>Light</span></button>
+        <button type="button" data-set-theme="dark" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-moon"/></svg><span>Dark</span></button>
+      </div>
+    </div>
+
+    {{with .TopIssue}}
+    <section class="panel issue {{.Severity}}" aria-labelledby="top-issue">
+      <span class="fi" style="--c: var(--{{if eq .Severity "critical"}}crit{{else}}stale{{end}})" aria-hidden="true"><svg class="ico"><use href="#i-{{if eq .Severity "critical"}}flame{{else}}alert{{end}}"/></svg></span>
+      <div>
+        <h2 class="k" id="top-issue">Look at this first · {{.Severity}}</h2>
+        <div class="t">{{.Title}}</div>
+        <div class="d">{{.Context}}{{if .Rule}} Check or rule: <span class="mono">{{.Rule}}</span>.{{end}}</div>
+        <div class="actions">
+          <a class="btn primary" href="#{{.Evidence}}">View evidence</a>
+          {{if .Client}}<button type="button" class="btn" data-show-path="{{.Client}}">Show affected path</button>{{end}}
+          <button type="button" class="btn" data-copy="{{.Command}}" title="{{.Command}}">Copy command</button>
+          <span class="cmdnote"><code>{{.Command}}</code> {{commandNote}}</span>
+        </div>
+      </div>
+      <a class="more" href="#findings">View all {{sum .Findings .Gaps}} attention item{{if ne (sum .Findings .Gaps) 1}}s{{end}} ({{plural .Findings "finding" "findings"}}, {{plural .Gaps "evidence gap" "evidence gaps"}}) →</a>
+    </section>
+    {{else}}
+    <section class="panel issue none" aria-labelledby="top-issue">
+      <span class="fi" style="--c: var(--ok)" aria-hidden="true"><svg class="ico"><use href="#i-shield"/></svg></span>
+      <div><h2 class="k" id="top-issue">No open issue in this evidence</h2><div class="d">No inherited critical finding, policy violation, over-privileged identity, or missing or stale evidence. This covers what was ingested, nothing more.</div></div>
+    </section>
+    {{end}}
+
+    <section class="kpis" aria-label="Totals for the whole snapshot">
+      <div class="panel kpi reveal" style="--i: 1"><span class="fi" aria-hidden="true"><svg class="ico"><use href="#i-server"/></svg></span><span class="num" data-count="">{{.Totals.Servers}}</span><div class="lbl">MCP servers</div><div class="hint">{{.Totals.Attested}} with diagnostic evidence</div><div class="hint">{{if .Totals.Scored}}Mean available score {{.Totals.AvgScore}} ({{.Totals.Scored}} scored){{else}}No server scored{{end}}</div></div>
+      <div class="panel kpi reveal" style="--i: 2"><span class="fi" aria-hidden="true"><svg class="ico"><use href="#i-bot"/></svg></span><span class="num" data-count="">{{.Totals.Agents}}</span><div class="lbl">Configured clients</div><div class="hint">Configurations, not running processes</div><div class="hint">{{plural .Totals.Identities "identity" "identities"}} on their servers</div></div>
+      <div class="panel kpi reveal" style="--i: 3"><span class="fi" aria-hidden="true"><svg class="ico"><use href="#i-tool"/></svg></span><span class="num" data-count="">{{.Totals.Tools}}</span><div class="lbl">Tools</div><div class="hint">{{.Totals.DestructiveTools}} potentially destructive</div><div class="hint">Counted per server</div></div>
+      <div class="panel kpi reveal" style="--i: 4"><span class="fi" style="--c: var(--crit)" aria-hidden="true"><svg class="ico"><use href="#i-alert"/></svg></span><span class="num" data-count="">{{sum (len .Findings) (len .Gaps)}}</span><div class="lbl">Attention items</div><div class="hint">{{plural (len .Findings) "finding" "findings"}} · {{plural (len .Gaps) "evidence gap" "evidence gaps"}}</div><div class="hint"><a class="link" href="#findings">View them</a></div></div>
+    </section>
+
+    <section id="overview" class="panel reveal" aria-labelledby="ov-h">
+      <div class="ov">
+        <div>
+          <h1 id="ov-h">MCP security overview</h1>
+          <p class="lede">What {{plural .Totals.Agents "configured client" "configured clients"}} can reach through {{plural .Totals.Servers "MCP server" "MCP servers"}}, from their configuration files, and what passmcp's evidence says about each server. Reach is configured, not observed: no tool call is recorded. Evidence older than {{.StaleDays}} days counts as stale. These totals count the whole snapshot, whatever the filters.</p>
+          <div class="figure"><span class="num" data-count="">{{.Hero.Paths}}</span><span>configured client → server → tool paths</span></div>
+          <div class="breakdown" role="img" aria-label="{{.Hero.ReadOnly}} declared read-only, {{.Hero.Mutating}} declared mutating, {{.Hero.Unannotated.Num}} unknown">{{if .Hero.ReadOnly}}<span class="ro" style="flex: {{.Hero.ReadOnly}}"></span>{{end}}{{if .Hero.Mutating}}<span class="mu" style="flex: {{.Hero.Mutating}}"></span>{{end}}{{if .Hero.Unannotated.Num}}<span class="un" style="flex: {{.Hero.Unannotated.Num}}"></span>{{end}}</div>
+          <div class="bkeys"><span><i class="sw ro"></i> <b>{{.Hero.ReadOnly}}</b> declared read-only</span><span><i class="sw mu"></i> <b>{{.Hero.Mutating}}</b> declared mutating</span><span><i class="sw un"></i> <b>{{.Hero.Unannotated.Num}}</b> unknown (no annotation)</span></div>
+          <div class="ratios">
+            <div class="ratio" style="--c: var(--wr)"><span>Not declared read-only, including {{.Hero.Unannotated.Num}} unknown</span><span><b>{{.Hero.Changing.Num}} of {{.Hero.Paths}}</b> · {{.Hero.Changing.Pct}}</span><span class="track"><span style="width: {{.Hero.Changing.Value}}%"></span></span></div>
+            <div class="ratio" style="--c: var(--crit)"><span>Potentially destructive: {{.Hero.DeclaredDestructive}} declared, {{.Hero.PresumedDestructive}} presumed by the MCP default</span><span><b>{{.Hero.Destructive.Num}} of {{.Hero.Paths}}</b> · {{.Hero.Destructive.Pct}}</span><span class="track"><span style="width: {{.Hero.Destructive.Value}}%"></span></span></div>
+          </div>
+        </div>
+        <div class="dist">
+          <h3>{{.Hero.Attention}} of {{.Totals.Servers}} servers need diagnostic or evidence review</h3>
+          <div class="stack" role="img" aria-label="{{range .Hero.Groups}}{{.Label}}: {{.Count}}. {{end}}">{{range $i, $g := .Hero.Groups}}{{if .Count}}<span class="st-{{.Status}}" style="width: {{.Share.Value}}%; --i: {{$i}}" title="{{.Label}}: {{.Count}} of {{.Share.Den}}"></span>{{end}}{{end}}</div>
+          <div class="groups">
+            {{range .Hero.Groups}}<div class="scard st-{{.Status}}"><span class="num" data-count="">{{.Count}}</span> <span>{{.Label}}</span><small>{{.Note}} · {{.Share.Pct}} of servers</small></div>{{end}}
+          </div>
+          <p class="prec">Each server counts once, in the first status that applies, left to right. These are the servers' own diagnostics and evidence; identity and policy findings are counted with the attention items, so a server with no failing checks can still have one.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel filters" aria-label="Filter the page">
+      <div class="frow">
+        <label class="search"><svg class="ico" aria-hidden="true"><use href="#i-search"/></svg><span class="sr-only">Search</span><input id="q" type="search" placeholder="Search servers, tools, clients, identities, findings" autocomplete="off" spellcheck="false"></label>
+        <button type="button" class="chip" id="clear">Clear filters</button>
+      </div>
+      <div class="frow">
+        <div class="chips" role="group" aria-label="Server status">
+          <span class="lbl">Server status</span>
+          <button type="button" class="chip st-critical" data-st="st-critical" aria-pressed="false"><i class="dot"></i>Critical findings</button>
+          <button type="button" class="chip st-unattested" data-st="st-unattested" aria-pressed="false"><i class="dot"></i>No evidence</button>
+          <button type="button" class="chip st-stale" data-st="st-stale" aria-pressed="false"><i class="dot"></i>Stale evidence</button>
+          <button type="button" class="chip st-ok" data-st="st-ok" aria-pressed="false"><i class="dot"></i>No failing server checks</button>
+        </div>
+        <div class="chips" role="group" aria-label="Tool behaviour">
+          <span class="lbl">Tools</span>
+          <button type="button" class="chip" data-bh="destr" aria-pressed="false"><i class="sw de"></i>Potentially destructive</button>
+          <button type="button" class="chip" data-bh="unann" aria-pressed="false"><i class="sw un"></i>Unannotated</button>
+        </div>
+      </div>
+      <p class="scope" id="scope" role="status" aria-live="polite">Showing everything in the snapshot.</p>
+    </section>
+
+
+    <section id="topology" class="panel reveal" style="--i: 1" aria-labelledby="topo-h">
+      <div class="topo-head">
+        <div><h2 id="topo-h"><svg class="ico" aria-hidden="true"><use href="#i-graph"/></svg>Topology</h2>
+          <p class="sub" style="margin: 0">Every configured client → server → tool relationship, exactly. Choose a client to see only its paths; select a server or tool for its details. The <a class="link" href="#paths">path table</a> lists the same paths as text.</p></div>
+      </div>
+      <div class="chips" role="group" aria-label="Show the paths of one client" style="margin-top: 12px">
+        <button type="button" class="chip" data-pick="" aria-pressed="true">All clients</button>
+        {{range .Agents}}<button type="button" class="chip" data-pick="{{.Anchor}}" aria-pressed="false">{{.Name}}</button>{{end}}
+      </div>
+      {{if .Topology.Hidden}}<p class="sub" style="margin: 10px 0 0">Not drawn: {{.Topology.Hidden}}. The path table lists them all.</p>{{end}}
+      {{if .Topology.Folded}}<p class="sub" style="margin: 10px 0 0">Many tools: each server's tools are drawn as one node. The path table and the server details list each tool.</p>{{end}}
+      <div class="topo-wrap">
+        <svg class="topo" viewBox="0 0 1000 {{.Topology.Height}}" role="img" aria-labelledby="topo-t">
+          <title id="topo-t">{{.Totals.Agents}} configured clients joined to {{.Totals.Servers}} servers and their {{.Totals.Tools}} tools; the path table lists every path.</title>
+          <defs><pattern id="hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="hatch-line" x1="0" y1="0" x2="0" y2="5"/></pattern></defs>
+          <text class="col" x="200" y="14" text-anchor="middle">Clients</text>
+          <text class="col" x="500" y="14" text-anchor="middle">Servers</text>
+          <text class="col" x="790" y="14" text-anchor="start">Tools</text>
+          {{range $i, $e := .Topology.Edges}}<g class="it" data-tags="{{.Tags}}" data-text="{{.Text}}"><path class="e {{.Class}} draw" pathLength="1" d="{{.Path}}" style="--i: {{$i}}"/><path class="spark" pathLength="19.2" d="{{.Path}}" style="--i: {{$i}}"/></g>
+          {{end}}
+          {{range $i, $n := .Topology.Clients}}<g class="it pick node-in" data-tags="{{.Tags}}" data-text="{{.Text}}" data-pick="{{.Anchor}}" style="--i: {{$i}}"><title>{{.Full}}: show only its paths</title><circle class="n-client" cx="200" cy="{{.Y}}" r="7"/><text x="186" y="{{add .Y 5}}" text-anchor="end">{{.Label}}</text></g>
+          {{end}}
+          {{range $i, $n := .Topology.Servers}}<a href="#{{.Anchor}}" class="it node-in" data-tags="{{.Tags}}" data-text="{{.Text}}" style="--i: {{$i}}"><title>{{.Full}}: open details</title><rect class="n-server" x="390" y="{{add .Y -15}}" width="220" height="30" rx="15"/><circle class="sdot {{.Class}}" cx="407" cy="{{.Y}}" r="4.5"/><text x="419" y="{{add .Y 5}}">{{.Label}}</text></a>
+          {{end}}
+          {{range $i, $n := .Topology.Tool}}<a href="#{{.Anchor}}" class="it node-in" data-tags="{{.Tags}}" data-text="{{.Text}}" style="--i: {{$i}}"><title>{{.Full}}</title><circle class="n-tool {{.Class}}" cx="790" cy="{{.Y}}" r="6"/><text x="804" y="{{add .Y 5}}">{{.Label}}</text></a>
+          {{end}}
+        </svg>
+      </div>
+      <div class="legend"><span><i class="sw ro"></i>Declared read-only</span><span><i class="sw mu"></i>Declared mutating</span><span><i class="sw un"></i>No annotation: unknown</span><span><i class="sw de"></i>Potentially destructive</span><span class="st-critical"><i class="dot"></i>Critical findings</span><span class="st-unattested"><i class="dot"></i>No evidence</span><span class="st-stale"><i class="dot"></i>Stale evidence</span><span class="st-ok"><i class="dot"></i>No failing server checks</span></div>
+    </section>
+
+
+    <div class="cols">
+      <section id="findings" class="panel reveal" style="--i: 2" aria-labelledby="fnd-h">
+        <h2 id="fnd-h"><svg class="ico" aria-hidden="true"><use href="#i-alert"/></svg>Attention items</h2>
+        <p class="sub">{{plural (len .Findings) "finding" "findings"}} and {{plural (len .Gaps) "evidence gap" "evidence gaps"}}. Open one for its path, its evidence, what is not known, and a read-only next step.</p>
+        <h3>Findings</h3>
+        {{range .Findings}}
+        <details class="fd" id="{{.Anchor}}" data-f data-kind="finding" data-tags="{{.Tags}}" data-text="{{.Text}}">
+          <summary><span class="fi {{if eq .Severity "critical"}}st-critical{{else}}st-unattested{{end}}" aria-hidden="true"><svg class="ico"><use href="#i-{{if eq .Kind "over-privileged"}}key{{else if eq .Kind "policy"}}lock{{else}}flame{{end}}"/></svg></span>
+            <span><span class="t">{{.Title}}</span><br><span class="d"><span class="mono">{{.Rule}}</span> · {{.Severity}}</span></span>
+            <svg class="ico chev" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+          <dl class="kv">
+            <dt>Path</dt><dd class="mono">{{.Path}}</dd>
+            <dt>Evidence</dt><dd>{{.Evidence}}</dd>
+            <dt>Not known</dt><dd>{{.Uncertainty}}</dd>
+            {{if .Server.Anchor}}<dt>Server</dt><dd><a class="link mono" href="#{{.Server.Anchor}}">{{.Server.Name}}</a></dd>{{end}}
+            {{if .Clients}}<dt>Clients</dt><dd class="refs">{{range .Clients}}<a class="link" href="#{{.Anchor}}">{{.Name}}</a>{{end}}</dd>{{end}}
+            <dt>Next step</dt><dd><code>{{.Next}}</code> <span class="d">{{commandNote}}</span></dd>
+          </dl>
+        </details>
+        {{else}}
+        <div class="empty"><span class="fi" aria-hidden="true"><svg class="ico"><use href="#i-shield"/></svg></span>No finding in this evidence: no inherited critical finding, over-privileged identity{{if .PolicyChecked}} or policy violation{{end}}.</div>
+        {{end}}
+        {{if not .PolicyChecked}}<p class="sub" style="margin: 12px 0 0">No policy was given; pass <code>--policy FILE</code> to list violations here.</p>{{end}}
+        <h3>Evidence gaps</h3>
+        {{range .Gaps}}
+        <details class="fd" id="{{.Anchor}}" data-f data-kind="gap" data-tags="{{.Tags}}" data-text="{{.Text}}">
+          <summary><span class="fi {{if eq .Kind "no-evidence"}}st-unattested{{else}}st-stale{{end}}" aria-hidden="true"><svg class="ico"><use href="#i-server"/></svg></span>
+            <span><span class="t">{{.Title}}</span><br><span class="d">{{if eq .Kind "no-evidence"}}no evidence{{else}}stale evidence{{end}}</span></span>
+            <svg class="ico chev" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+          <dl class="kv">
+            <dt>What</dt><dd>{{.Detail}}</dd>
+            <dt>Server</dt><dd><a class="link mono" href="#{{.Server.Anchor}}">{{.Server.Name}}</a></dd>
+            {{if .Clients}}<dt>Clients</dt><dd class="refs">{{range .Clients}}<a class="link" href="#{{.Anchor}}">{{.Name}}</a>{{end}}</dd>{{end}}
+            <dt>Next step</dt><dd><code>{{.Next}}</code> <span class="d">{{commandNote}} Running passmcp against the server collects new evidence.</span></dd>
+          </dl>
+        </details>
+        {{else}}
+        <div class="empty"><span class="fi" aria-hidden="true"><svg class="ico"><use href="#i-shield"/></svg></span>Every server has an attestation within {{.StaleDays}} days.</div>
+        {{end}}
+      </section>
+
+      <div class="stack-col">
+      <section id="servers" class="panel reveal" style="--i: 3" aria-labelledby="srv-h">
+        <h2 id="srv-h"><svg class="ico" aria-hidden="true"><use href="#i-server"/></svg>Servers</h2>
+        <p class="sub">One bubble per server. Its area is proportional to the tools it exposes; the letter is its grade, a dash when it has none. Select one for its details.</p>
+        <div class="bubbles">
+          {{range $i, $s := .Servers}}
+          <a href="#{{.Anchor}}" class="bwrap st-{{.Status}}" data-f data-tags="{{.Tags}}" data-text="{{.Text}}" style="--s: {{.Bubble}}px; --i: {{$i}}" title="{{.Endpoint}}" aria-label="{{.Endpoint}}: {{.StatusLabel}}{{if and .Stale (ne .Status "stale")}}, stale evidence{{end}}, grade {{or0 .Grade}}, {{plural .Tools "tool" "tools"}}{{if .RelatedFindings}}, {{plural .RelatedFindings "related finding" "related findings"}}{{end}}">
+            <span class="bubble"><span><span class="num">{{or0 .Grade}}</span><b>{{if .Name}}{{.Name}}{{else}}{{.Endpoint}}{{end}}</b></span></span>
+            <span class="bcap"><i class="dot"></i>{{.StatusLabel}}{{if and .Stale (ne .Status "stale")}} · stale{{end}}<br>{{plural .Tools "tool" "tools"}}{{if .RelatedFindings}} · {{plural .RelatedFindings "finding" "findings"}}{{end}}</span>
+          </a>
+          {{else}}
+          <div class="empty"><span class="fi" aria-hidden="true"><svg class="ico"><use href="#i-server"/></svg></span>No server yet. Ingest attestations or a client configuration.</div>
+          {{end}}
+        </div>
+      </section>
+      <section id="identities" class="panel reveal" style="--i: 4" aria-labelledby="idn-h">
+        <h2 id="idn-h"><svg class="ico" aria-hidden="true"><use href="#i-key"/></svg>Identities</h2>
+        <p class="sub">OAuth identities recorded on the servers, and the clients configured to reach those servers.</p>
+      <div class="rows">
+        {{range .Identities}}
+        <a href="#{{.Anchor}}" class="row" data-f data-kind="identity" data-tags="{{.Tags}}" data-text="{{.Text}}">
+          <div class="avatar{{if .OverPrivileged}} alert{{end}}" aria-hidden="true">{{initial .Label}}</div>
+          <div style="min-width: 0"><div class="t">{{.Label}}</div><div class="d mono">{{.Issuer}}</div>
+            <div class="pills"><span class="pill">{{plural (len .Grants) "server" "servers"}}</span>{{if .OverPrivileged}}<span class="pill st-unattested"><i class="dot"></i>over-privileged</span>{{end}}</div></div>
+          <div class="reach"><span class="num">{{len .Clients}}</span> <small>{{if eq (len .Clients) 1}}client reaches{{else}}clients reach{{end}} its servers</small></div>
+        </a>
+        {{end}}
+      </div>
+        {{if not .Identities}}<div class="empty"><span class="fi" aria-hidden="true"><svg class="ico"><use href="#i-key"/></svg></span>No identity recorded.</div>{{end}}
+      </section>
+      </div>
+    </div>
+
+    <section id="clients" class="panel reveal" style="--i: 4" aria-labelledby="cli-h">
+      <h2 id="cli-h"><svg class="ico" aria-hidden="true"><use href="#i-bot"/></svg>Configured clients</h2>
+      <p class="sub">Every client read from a configuration file and the tools its configuration reaches, widest reach first. A client here is a configuration, not a running agent.</p>
+      <div class="legend" style="margin: -6px 0 14px"><span><i class="sw ro"></i>Declared read-only</span><span><i class="sw mu"></i>Declared mutating</span><span><i class="sw un"></i>No annotation: unknown</span></div>
+      <div class="rows">
+        {{range $i, $a := .Agents}}
+        <a href="#{{.Anchor}}" class="row" data-f data-kind="client" data-tags="{{.Tags}}" data-text="{{.Text}}">
+          <div class="avatar{{if .Risks}} alert{{end}}" aria-hidden="true">{{initial .Name}}</div>
+          <div style="min-width: 0">
+            <div class="t">{{.Name}}</div>
+            <div class="d mono">{{if .ConfigFile}}{{.ConfigFile}}{{else}}{{.Client}}{{end}}</div>
+            <div class="pills">
+              <span class="pill">{{plural .Servers "server" "servers"}}</span>
+              {{if .DeclaredDestructive}}<span class="pill" style="--c: var(--wr)">{{.DeclaredDestructive}} declared destructive</span>{{end}}
+              {{if .PresumedDestructive}}<span class="pill" style="--c: var(--wr)">{{.PresumedDestructive}} presumed destructive (MCP default)</span>{{end}}
+              {{if .Unannotated}}<span class="pill">{{.Unannotated}} without annotations</span>{{end}}
+              {{if .Unattested}}<span class="pill st-unattested"><i class="dot"></i>{{plural .Unattested "server" "servers"}} without evidence</span>{{end}}
+              {{if .Risks}}<span class="pill st-critical"><i class="dot"></i>{{plural .Risks "critical finding" "critical findings"}}</span>{{end}}
+            </div>
+          </div>
+          <div class="reach" title="{{.ReadOnly}} declared read-only, {{.Mutating}} declared mutating, {{.Unannotated}} unknown; {{.Destructive}} potentially destructive">
+            <span class="num">{{.Tools}}</span> <small>tool paths</small>
+            <div class="bar">{{if .ReadOnly}}<span class="ro" style="width: {{.ReadOnlyPct}}%"></span>{{end}}{{if .Mutating}}<span class="mu" style="width: {{.MutatingPct}}%"></span>{{end}}{{if .Unannotated}}<span class="un" style="width: {{.UnannotatedPct}}%"></span>{{end}}</div>
+          </div>
+        </a>
+        {{else}}
+        <div class="empty"><span class="fi" aria-hidden="true"><svg class="ico"><use href="#i-bot"/></svg></span>No configured client in the graph. Ingest an MCP client configuration.</div>
+        {{end}}
+      </div>
+    </section>
+
+    <section id="paths" class="panel reveal" style="--i: 5" aria-labelledby="path-h">
+      <h2 id="path-h"><svg class="ico" aria-hidden="true"><use href="#i-list"/></svg>Paths</h2>
+      <p class="sub">Every configured client → server → tool path, the text equivalent of the topology. Reproduce it with <code>passmcp-graph query "agents -> tools"</code>.</p>
+      <div class="scroll"><table>
+        <caption>Configured paths as of {{.Generated}}, by client, then server, then tool.</caption>
+        <thead><tr><th scope="col">Client</th><th scope="col">Server</th><th scope="col">Tool</th><th scope="col">Declared behaviour</th><th scope="col">Potentially destructive</th></tr></thead>
+        <tbody>{{range $a := .Agents}}{{range .Paths}}
+          <tr data-f data-kind="path" data-tags="{{.Tags}}" data-text="{{.Text}}"><td><a class="link" href="#{{$a.Anchor}}">{{$a.Name}}</a></td><td class="server"><a class="link mono" href="#{{.Server.Anchor}}">{{.Server.Name}}</a></td><td class="mono">{{.Name}}</td><td>{{if eq .Behavior "unannotated"}}unknown (no annotation){{else}}{{.Behavior}}{{end}}</td><td>{{if eq .DestructiveBasis "declared"}}yes, declared{{else if eq .DestructiveBasis "presumed"}}presumed (MCP default){{else}}no{{end}}</td></tr>{{end}}{{else}}
+          <tr><td colspan="5" class="d">No configured path.</td></tr>{{end}}
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="evidence" class="panel reveal" style="--i: 6" aria-labelledby="ev-h">
+      <h2 id="ev-h"><svg class="ico" aria-hidden="true"><use href="#i-server"/></svg>Server evidence</h2>
+      <p class="sub">Every server's figures as a table, worst status first.</p>
+      <div class="scroll"><table>
+        <caption>Servers as of {{.Generated}}. Server status covers the server's own diagnostics and evidence; staleness is shown as well when it is not the status. A dash means the evidence has no value for it.</caption>
+        <thead><tr><th scope="col">Server status</th><th scope="col">Server</th><th scope="col">Auth in evidence</th><th scope="col">Grade</th><th scope="col" class="n">Score</th><th scope="col" class="n">Evidence age (days)</th><th scope="col" class="n">Tools</th><th scope="col" class="n">Potentially destructive</th><th scope="col" class="n">Configured clients</th><th scope="col" class="n">Related findings</th><th scope="col">Failing critical checks</th></tr></thead>
+        <tbody>{{range .Servers}}
+          <tr data-f data-kind="server" data-tags="{{.Tags}}" data-text="{{.Text}}"><td><span class="pill st-{{.Status}}"><i class="dot"></i>{{.StatusLabel}}</span>{{if and .Stale (ne .Status "stale")}} <span class="pill st-stale"><i class="dot"></i>Stale evidence</span>{{end}}</td>
+            <td class="server"><a class="link mono" href="#{{.Anchor}}">{{.Endpoint}}</a><div class="d">{{.Transport}}{{if .Name}} · {{.Name}}{{end}}</div></td>
+            <td>{{.AuthLabel}}</td><td>{{or0 .Grade}}</td><td class="n">{{or0 .Score}}</td><td class="n">{{or0 .AgeDays}}</td>
+            <td class="n">{{.Tools}}</td><td class="n">{{.Destructive}}</td><td class="n">{{.Agents}}</td><td class="n">{{.RelatedFindings}}</td><td class="mono">{{join .Critical ", "}}</td></tr>{{else}}
+          <tr><td colspan="11" class="d">No server.</td></tr>{{end}}
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="details" class="panel reveal" style="--i: 7" aria-labelledby="det-h">
+      <h2 id="det-h"><svg class="ico" aria-hidden="true"><use href="#i-key"/></svg>Details</h2>
+      <p class="sub">Everything recorded about each server, client and identity. A link anywhere on the page opens one here, and reloading keeps it open.</p>
+      {{$generated := .Generated}}
+      <h3>Servers</h3>
+      {{range .Servers}}
+      <details class="drawer" id="{{.Anchor}}">
+        <summary><span class="pill st-{{.Status}}"><i class="dot"></i>{{.StatusLabel}}</span>{{if and .Stale (ne .Status "stale")}}<span class="pill st-stale"><i class="dot"></i>Stale evidence</span>{{end}}<span class="mono">{{.Endpoint}}</span></summary>
+        <div class="body"><dl class="kv">
+          <dt>Transport</dt><dd>{{or0 .Transport}}</dd>
+          <dt>Reports itself as</dt><dd>{{or0 .Name}}{{if .Version}} {{.Version}}{{end}}</dd>
+          <dt>Auth in evidence</dt><dd>{{.AuthLabel}}</dd>
+          <dt>Grade and score</dt><dd>{{or0 .Grade}} · {{or0 .Score}}</dd>
+          <dt>Evidence</dt><dd>{{if .Attestation}}attestation <span class="mono">{{.Attestation}}</span>, run at {{or0 .RanAt}}, {{or0 .AgeDays}} day(s) before {{$generated}}{{else}}no attestation read{{end}}</dd>
+          <dt>Server diagnostics</dt><dd>{{range .Failing}}<span class="mono">{{.ID}}</span> ({{or0 .Severity}}) {{else}}{{if .Attestation}}No failing checks in this evidence{{else}}Not assessed: no attestation{{end}}{{end}}</dd>
+          <dt>Related findings</dt><dd>{{if .RelatedFindings}}<a class="link" href="#findings">{{plural .RelatedFindings "finding" "findings"}}</a> name this server{{else}}none{{end}}</dd>
+          <dt>Tools</dt><dd>{{range .ToolList}}<span class="pill"{{if .Destructive}} style="--c: var(--wr)"{{end}}>{{.Name}} · {{if eq .Behavior "unannotated"}}unknown{{else}}{{.Behavior}}{{end}}{{if eq .DestructiveBasis "declared"}} · declared destructive{{else if eq .DestructiveBasis "presumed"}} · presumed destructive{{end}}</span> {{else}}none exposed{{end}}</dd>
+          <dt>Clients</dt><dd class="refs">{{range .Clients}}<a class="link" href="#{{.Anchor}}">{{.Name}}</a>{{else}}none configured{{end}}</dd>
+          <dt>Identities</dt><dd class="refs">{{range .Grants}}<span><a class="link" href="#{{.Identity.Anchor}}">{{.Identity.Name}}</a>: <span class="mono">{{join .Scopes ", "}}</span>{{if .OverPrivileged}} · over-privileged{{end}}</span>{{else}}none recorded{{end}}</dd>
+          {{if .Query}}<dt>Reproduce</dt><dd><code>{{.Query}}</code></dd>{{end}}
+        </dl></div>
+      </details>
+      {{end}}
+      <h3>Clients</h3>
+      {{range .Agents}}
+      <details class="drawer" id="{{.Anchor}}">
+        <summary><strong>{{.Name}}</strong><span class="mono">{{.ConfigFile}}</span></summary>
+        <div class="body"><dl class="kv">
+          <dt>Client</dt><dd>{{or0 .Client}}, read from configuration; not a running agent</dd>
+          <dt>Configuration</dt><dd class="mono">{{or0 .ConfigFile}}</dd>
+          <dt>Paths</dt><dd>{{range .Paths}}<div><a class="link mono" href="#{{.Server.Anchor}}">{{.Server.Name}}</a> → <span class="mono">{{.Name}}</span> <span class="pill"{{if .Destructive}} style="--c: var(--wr)"{{end}}>{{if eq .Behavior "unannotated"}}unknown{{else}}{{.Behavior}}{{end}}{{if eq .DestructiveBasis "declared"}} · declared destructive{{else if eq .DestructiveBasis "presumed"}} · presumed destructive{{end}}</span></div>{{else}}none{{end}}</dd>
+          <dt>Identities on its servers</dt><dd class="refs">{{range .Identities}}<a class="link" href="#{{.Anchor}}">{{.Name}}</a>{{else}}none recorded{{end}}</dd>
+          <dt>Reproduce</dt><dd><code>passmcp-graph query "agents -> tools"</code></dd>
+        </dl></div>
+      </details>
+      {{end}}
+      {{if .Identities}}<h3>Identities</h3>{{end}}
+      {{range .Identities}}
+      <details class="drawer" id="{{.Anchor}}">
+        <summary><strong>{{.Label}}</strong>{{if .OverPrivileged}}<span class="pill st-unattested"><i class="dot"></i>over-privileged</span>{{end}}</summary>
+        <div class="body"><dl class="kv">
+          <dt>Issuer</dt><dd class="mono">{{or0 .Issuer}}</dd>
+          <dt>Client ID</dt><dd class="mono">{{or0 .ClientID}}</dd>
+          <dt>Grants</dt><dd>{{range .Grants}}<div><a class="link mono" href="#{{.Server.Anchor}}">{{.Server.Name}}</a>: <span class="mono">{{join .Scopes ", "}}</span>{{if .OverPrivileged}} <span class="pill st-unattested"><i class="dot"></i>more than the server's tools need</span>{{end}}</div>{{end}}</dd>
+          <dt>Clients reaching its servers</dt><dd class="refs">{{range .Clients}}<a class="link" href="#{{.Anchor}}">{{.Name}}</a>{{else}}none{{end}}</dd>
+          <dt>Reproduce</dt><dd><code>passmcp-graph query "identities -> servers"</code></dd>
+        </dl></div>
+      </details>
+      {{end}}
+    </section>
+
+    <footer>Built offline from the local graph by <span class="mono">passmcp-graph dashboard</span>. Every figure comes from the same queries and analysis as <span class="mono">query</span>, <span class="mono">analyze</span> and <span class="mono">check</span>; the page loads nothing from the network{{if .ShareSafe}}, and identifying details were replaced before it was written{{end}}.</footer>
+  </main>
+</div>
+
+<nav class="tabbar" aria-label="Sections">
+  <a href="#overview" class="on"><svg class="ico" aria-hidden="true"><use href="#i-grid"/></svg>Overview</a>
+  <a href="#topology"><svg class="ico" aria-hidden="true"><use href="#i-graph"/></svg>Topology</a>
+  <a href="#findings"><svg class="ico" aria-hidden="true"><use href="#i-alert"/></svg>Findings</a>
+  <a href="#clients"><svg class="ico" aria-hidden="true"><use href="#i-bot"/></svg>Clients</a>
+</nav>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+
+    /* Theme */
+    var themeKey = "passmcp-graph-theme";
+    var themeButtons = document.querySelectorAll("[data-set-theme]");
+    function markTheme() {
+      var current = root.getAttribute("data-theme") || "system";
+      themeButtons.forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-set-theme") === current)); });
+    }
+    themeButtons.forEach(function (b) {
+      b.addEventListener("click", function () {
+        var t = b.getAttribute("data-set-theme");
+        if (t === "system") { root.removeAttribute("data-theme"); } else { root.setAttribute("data-theme", t); }
+        try { localStorage.setItem(themeKey, t); } catch (e) {}
+        markTheme();
+      });
+    });
+    markTheme();
+
+    /* Filters: one state scopes the topology, lists and tables. It lives in
+       the history entry, not the address, so reload and back restore it and
+       nothing typed into the search reaches a URL. */
+    var state = { q: "", st: [], bh: [], cli: "" };
+    try { if (history.state && history.state.pg) { state = history.state.pg; } } catch (e) {}
+    var q = document.getElementById("q");
+    var scope = document.getElementById("scope");
+    var items = document.querySelectorAll("[data-tags]");
+    function has(tags, t) { return (" " + tags + " ").indexOf(" " + t + " ") >= 0; }
+    function matches(el) {
+      var tags = el.getAttribute("data-tags") || "";
+      if (state.cli && !has(tags, state.cli)) { return false; }
+      if (state.st.length && !state.st.some(function (t) { return has(tags, t); })) { return false; }
+      if (state.bh.length && !state.bh.some(function (t) { return has(tags, t); })) { return false; }
+      var text = el.getAttribute("data-text") || "";
+      return state.q.toLowerCase().split(/\s+/).every(function (w) { return !w || text.indexOf(w) >= 0; });
+    }
+    var nouns = { server: ["server", "servers"], client: ["client", "clients"], path: ["path", "paths"], finding: ["finding", "findings"], gap: ["evidence gap", "evidence gaps"], identity: ["identity", "identities"] };
+    function describe(counts) {
+      var parts = [];
+      Object.keys(nouns).forEach(function (k) {
+        var c = counts[k];
+        if (c && c.all) { parts.push(c.shown + " of " + c.all + " " + nouns[k][c.all === 1 ? 0 : 1]); }
+      });
+      return parts.join(", ");
+    }
+    function apply() {
+      var counts = {};
+      var active = state.q || state.cli || state.st.length || state.bh.length;
+      items.forEach(function (el) {
+        var ok = matches(el);
+        el.classList.toggle("out", !ok);
+        var k = el.getAttribute("data-kind");
+        if (k) {
+          counts[k] = counts[k] || { all: 0, shown: 0 };
+          counts[k].all++;
+          if (ok) { counts[k].shown++; }
+        }
+      });
+      scope.textContent = active ? "Showing " + describe(counts) + ". The overview and totals count the whole snapshot." : "Showing everything in the snapshot.";
+      document.querySelectorAll("[data-st]").forEach(function (b) { b.setAttribute("aria-pressed", String(state.st.indexOf(b.getAttribute("data-st")) >= 0)); });
+      document.querySelectorAll("[data-bh]").forEach(function (b) { b.setAttribute("aria-pressed", String(state.bh.indexOf(b.getAttribute("data-bh")) >= 0)); });
+      document.querySelectorAll("button[data-pick]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-pick") === state.cli)); });
+      try { history.replaceState({ pg: state }, ""); } catch (e) {}
+    }
+    function toggle(list, v) { var i = list.indexOf(v); if (i >= 0) { list.splice(i, 1); } else { list.push(v); } }
+    document.querySelectorAll("[data-st]").forEach(function (b) { b.addEventListener("click", function () { toggle(state.st, b.getAttribute("data-st")); apply(); }); });
+    document.querySelectorAll("[data-bh]").forEach(function (b) { b.addEventListener("click", function () { toggle(state.bh, b.getAttribute("data-bh")); apply(); }); });
+    document.querySelectorAll("[data-pick]").forEach(function (el) {
+      el.addEventListener("click", function () {
+        var v = el.getAttribute("data-pick");
+        state.cli = (state.cli === v && el.tagName !== "BUTTON") ? "" : v;
+        apply();
+      });
+    });
+    q.value = state.q;
+    q.addEventListener("input", function () { state.q = q.value; apply(); });
+    document.getElementById("clear").addEventListener("click", function () { state = { q: "", st: [], bh: [], cli: "" }; q.value = ""; apply(); });
+    apply();
+
+    /* Details: a fragment such as #srv-2 opens that panel; opening one
+       records it in the address, so reload and back return to it. */
+    var detailId = /^(srv|cli|idn|fnd|gap)-[0-9]+$/;
+    function openFromHash() {
+      var id = location.hash.slice(1);
+      if (!detailId.test(id)) { return; }
+      var el = document.getElementById(id);
+      if (!el || el.tagName !== "DETAILS") { return; }
+      el.open = true;
+      var s = el.querySelector("summary");
+      if (s) { s.focus({ preventScroll: true }); }
+      el.scrollIntoView({ block: "start" });
+    }
+    window.addEventListener("hashchange", openFromHash);
+    document.querySelectorAll("details[id]").forEach(function (d) {
+      d.addEventListener("toggle", function () {
+        if (d.open && location.hash !== "#" + d.id) { try { history.replaceState(history.state, "", "#" + d.id); } catch (e) {} }
+      });
+    });
+    openFromHash();
+
+    /* Banner actions */
+    document.querySelectorAll("[data-show-path]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        state.cli = b.getAttribute("data-show-path");
+        apply();
+        document.getElementById("topology").scrollIntoView({ block: "start" });
+      });
+    });
+    document.querySelectorAll("[data-copy]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var text = b.getAttribute("data-copy");
+        var done = function () { b.textContent = "Copied"; setTimeout(function () { b.textContent = "Copy command"; }, 1600); };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done, function () { b.textContent = "Select the command to copy it"; });
+        } else {
+          b.textContent = "Select the command to copy it";
+        }
+      });
+    });
+
+    /* Counters */
+    var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!still && window.requestAnimationFrame) {
+      document.querySelectorAll("[data-count]").forEach(function (el) {
+        var text = el.textContent.trim();
+        var end = parseFloat(text);
+        if (!isFinite(end) || String(end) !== text) { return; }
+        var start = null;
+        function step(ts) {
+          if (start === null) { start = ts; }
+          var k = Math.min(1, (ts - start) / 1300);
+          el.textContent = String(Math.round(end * (1 - Math.pow(1 - k, 3))));
+          if (k < 1) { requestAnimationFrame(step); }
+        }
+        el.textContent = "0";
+        requestAnimationFrame(step);
+      });
+    }
+
+    /* Navigation highlight */
+    var links = document.querySelectorAll(".nav a, .tabbar a");
+    if ("IntersectionObserver" in window) {
+      var seen = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) { return; }
+          links.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id); });
+        });
+      }, { rootMargin: "-40% 0px -55% 0px" });
+      document.querySelectorAll("main > section[id], main .cols > section[id]").forEach(function (s) { seen.observe(s); });
+    }
+  })();
+</script>
+</body>
+</html>

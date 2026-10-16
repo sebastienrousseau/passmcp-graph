@@ -47,6 +47,18 @@ else pre-1.0, and the changelog says so.
 `make` with no target runs the gates that need no network, in the order
 they fail fastest.
 
+## Browser check
+
+`TestInTheBrowser` drives the dashboard page in headless Chrome: filters,
+client selection, details fragments, and reflow at 320 CSS pixels. It
+needs Chrome, so it runs only when `PASSMCP_GRAPH_BROWSER` names a Chrome
+binary, and CI does not run it yet:
+
+```bash
+PASSMCP_GRAPH_BROWSER="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  go test ./internal/dashboard -run InTheBrowser
+```
+
 ## Coverage
 
 The gate is 85% statement coverage in every package with statements

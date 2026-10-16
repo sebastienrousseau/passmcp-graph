@@ -94,6 +94,26 @@ func TestEveryCommandWorksEndToEnd(t *testing.T) {
 	}
 }
 
+// The dashboard is a report: violations appear on the page, and the exit
+// status stays 0, because `check` is the gate.
+func TestDashboard(t *testing.T) {
+	store, dir := seed(t)
+	pol := put(t, dir, "p.yaml", "version: 1\nforbid:\n  - name: unattested\n    query: agents -> servers where not attested\n")
+	r := invoke("--store", store, "dashboard", "--policy", pol)
+	if r.code != ExitOK || !strings.HasPrefix(r.stdout, "<!doctype html>") || !strings.Contains(r.stdout, "claude-desktop -&gt; npx @example/shell-mcp") {
+		t.Fatalf("dashboard: code %d, stderr %q", r.code, r.stderr)
+	}
+	r = invoke("--store", store, "dashboard", "--format", "json", "--stale-days", "1")
+	var s struct {
+		StaleDays     int  `json:"staleDays"`
+		PolicyChecked bool `json:"policyChecked"`
+		Totals        struct{ Stale int }
+	}
+	if r.code != ExitOK || json.Unmarshal([]byte(r.stdout), &s) != nil || s.StaleDays != 1 || s.PolicyChecked || s.Totals.Stale != 2 {
+		t.Fatalf("dashboard json: %+v, %+v", r, s)
+	}
+}
+
 // The policy gate, driven through the command line: forbidden paths exit 1
 // and are named; a clean graph exits 0.
 func TestCheckExitsNonZeroOnForbiddenPaths(t *testing.T) {
@@ -128,6 +148,9 @@ func TestUsageAndInputErrors(t *testing.T) {
 		{"--store", store, "analyze", "--format", "xml"}, {"--store", store, "analyze", "--x"},
 		{"--store", notDir, "analyze"},
 		{"--store", store, "query"}, {"--store", store, "query", "a", "b"}, {"--store", store, "query", "widgets"},
+		{"--store", store, "dashboard", "--format", "pdf"}, {"--store", store, "dashboard", "--stale-days", "-1"},
+		{"--store", store, "dashboard", "--x"}, {"--store", store, "dashboard", "--policy", badPolicy},
+		{"--store", notDir, "dashboard"},
 		{"--store", store, "query", "agents", "--format", "xml"}, {"--store", store, "query", "--x"},
 		{"--store", store, "query", "agents where destructive"}, {"--store", notDir, "query", "agents"},
 		{"--store", store, "check"}, {"--store", store, "check", "--policy", filepath.Join(dir, "none.yaml")},
@@ -205,7 +228,7 @@ func TestNoCommandContactsTheNetwork(t *testing.T) {
 	exp := put(t, dir, "g.json", invoke("--store", store, "export").stdout)
 	commands := [][]string{
 		{"ingest", att, cfg}, {"analyze"}, {"query", "agents -> tools"}, {"check", "--policy", pol},
-		{"export", "--format", "graphml"}, {"import", exp}, {"version"},
+		{"export", "--format", "graphml"}, {"import", exp}, {"dashboard", "--policy", pol}, {"version"},
 	}
 	for _, offline := range []bool{false, true} {
 		for _, c := range commands {
