@@ -10,13 +10,37 @@ release moves the patch digit.
 
 ## [Unreleased]
 
-The family's seventh release. The commands, the query language, the
-policy file, the graph format and the exit statuses are unchanged from
-0.0.5; passmcp 0.0.6 had no passmcp-graph release, so this member goes
-from 0.0.5 to 0.0.7.
+The family's seventh release. One command is added, `dashboard`; the
+other commands, the query language, the policy file, the graph format and
+the exit statuses are unchanged from 0.0.5. passmcp 0.0.6 had no
+passmcp-graph release, so this member goes from 0.0.5 to 0.0.7.
+
+### Added
+
+- **`dashboard`** writes the graph as one self-contained HTML page for
+  an operator to read or share. It leads with the item to look at first,
+  with its evidence age, the client configured to reach the server, and
+  links to the evidence and the affected path; then the totals; the
+  configured tool paths split into declared read-only, declared mutating
+  and unknown; the servers by status; an exact, animated client -> server
+  -> tool topology with a path table as its text equivalent; attention
+  items, as findings and evidence gaps; and details panels for every
+  server, client, identity and finding. Search and filters scope every
+  widget alike and say what they show. `--open` shows it in the default
+  browser, `--out FILE` keeps it, `--share-safe` replaces endpoints,
+  identities, local paths and token-shaped strings, `--stale-days` sets
+  the staleness threshold (default 30) and `--format json` prints the
+  summary, with each headline metric's unit and denominator. It follows
+  the system's light or dark mode with a switch to override it, reflows
+  down to 320 CSS pixels, honours reduced motion and forced colours, and
+  meets WCAG 2.2 AA contrast in both themes. The page loads nothing, and
+  its Content-Security-Policy has the browser enforce that. The exit
+  status is 0 even when the policy is violated; `check` stays the gate.
 
 ### Changed
 
+- **The manual carries passmcp's flame** as its logo and favicon, as
+  passmcp's own manual does; the dashboard page inlines the same mark.
 - **GitHub Actions updated**: `github/codeql-action` 4.38.3,
   `actions/upload-artifact` 7.0.2 and `ossf/scorecard-action` 2.5.0
   ([#8](https://github.com/sebastienrousseau/passmcp-graph/pull/8)).
