@@ -8,6 +8,22 @@ All notable changes to passmcp-graph are documented here. The format follows
 [Semantic Versioning](https://semver.org/) shaped; before 1.0 every
 release moves the patch digit.
 
+## [Unreleased]
+
+### Changed
+
+- **GitHub Actions updated**: `github/codeql-action` 4.38.3,
+  `actions/upload-artifact` 7.0.2 and `ossf/scorecard-action` 2.5.0
+  ([#8](https://github.com/sebastienrousseau/passmcp-graph/pull/8)).
+
+### Security
+
+- **Build with Go 1.26.9.** The `go` directive moves from 1.26.8, which
+  `govulncheck` reports as reachable by five standard-library advisories
+  in `net/http` and its HTTP/2 server (GO-2026-6603, GO-2026-6611,
+  GO-2026-6612, GO-2026-6613 and GO-2026-6617), all fixed in 1.26.9.
+  Release binaries are built with this toolchain.
+
 ## [0.0.5] - 2026-10-12
 
 ### Fixed
