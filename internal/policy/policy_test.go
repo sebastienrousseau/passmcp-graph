@@ -15,7 +15,7 @@ const strict = `
 version: 1
 forbid:
   - name: unattested
-    reason: an agent uses a server nobody has attested
+    reason: a configured client references a server with no loaded attestation
     query: agents -> servers where not attested
   - name: stale
     reason: the attestation is older than 30 days
