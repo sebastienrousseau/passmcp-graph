@@ -12,7 +12,7 @@ file.
 
 | Tool | Version | Why |
 | :--- | :--- | :--- |
-| Go | 1.26.8 or later: the `go` directive in `go.mod` | CI tests on that version and on latest stable, on Linux, macOS and Windows; `GOTOOLCHAIN=auto` downloads it |
+| Go | 1.26.9 or later: the `go` directive in `go.mod` | CI tests on that version and on latest stable, on Linux, macOS and Windows; `GOTOOLCHAIN=auto` downloads it |
 | make | GNU make | Task runner; `GNUmakefile` adds the install contract |
 | golangci-lint | v2.13.2, the version `ci.yml` pins | `make lint` |
 
