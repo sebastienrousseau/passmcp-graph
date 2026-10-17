@@ -34,6 +34,7 @@
   --crit: #d92d3f; --unatt: #d9480f; --stale: #a86a12; --ok: #0c8a64;
   --ro: #2a6fd0; --wr: #d9531e;
   --shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 28px rgba(15, 23, 42, 0.06);
+  --solid: #ffffff;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -48,6 +49,7 @@
     --crit: #ff5c6c; --unatt: #ff8a4c; --stale: #f5c044; --ok: #2fd4a3;
     --ro: #4b93ea; --wr: #f0743c;
     --shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+    --solid: #12122a;
   }
 }
 :root[data-theme="dark"] {
@@ -62,6 +64,7 @@
   --crit: #ff5c6c; --unatt: #ff8a4c; --stale: #f5c044; --ok: #2fd4a3;
   --ro: #4b93ea; --wr: #f0743c;
   --shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+  --solid: #12122a;
 }
 
 * { box-sizing: border-box; }
@@ -157,6 +160,26 @@ section { margin-bottom: 18px; }
 .chip:hover { border-color: var(--line-2); color: var(--ink); }
 .chip[aria-pressed="true"] { color: var(--ink); border-color: var(--accent); background: var(--accent-soft); }
 .chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.scopebar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.selpill { display: inline-flex; align-items: center; gap: 6px; padding: 2px 4px 2px 12px; border-radius: 999px; font-size: 14px; color: var(--ink); background: var(--accent-soft); border: 1px solid var(--accent); }
+.selpill[hidden] { display: none; }
+.selpill .x { all: unset; cursor: pointer; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; font-size: 16px; color: var(--ink); }
+.selpill .x:hover { background: var(--glass-2); }
+.selpill .x:focus-visible { outline: 2px solid var(--accent); }
+.tag { display: inline-flex; align-items: center; padding: 1px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: .03em; color: var(--ink-2); border: 1px solid var(--line-2); vertical-align: middle; margin-left: 6px; white-space: nowrap; }
+.tag.sel { color: var(--ink); border-color: var(--accent); background: var(--accent-soft); }
+.switch { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; font-size: 14px; color: var(--ink-2); cursor: pointer; }
+.switch input { width: 18px; height: 18px; accent-color: var(--accent-2); margin: 0; }
+.legends { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 20px; margin-top: 14px; }
+.legends > div { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 14px; color: var(--ink-2); align-content: flex-start; }
+.legends b { width: 100%; font-size: 12.5px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.legends span { display: inline-flex; align-items: center; gap: 6px; }
+.ctxnote[hidden] { display: none; }
+.repro { display: grid; gap: 8px; margin: 0 0 16px; }
+.repro .row1 { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; font-size: 14.5px; color: var(--ink-2); }
+.repro .note { font-size: 13.5px; color: var(--muted); }
+.back { margin: 0 0 12px; }
+.back[hidden] { display: none; }
 .scope { margin: 0; font-size: 14.5px; color: var(--ink-2); }
 .scope b { color: var(--ink); }
 
@@ -190,12 +213,15 @@ section { margin-bottom: 18px; }
 .topo text { fill: var(--ink-2); font-size: 14px; }
 .topo .col { fill: var(--muted); font-size: 12.5px; letter-spacing: .08em; text-transform: uppercase; }
 .topo .it { transition: opacity .35s; }
-.topo .it.out { opacity: .07; }
+.topo .it.out { display: none; }
+.topo.ctx .it.out { display: inline; opacity: .12; }
 .e { fill: none; stroke-linecap: round; }
 .e.cs { stroke: var(--flow); stroke-opacity: .5; stroke-width: 1.8; }
 .e.ts { stroke-width: 1.6; stroke-opacity: .65; }
 .e.b-read-only { stroke: var(--ro); } .e.b-mutating { stroke: var(--wr); } .e.b-unannotated { stroke: var(--muted); stroke-dasharray: 4 4; }
 .e.destr { stroke-width: 2.6; }
+.e.destr-presumed { stroke-dasharray: 6 4; }
+.e.destr-presumed.draw { animation: none; stroke-dashoffset: 0; }
 .draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 1.4s cubic-bezier(.6,.1,.2,1) forwards; animation-delay: calc(var(--i, 0) * 45ms + .15s); }
 .e.b-unannotated.draw { animation: none; stroke-dashoffset: 0; }
 .spark { fill: none; stroke: var(--spark); stroke-width: 2.4; stroke-linecap: round; stroke-dasharray: 1.2 18; opacity: .85; animation: flow 3.2s linear infinite; animation-delay: calc(var(--i, 0) * -0.37s); pointer-events: none; }
@@ -208,6 +234,7 @@ section { margin-bottom: 18px; }
 .n-tool { stroke-width: 2; }
 .n-tool.b-read-only { fill: var(--ro); stroke: var(--ro); } .n-tool.b-mutating { fill: var(--wr); stroke: var(--wr); } .n-tool.b-unannotated { fill: url(#hatch); stroke: var(--muted); }
 .n-tool.destr { stroke: var(--crit); stroke-width: 3; }
+.n-tool.destr-presumed { stroke-dasharray: 3 2.4; }
 .hatch-line { stroke: var(--muted); stroke-width: 1.5; }
 .node-in { opacity: 0; animation: rise .7s cubic-bezier(.2,.7,.2,1) forwards; animation-delay: calc(var(--i, 0) * 50ms + .2s); }
 .legend { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 14px; color: var(--ink-2); margin-top: 12px; }
@@ -216,6 +243,7 @@ section { margin-bottom: 18px; }
 .sw.ro { background: var(--ro); } .sw.mu { background: var(--wr); }
 .sw.un { background: repeating-linear-gradient(135deg, var(--muted) 0 2px, transparent 2px 4px); border-color: var(--muted); }
 .sw.de { background: transparent; border-color: var(--crit); border-width: 3px; }
+.sw.dp { background: transparent; border: 3px dashed var(--crit); }
 .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--c, var(--muted)); display: inline-block; flex: none; }
 .st-critical { --c: var(--crit); } .st-unattested { --c: var(--unatt); } .st-stale { --c: var(--stale); } .st-ok { --c: var(--ok); }
 
@@ -285,10 +313,13 @@ dl.kv dd { margin: 0; color: var(--ink); overflow-wrap: anywhere; }
 table { width: 100%; border-collapse: collapse; font-size: 14px; }
 caption { text-align: left; color: var(--ink-2); font-size: 14px; padding: 0 10px 10px; }
 th { text-align: left; color: var(--ink-2); font-weight: 600; font-size: 13px; letter-spacing: .04em; text-transform: uppercase; padding: 8px 10px; border-bottom: 1px solid var(--line-2); white-space: nowrap; }
-td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+td, tbody th { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tbody th { font-weight: 400; text-align: left; text-transform: none; letter-spacing: 0; white-space: normal; font-size: 14px; color: var(--ink); }
 tbody tr:hover { background: var(--glass-2); }
 td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
 td.server { min-width: 220px; }
+th.pin, td.pin { position: sticky; left: 0; z-index: 1; background: var(--solid); box-shadow: 1px 0 0 var(--line-2); }
+table.core .x { display: none; }
 td .d { color: var(--ink-2); font-size: 13.5px; }
 details.drawer { border: 1px solid var(--line); border-radius: 16px; background: var(--glass-2); margin-bottom: 10px; scroll-margin-top: 16px; }
 details.drawer > summary { cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 12px 16px; list-style: none; flex-wrap: wrap; }
@@ -310,6 +341,7 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
 @keyframes grow { from { transform: scaleX(0); } }
 @keyframes ping { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--c) 60%, transparent); } 80%, 100% { box-shadow: 0 0 0 10px transparent; } }
 
+@media (max-width: 900px) { .legends { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 1180px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cols, .ov { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 860px) {
   .app { grid-template-columns: minmax(0, 1fr); }
@@ -343,6 +375,7 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
   .draw { stroke-dashoffset: 0; } .reveal, .node-in { opacity: 1; }
+  .spark { display: none; }
 }
 @media print {
   :root { color-scheme: light; --bg: #fff; --glass: #fff; --glass-2: #fff; --ink: #000; --ink-2: #222; --muted: #444; --line: #ccc; --line-2: #999; }
@@ -402,7 +435,7 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
     </div>
 
     {{with .TopIssue}}
-    <section class="panel issue {{.Severity}}" aria-labelledby="top-issue">
+    <section class="panel issue {{.Severity}}" id="top" aria-labelledby="top-issue">
       <span class="fi" style="--c: var(--{{if eq .Severity "critical"}}crit{{else}}stale{{end}})" aria-hidden="true"><svg class="ico"><use href="#i-{{if eq .Severity "critical"}}flame{{else}}alert{{end}}"/></svg></span>
       <div>
         <h2 class="k" id="top-issue">Look at this first · {{.Severity}}</h2>
@@ -424,8 +457,9 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
     </section>
     {{end}}
 
+    <h2 class="sr-only">Whole snapshot</h2>
     <section class="kpis" aria-label="Totals for the whole snapshot">
-      <div class="panel kpi reveal" style="--i: 1"><span class="fi" aria-hidden="true"><svg class="ico"><use href="#i-server"/></svg></span><span class="num" data-count="">{{.Totals.Servers}}</span><div class="lbl">MCP servers</div><div class="hint">{{.Totals.Attested}} with diagnostic evidence</div><div class="hint">{{if .Totals.Scored}}Mean available score {{.Totals.AvgScore}} ({{.Totals.Scored}} scored){{else}}No server scored{{end}}</div></div>
+      <div class="panel kpi reveal" style="--i: 1"><span class="fi" aria-hidden="true"><svg class="ico"><use href="#i-server"/></svg></span><span class="num" data-count="">{{.Totals.Servers}}</span><div class="lbl">MCP servers <span class="tag">Whole snapshot</span></div><div class="hint">{{.Totals.Attested}} with diagnostic evidence</div><div class="hint">{{if .Totals.Scored}}Mean available score {{.Totals.AvgScore}} ({{.Totals.Scored}} scored){{else}}No server scored{{end}}</div></div>
       <div class="panel kpi reveal" style="--i: 2"><span class="fi" aria-hidden="true"><svg class="ico"><use href="#i-bot"/></svg></span><span class="num" data-count="">{{.Totals.Agents}}</span><div class="lbl">Configured clients</div><div class="hint">Configurations, not running processes</div><div class="hint">{{plural .Totals.Identities "identity" "identities"}} on their servers</div></div>
       <div class="panel kpi reveal" style="--i: 3"><span class="fi" aria-hidden="true"><svg class="ico"><use href="#i-tool"/></svg></span><span class="num" data-count="">{{.Totals.Tools}}</span><div class="lbl">Tools</div><div class="hint">{{.Totals.DestructiveTools}} potentially destructive</div><div class="hint">Counted per server</div></div>
       <div class="panel kpi reveal" style="--i: 4"><span class="fi" style="--c: var(--crit)" aria-hidden="true"><svg class="ico"><use href="#i-alert"/></svg></span><span class="num" data-count="">{{sum (len .Findings) (len .Gaps)}}</span><div class="lbl">Attention items</div><div class="hint">{{plural (len .Findings) "finding" "findings"}} · {{plural (len .Gaps) "evidence gap" "evidence gaps"}}</div><div class="hint"><a class="link" href="#findings">View them</a></div></div>
@@ -434,7 +468,7 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
     <section id="overview" class="panel reveal" aria-labelledby="ov-h">
       <div class="ov">
         <div>
-          <h1 id="ov-h">MCP security overview</h1>
+          <h1 id="ov-h">MCP security overview <span class="tag">Whole snapshot</span></h1>
           <p class="lede">What {{plural .Totals.Agents "configured client" "configured clients"}} can reach through {{plural .Totals.Servers "MCP server" "MCP servers"}}, from their configuration files, and what passmcp's evidence says about each server. Reach is configured, not observed: no tool call is recorded. Evidence older than {{.StaleDays}} days counts as stale. These totals count the whole snapshot, whatever the filters.</p>
           <div class="figure"><span class="num" data-count="">{{.Hero.Paths}}</span><span>configured client → server → tool paths</span></div>
           <div class="breakdown" role="img" aria-label="{{.Hero.ReadOnly}} declared read-only, {{.Hero.Mutating}} declared mutating, {{.Hero.Unannotated.Num}} unknown">{{if .Hero.ReadOnly}}<span class="ro" style="flex: {{.Hero.ReadOnly}}"></span>{{end}}{{if .Hero.Mutating}}<span class="mu" style="flex: {{.Hero.Mutating}}"></span>{{end}}{{if .Hero.Unannotated.Num}}<span class="un" style="flex: {{.Hero.Unannotated.Num}}"></span>{{end}}</div>
@@ -463,34 +497,40 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
       <div class="frow">
         <div class="chips" role="group" aria-label="Server status">
           <span class="lbl">Server status</span>
-          <button type="button" class="chip st-critical" data-st="st-critical" aria-pressed="false"><i class="dot"></i>Critical findings</button>
-          <button type="button" class="chip st-unattested" data-st="st-unattested" aria-pressed="false"><i class="dot"></i>No evidence</button>
-          <button type="button" class="chip st-stale" data-st="st-stale" aria-pressed="false"><i class="dot"></i>Stale evidence</button>
-          <button type="button" class="chip st-ok" data-st="st-ok" aria-pressed="false"><i class="dot"></i>No failing server checks</button>
+          <button type="button" class="chip st-critical" data-st="st-critical" data-q="{{index $.StatusQuery "st-critical"}}" aria-pressed="false"><i class="dot"></i>Critical findings</button>
+          <button type="button" class="chip st-unattested" data-st="st-unattested" data-q="{{index $.StatusQuery "st-unattested"}}" aria-pressed="false"><i class="dot"></i>No evidence</button>
+          <button type="button" class="chip st-stale" data-st="st-stale" data-q="{{index $.StatusQuery "st-stale"}}" aria-pressed="false"><i class="dot"></i>Stale evidence</button>
+          <button type="button" class="chip st-ok" data-st="st-ok" data-q="{{index $.StatusQuery "st-ok"}}" aria-pressed="false"><i class="dot"></i>No failing server checks</button>
         </div>
         <div class="chips" role="group" aria-label="Tool behaviour">
           <span class="lbl">Tools</span>
-          <button type="button" class="chip" data-bh="destr" aria-pressed="false"><i class="sw de"></i>Potentially destructive</button>
-          <button type="button" class="chip" data-bh="unann" aria-pressed="false"><i class="sw un"></i>Unannotated</button>
+          <button type="button" class="chip" data-bh="destr" data-q="{{index $.BehaviourQuery "destr"}}" aria-pressed="false"><i class="sw de"></i>Potentially destructive</button>
+          <button type="button" class="chip" data-bh="unann" data-q="{{index $.BehaviourQuery "unann"}}" aria-pressed="false"><i class="sw un"></i>Unannotated</button>
         </div>
       </div>
-      <p class="scope" id="scope" role="status" aria-live="polite">Showing everything in the snapshot.</p>
+      <div class="scopebar">
+        <span class="selpill" id="selpill" hidden>Current selection: <b id="selwhat"></b><button type="button" class="x" id="selclear" aria-label="Clear the selection">×</button></span>
+        <p class="scope" id="scope" role="status" aria-live="polite">Showing the whole snapshot.</p>
+      </div>
     </section>
 
 
     <section id="topology" class="panel reveal" style="--i: 1" aria-labelledby="topo-h">
       <div class="topo-head">
-        <div><h2 id="topo-h"><svg class="ico" aria-hidden="true"><use href="#i-graph"/></svg>Topology</h2>
-          <p class="sub" style="margin: 0">Every configured client → server → tool relationship, exactly. Choose a client to see only its paths; select a server or tool for its details. The <a class="link" href="#paths">path table</a> lists the same paths as text.</p></div>
+        <div><h2 id="topo-h"><svg class="ico" aria-hidden="true"><use href="#i-graph"/></svg>Topology<span class="tag" data-scope-tag>Whole snapshot</span></h2>
+          <p class="sub" style="margin: 0">Every configured client → server → tool relationship, exactly. Choose a client to filter to its paths, or show the surrounding context faded; select a server or tool for its details. The <a class="link" href="#paths">path table</a> lists the same paths as text.</p></div>
       </div>
-      <div class="chips" role="group" aria-label="Show the paths of one client" style="margin-top: 12px">
+      <div class="frow" style="margin-top: 12px; justify-content: space-between">
+      <div class="chips" role="group" aria-label="Filter to one client's paths">
         <button type="button" class="chip" data-pick="" aria-pressed="true">All clients</button>
-        {{range .Agents}}<button type="button" class="chip" data-pick="{{.Anchor}}" aria-pressed="false">{{.Name}}</button>{{end}}
+        {{range .Agents}}<button type="button" class="chip" data-pick="{{.Anchor}}" data-q="{{.Query}}" aria-pressed="false">{{.Name}}</button>{{end}}
+      </div>
+      <label class="switch"><input type="checkbox" id="ctx"> Show surrounding context</label>
       </div>
       {{if .Topology.Hidden}}<p class="sub" style="margin: 10px 0 0">Not drawn: {{.Topology.Hidden}}. The path table lists them all.</p>{{end}}
       {{if .Topology.Folded}}<p class="sub" style="margin: 10px 0 0">Many tools: each server's tools are drawn as one node. The path table and the server details list each tool.</p>{{end}}
       <div class="topo-wrap">
-        <svg class="topo" viewBox="0 0 1000 {{.Topology.Height}}" role="img" aria-labelledby="topo-t">
+        <svg class="topo" id="topo" viewBox="0 0 1000 {{.Topology.Height}}" role="img" aria-labelledby="topo-t">
           <title id="topo-t">{{.Totals.Agents}} configured clients joined to {{.Totals.Servers}} servers and their {{.Totals.Tools}} tools; the path table lists every path.</title>
           <defs><pattern id="hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="hatch-line" x1="0" y1="0" x2="0" y2="5"/></pattern></defs>
           <text class="col" x="200" y="14" text-anchor="middle">Clients</text>
@@ -506,20 +546,25 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
           {{end}}
         </svg>
       </div>
-      <div class="legend"><span><i class="sw ro"></i>Declared read-only</span><span><i class="sw mu"></i>Declared mutating</span><span><i class="sw un"></i>No annotation: unknown</span><span><i class="sw de"></i>Potentially destructive</span><span class="st-critical"><i class="dot"></i>Critical findings</span><span class="st-unattested"><i class="dot"></i>No evidence</span><span class="st-stale"><i class="dot"></i>Stale evidence</span><span class="st-ok"><i class="dot"></i>No failing server checks</span></div>
+      <div class="legends">
+        <div><b>Server evidence</b><span class="st-critical"><i class="dot"></i>Critical findings</span><span class="st-unattested"><i class="dot"></i>No evidence</span><span class="st-stale"><i class="dot"></i>Stale evidence</span><span class="st-ok"><i class="dot"></i>No failing server checks</span></div>
+        <div><b>Declared tool behaviour (fill)</b><span><i class="sw ro"></i>Read-only</span><span><i class="sw mu"></i>Mutating</span><span><i class="sw un"></i>Unknown: no annotation</span></div>
+        <div><b>Destructive classification (ring)</b><span><i class="sw de"></i>Declared destructive</span><span><i class="sw dp"></i>Presumed: MCP default</span><span class="ctxnote" id="ctxnote" hidden>Faded: outside the current selection</span></div>
+      </div>
     </section>
 
 
     <div class="cols">
       <section id="findings" class="panel reveal" style="--i: 2" aria-labelledby="fnd-h">
-        <h2 id="fnd-h"><svg class="ico" aria-hidden="true"><use href="#i-alert"/></svg>Attention items</h2>
-        <p class="sub">{{plural (len .Findings) "finding" "findings"}} and {{plural (len .Gaps) "evidence gap" "evidence gaps"}}. Open one for its path, its evidence, what is not known, and a read-only next step.</p>
+        <h2 id="fnd-h"><svg class="ico" aria-hidden="true"><use href="#i-alert"/></svg>Attention items<span class="tag" data-scope-tag>Whole snapshot</span></h2>
+        <p class="sub"><span id="attcount" data-findings="{{len .Findings}}" data-gaps="{{len .Gaps}}">{{plural (sum (len .Findings) (len .Gaps)) "attention item" "attention items"}}: {{plural (len .Findings) "finding" "findings"}} · {{plural (len .Gaps) "evidence gap" "evidence gaps"}}.</span> Open one for its path, its evidence, what is not known, and a read-only next step.</p>
         <h3>Findings</h3>
         {{range .Findings}}
         <details class="fd" id="{{.Anchor}}" data-f data-kind="finding" data-tags="{{.Tags}}" data-text="{{.Text}}">
           <summary><span class="fi {{if eq .Severity "critical"}}st-critical{{else}}st-unattested{{end}}" aria-hidden="true"><svg class="ico"><use href="#i-{{if eq .Kind "over-privileged"}}key{{else if eq .Kind "policy"}}lock{{else}}flame{{end}}"/></svg></span>
             <span><span class="t">{{.Title}}</span><br><span class="d"><span class="mono">{{.Rule}}</span> · {{.Severity}}</span></span>
             <svg class="ico chev" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+          <button type="button" class="btn back" data-back hidden style="margin-left: 48px">← Back</button>
           <dl class="kv">
             <dt>Path</dt><dd class="mono">{{.Path}}</dd>
             <dt>Evidence</dt><dd>{{.Evidence}}</dd>
@@ -539,6 +584,7 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
           <summary><span class="fi {{if eq .Kind "no-evidence"}}st-unattested{{else}}st-stale{{end}}" aria-hidden="true"><svg class="ico"><use href="#i-server"/></svg></span>
             <span><span class="t">{{.Title}}</span><br><span class="d">{{if eq .Kind "no-evidence"}}no evidence{{else}}stale evidence{{end}}</span></span>
             <svg class="ico chev" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+          <button type="button" class="btn back" data-back hidden style="margin-left: 48px">← Back</button>
           <dl class="kv">
             <dt>What</dt><dd>{{.Detail}}</dd>
             <dt>Server</dt><dd><a class="link mono" href="#{{.Server.Anchor}}">{{.Server.Name}}</a></dd>
@@ -553,7 +599,7 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
 
       <div class="stack-col">
       <section id="servers" class="panel reveal" style="--i: 3" aria-labelledby="srv-h">
-        <h2 id="srv-h"><svg class="ico" aria-hidden="true"><use href="#i-server"/></svg>Servers</h2>
+        <h2 id="srv-h"><svg class="ico" aria-hidden="true"><use href="#i-server"/></svg>Servers<span class="tag" data-scope-tag>Whole snapshot</span></h2>
         <p class="sub">One bubble per server. Its area is proportional to the tools it exposes; the letter is its grade, a dash when it has none. Select one for its details.</p>
         <div class="bubbles">
           {{range $i, $s := .Servers}}
@@ -567,7 +613,7 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
         </div>
       </section>
       <section id="identities" class="panel reveal" style="--i: 4" aria-labelledby="idn-h">
-        <h2 id="idn-h"><svg class="ico" aria-hidden="true"><use href="#i-key"/></svg>Identities</h2>
+        <h2 id="idn-h"><svg class="ico" aria-hidden="true"><use href="#i-key"/></svg>Identities<span class="tag" data-scope-tag>Whole snapshot</span></h2>
         <p class="sub">OAuth identities recorded on the servers, and the clients configured to reach those servers.</p>
       <div class="rows">
         {{range .Identities}}
@@ -575,7 +621,7 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
           <div class="avatar{{if .OverPrivileged}} alert{{end}}" aria-hidden="true">{{initial .Label}}</div>
           <div style="min-width: 0"><div class="t">{{.Label}}</div><div class="d mono">{{.Issuer}}</div>
             <div class="pills"><span class="pill">{{plural (len .Grants) "server" "servers"}}</span>{{if .OverPrivileged}}<span class="pill st-unattested"><i class="dot"></i>over-privileged</span>{{end}}</div></div>
-          <div class="reach"><span class="num">{{len .Clients}}</span> <small>{{if eq (len .Clients) 1}}client reaches{{else}}clients reach{{end}} its servers</small></div>
+          <div class="reach"><span class="num">{{len .Clients}}</span> <small>{{if eq (len .Clients) 1}}client reaches{{else}}clients reach{{end}} its servers</small><small class="idsel" data-clients="{{range .Clients}}{{.Anchor}} {{end}}" data-total="{{len .Clients}}"></small></div>
         </a>
         {{end}}
       </div>
@@ -585,7 +631,7 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
     </div>
 
     <section id="clients" class="panel reveal" style="--i: 4" aria-labelledby="cli-h">
-      <h2 id="cli-h"><svg class="ico" aria-hidden="true"><use href="#i-bot"/></svg>Configured clients</h2>
+      <h2 id="cli-h"><svg class="ico" aria-hidden="true"><use href="#i-bot"/></svg>Configured clients<span class="tag" data-scope-tag>Whole snapshot</span></h2>
       <p class="sub">Every client read from a configuration file and the tools its configuration reaches, widest reach first. A client here is a configuration, not a running agent.</p>
       <div class="legend" style="margin: -6px 0 14px"><span><i class="sw ro"></i>Declared read-only</span><span><i class="sw mu"></i>Declared mutating</span><span><i class="sw un"></i>No annotation: unknown</span></div>
       <div class="rows">
@@ -616,8 +662,12 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
     </section>
 
     <section id="paths" class="panel reveal" style="--i: 5" aria-labelledby="path-h">
-      <h2 id="path-h"><svg class="ico" aria-hidden="true"><use href="#i-list"/></svg>Paths</h2>
-      <p class="sub">Every configured client → server → tool path, the text equivalent of the topology. Reproduce it with <code>passmcp-graph query "agents -> tools"</code>.</p>
+      <h2 id="path-h"><svg class="ico" aria-hidden="true"><use href="#i-list"/></svg>Paths<span class="tag" data-scope-tag>Whole snapshot</span></h2>
+      <p class="sub">Every configured client → server → tool path, the text equivalent of the topology.</p>
+      <div class="repro" data-base="{{repro ""}}">
+        <div class="row1"><span id="reprolabel">Query all configured paths:</span> <code id="repro">{{command (repro "")}}</code> <button type="button" class="btn" data-copy-from="repro">Copy command</button></div>
+        <span class="note" id="repronote">{{commandNote}}</span>
+      </div>
       <div class="scroll"><table>
         <caption>Configured paths as of {{.Generated}}, by client, then server, then tool.</caption>
         <thead><tr><th scope="col">Client</th><th scope="col">Server</th><th scope="col">Tool</th><th scope="col">Declared behaviour</th><th scope="col">Potentially destructive</th></tr></thead>
@@ -629,16 +679,18 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
     </section>
 
     <section id="evidence" class="panel reveal" style="--i: 6" aria-labelledby="ev-h">
-      <h2 id="ev-h"><svg class="ico" aria-hidden="true"><use href="#i-server"/></svg>Server evidence</h2>
+      <h2 id="ev-h"><svg class="ico" aria-hidden="true"><use href="#i-server"/></svg>Server evidence<span class="tag" data-scope-tag>Whole snapshot</span></h2>
       <p class="sub">Every server's figures as a table, worst status first.</p>
-      <div class="scroll"><table>
-        <caption>Servers as of {{.Generated}}. Server status covers the server's own diagnostics and evidence; staleness is shown as well when it is not the status. A dash means the evidence has no value for it.</caption>
-        <thead><tr><th scope="col">Server status</th><th scope="col">Server</th><th scope="col">Auth in evidence</th><th scope="col">Grade</th><th scope="col" class="n">Score</th><th scope="col" class="n">Evidence age (days)</th><th scope="col" class="n">Tools</th><th scope="col" class="n">Potentially destructive</th><th scope="col" class="n">Configured clients</th><th scope="col" class="n">Related findings</th><th scope="col">Failing critical checks</th></tr></thead>
+      <label class="switch" style="margin-bottom: 8px"><input type="checkbox" id="allcols"> Show all columns</label>
+      <div class="scroll"><table class="core" id="evtable">
+        <caption>Servers as of {{.Generated}}. Server status covers the server's own diagnostics and evidence; staleness is shown as well when it is not the status. A dash means the evidence has no value for it. Turn on all columns for potentially destructive tools, clients, related findings and failing checks; the table scrolls sideways when they do not fit, and the server column stays in place.</caption>
+        <thead><tr><th scope="col" class="pin">Server</th><th scope="col">Server status</th><th scope="col">Auth in evidence</th><th scope="col">Grade</th><th scope="col" class="n">Score</th><th scope="col" class="n">Evidence age (days)</th><th scope="col" class="n">Tools</th><th scope="col" class="n x">Potentially destructive</th><th scope="col" class="n x">Configured clients</th><th scope="col" class="n x">Related findings</th><th scope="col" class="x">Failing critical checks</th></tr></thead>
         <tbody>{{range .Servers}}
-          <tr data-f data-kind="server" data-tags="{{.Tags}}" data-text="{{.Text}}"><td><span class="pill st-{{.Status}}"><i class="dot"></i>{{.StatusLabel}}</span>{{if and .Stale (ne .Status "stale")}} <span class="pill st-stale"><i class="dot"></i>Stale evidence</span>{{end}}</td>
-            <td class="server"><a class="link mono" href="#{{.Anchor}}">{{.Endpoint}}</a><div class="d">{{.Transport}}{{if .Name}} · {{.Name}}{{end}}</div></td>
+          <tr data-f data-kind="server" data-tags="{{.Tags}}" data-text="{{.Text}}">
+            <th scope="row" class="server pin"><a class="link mono" href="#{{.Anchor}}">{{.Endpoint}}</a><div class="d">{{.Transport}}{{if .Name}} · {{.Name}}{{end}}</div></th>
+            <td><span class="pill st-{{.Status}}"><i class="dot"></i>{{.StatusLabel}}</span>{{if and .Stale (ne .Status "stale")}} <span class="pill st-stale"><i class="dot"></i>Stale evidence</span>{{end}}</td>
             <td>{{.AuthLabel}}</td><td>{{or0 .Grade}}</td><td class="n">{{or0 .Score}}</td><td class="n">{{or0 .AgeDays}}</td>
-            <td class="n">{{.Tools}}</td><td class="n">{{.Destructive}}</td><td class="n">{{.Agents}}</td><td class="n">{{.RelatedFindings}}</td><td class="mono">{{join .Critical ", "}}</td></tr>{{else}}
+            <td class="n">{{.Tools}}</td><td class="n x">{{.Destructive}}</td><td class="n x">{{.Agents}}</td><td class="n x">{{.RelatedFindings}}</td><td class="mono x">{{join .Critical ", "}}</td></tr>{{else}}
           <tr><td colspan="11" class="d">No server.</td></tr>{{end}}
         </tbody>
       </table></div>
@@ -652,7 +704,7 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
       {{range .Servers}}
       <details class="drawer" id="{{.Anchor}}">
         <summary><span class="pill st-{{.Status}}"><i class="dot"></i>{{.StatusLabel}}</span>{{if and .Stale (ne .Status "stale")}}<span class="pill st-stale"><i class="dot"></i>Stale evidence</span>{{end}}<span class="mono">{{.Endpoint}}</span></summary>
-        <div class="body"><dl class="kv">
+        <div class="body"><button type="button" class="btn back" data-back hidden>← Back</button><dl class="kv">
           <dt>Transport</dt><dd>{{or0 .Transport}}</dd>
           <dt>Reports itself as</dt><dd>{{or0 .Name}}{{if .Version}} {{.Version}}{{end}}</dd>
           <dt>Auth in evidence</dt><dd>{{.AuthLabel}}</dd>
@@ -663,7 +715,7 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
           <dt>Tools</dt><dd>{{range .ToolList}}<span class="pill"{{if .Destructive}} style="--c: var(--wr)"{{end}}>{{.Name}} · {{if eq .Behavior "unannotated"}}unknown{{else}}{{.Behavior}}{{end}}{{if eq .DestructiveBasis "declared"}} · declared destructive{{else if eq .DestructiveBasis "presumed"}} · presumed destructive{{end}}</span> {{else}}none exposed{{end}}</dd>
           <dt>Clients</dt><dd class="refs">{{range .Clients}}<a class="link" href="#{{.Anchor}}">{{.Name}}</a>{{else}}none configured{{end}}</dd>
           <dt>Identities</dt><dd class="refs">{{range .Grants}}<span><a class="link" href="#{{.Identity.Anchor}}">{{.Identity.Name}}</a>: <span class="mono">{{join .Scopes ", "}}</span>{{if .OverPrivileged}} · over-privileged{{end}}</span>{{else}}none recorded{{end}}</dd>
-          {{if .Query}}<dt>Reproduce</dt><dd><code>{{.Query}}</code></dd>{{end}}
+          {{if .Query}}<dt>Reproduce</dt><dd><code>{{.Query}}</code> lists this server's tools. {{commandNote}}</dd>{{end}}
         </dl></div>
       </details>
       {{end}}
@@ -671,12 +723,12 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
       {{range .Agents}}
       <details class="drawer" id="{{.Anchor}}">
         <summary><strong>{{.Name}}</strong><span class="mono">{{.ConfigFile}}</span></summary>
-        <div class="body"><dl class="kv">
+        <div class="body"><button type="button" class="btn back" data-back hidden>← Back</button><dl class="kv">
           <dt>Client</dt><dd>{{or0 .Client}}, read from configuration; not a running agent</dd>
           <dt>Configuration</dt><dd class="mono">{{or0 .ConfigFile}}</dd>
           <dt>Paths</dt><dd>{{range .Paths}}<div><a class="link mono" href="#{{.Server.Anchor}}">{{.Server.Name}}</a> → <span class="mono">{{.Name}}</span> <span class="pill"{{if .Destructive}} style="--c: var(--wr)"{{end}}>{{if eq .Behavior "unannotated"}}unknown{{else}}{{.Behavior}}{{end}}{{if eq .DestructiveBasis "declared"}} · declared destructive{{else if eq .DestructiveBasis "presumed"}} · presumed destructive{{end}}</span></div>{{else}}none{{end}}</dd>
           <dt>Identities on its servers</dt><dd class="refs">{{range .Identities}}<a class="link" href="#{{.Anchor}}">{{.Name}}</a>{{else}}none recorded{{end}}</dd>
-          <dt>Reproduce</dt><dd><code>passmcp-graph query "agents -> tools"</code></dd>
+          <dt>Reproduce</dt><dd>{{if .Query}}<code>{{command (repro .Query)}}</code> lists these paths. {{commandNote}}{{else}}This client's configuration path cannot be quoted in the query language; <code>{{command (repro "")}}</code> lists every client's paths.{{end}}</dd>
         </dl></div>
       </details>
       {{end}}
@@ -684,7 +736,7 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
       {{range .Identities}}
       <details class="drawer" id="{{.Anchor}}">
         <summary><strong>{{.Label}}</strong>{{if .OverPrivileged}}<span class="pill st-unattested"><i class="dot"></i>over-privileged</span>{{end}}</summary>
-        <div class="body"><dl class="kv">
+        <div class="body"><button type="button" class="btn back" data-back hidden>← Back</button><dl class="kv">
           <dt>Issuer</dt><dd class="mono">{{or0 .Issuer}}</dd>
           <dt>Client ID</dt><dd class="mono">{{or0 .ClientID}}</dd>
           <dt>Grants</dt><dd>{{range .Grants}}<div><a class="link mono" href="#{{.Server.Anchor}}">{{.Server.Name}}</a>: <span class="mono">{{join .Scopes ", "}}</span>{{if .OverPrivileged}} <span class="pill st-unattested"><i class="dot"></i>more than the server's tools need</span>{{end}}</div>{{end}}</dd>
@@ -730,12 +782,14 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
     /* Filters: one state scopes the topology, lists and tables. It lives in
        the history entry, not the address, so reload and back restore it and
        nothing typed into the search reaches a URL. */
-    var state = { q: "", st: [], bh: [], cli: "" };
-    try { if (history.state && history.state.pg) { state = history.state.pg; } } catch (e) {}
+    var blank = function () { return { q: "", st: [], bh: [], cli: "", ctx: false, all: false }; };
+    var state = blank();
+    try { if (history.state && history.state.pg) { state = Object.assign(blank(), history.state.pg); } } catch (e) {}
     var q = document.getElementById("q");
-    var scope = document.getElementById("scope");
     var items = document.querySelectorAll("[data-tags]");
+    var byId = function (id) { return document.getElementById(id); };
     function has(tags, t) { return (" " + tags + " ").indexOf(" " + t + " ") >= 0; }
+    function active() { return !!(state.q || state.cli || state.st.length || state.bh.length); }
     function matches(el) {
       var tags = el.getAttribute("data-tags") || "";
       if (state.cli && !has(tags, state.cli)) { return false; }
@@ -744,33 +798,86 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
       var text = el.getAttribute("data-text") || "";
       return state.q.toLowerCase().split(/\s+/).every(function (w) { return !w || text.indexOf(w) >= 0; });
     }
-    var nouns = { server: ["server", "servers"], client: ["client", "clients"], path: ["path", "paths"], finding: ["finding", "findings"], gap: ["evidence gap", "evidence gaps"], identity: ["identity", "identities"] };
-    function describe(counts) {
+    function plural(n, one, many) { return n + " " + (n === 1 ? one : many); }
+    function chipLabel(sel) { var b = document.querySelector(sel); return b ? b.textContent.trim() : ""; }
+    function selection() {
       var parts = [];
-      Object.keys(nouns).forEach(function (k) {
-        var c = counts[k];
-        if (c && c.all) { parts.push(c.shown + " of " + c.all + " " + nouns[k][c.all === 1 ? 0 : 1]); }
+      if (state.cli) { parts.push(chipLabel('button[data-pick="' + state.cli + '"]')); }
+      state.st.forEach(function (t) { parts.push(chipLabel('[data-st="' + t + '"]')); });
+      state.bh.forEach(function (t) { parts.push(chipLabel('[data-bh="' + t + '"]')); });
+      if (state.q) { parts.push("“" + state.q + "”"); }
+      return parts.join(" · ");
+    }
+    function count() {
+      var c = {};
+      items.forEach(function (el) {
+        var k = el.getAttribute("data-kind");
+        if (!k) { return; }
+        c[k] = c[k] || { all: 0, shown: 0 };
+        c[k].all++;
+        if (!el.classList.contains("out")) { c[k].shown++; }
       });
-      return parts.join(", ");
+      ["server", "client", "path", "finding", "gap", "identity"].forEach(function (k) { c[k] = c[k] || { all: 0, shown: 0 }; });
+      return c;
+    }
+    function describe(c) {
+      var att = { all: c.finding.all + c.gap.all, shown: c.finding.shown + c.gap.shown };
+      return [
+        c.server.shown + " of " + plural(c.server.all, "server", "servers"),
+        c.client.shown + " of " + plural(c.client.all, "client", "clients"),
+        c.path.shown + " of " + plural(c.path.all, "path", "paths"),
+        att.shown + " of " + plural(att.all, "attention item", "attention items") + " (" + plural(c.finding.shown, "finding", "findings") + ", " + plural(c.gap.shown, "evidence gap", "evidence gaps") + ")",
+        c.identity.shown + " of " + plural(c.identity.all, "identity", "identities")
+      ].join(" · ");
+    }
+    function reproduce() {
+      var box = document.querySelector(".repro");
+      if (!box) { return; }
+      var groups = [], gaps = [];
+      if (state.cli) {
+        var pick = document.querySelector('button[data-pick="' + state.cli + '"]');
+        var cq = pick ? pick.getAttribute("data-q") : "";
+        if (cq) { groups.push(cq); } else { gaps.push("this client's configuration path cannot be quoted in the query language"); }
+      }
+      [state.st, state.bh].forEach(function (list) {
+        var alts = list.map(function (t) { var c = document.querySelector('[data-st="' + t + '"], [data-bh="' + t + '"]'); return c ? c.getAttribute("data-q") : ""; });
+        if (alts.length === 1) { groups.push(alts[0]); }
+        if (alts.length > 1) { groups.push("(" + alts.join(" or ") + ")"); }
+      });
+      if (state.q) { gaps.push("the search text has no query equivalent"); }
+      var query = box.getAttribute("data-base") + (groups.length ? " where " + groups.join(" and ") : "");
+      byId("repro").textContent = 'passmcp-graph query "' + query + '"';
+      byId("reprolabel").textContent = active() && !gaps.length ? "Reproduce this view:" : (active() ? "Closest command:" : "Query all configured paths:");
+      byId("repronote").textContent = (gaps.length ? "Not exact: " + gaps.join("; ") + ". " : "") + "Re-reads the local graph; collects no new evidence.";
     }
     function apply() {
-      var counts = {};
-      var active = state.q || state.cli || state.st.length || state.bh.length;
-      items.forEach(function (el) {
-        var ok = matches(el);
-        el.classList.toggle("out", !ok);
-        var k = el.getAttribute("data-kind");
-        if (k) {
-          counts[k] = counts[k] || { all: 0, shown: 0 };
-          counts[k].all++;
-          if (ok) { counts[k].shown++; }
-        }
+      items.forEach(function (el) { el.classList.toggle("out", !matches(el)); });
+      var c = count(), on = active();
+      byId("scope").textContent = on ? "Showing " + describe(c) + ". Totals and overview marked whole snapshot are unchanged." : "Showing the whole snapshot.";
+      byId("selpill").hidden = !on;
+      byId("selwhat").textContent = selection();
+      document.querySelectorAll("[data-scope-tag]").forEach(function (t) { t.textContent = on ? "Current selection" : "Whole snapshot"; t.classList.toggle("sel", on); });
+      var ac = byId("attcount");
+      if (ac) {
+        var f = +ac.getAttribute("data-findings"), g = +ac.getAttribute("data-gaps");
+        ac.textContent = on
+          ? plural(c.finding.shown + c.gap.shown, "attention item", "attention items") + " in this selection: " + plural(c.finding.shown, "finding", "findings") + " · " + plural(c.gap.shown, "evidence gap", "evidence gaps") + ". " + plural(f + g, "attention item", "attention items") + " in the whole snapshot."
+          : plural(f + g, "attention item", "attention items") + ": " + plural(f, "finding", "findings") + " · " + plural(g, "evidence gap", "evidence gaps") + ".";
+      }
+      document.querySelectorAll(".idsel").forEach(function (el) {
+        var cl = (el.getAttribute("data-clients") || "").trim().split(/\s+/).filter(Boolean);
+        el.textContent = state.cli ? " · " + plural(cl.indexOf(state.cli) >= 0 ? 1 : 0, "client", "clients") + " in this selection, " + el.getAttribute("data-total") + " in the whole snapshot" : "";
       });
-      scope.textContent = active ? "Showing " + describe(counts) + ". The overview and totals count the whole snapshot." : "Showing everything in the snapshot.";
+      byId("topo").classList.toggle("ctx", state.ctx);
+      byId("ctx").checked = state.ctx;
+      byId("ctxnote").hidden = !(state.ctx && on);
+      byId("evtable").classList.toggle("core", !state.all);
+      byId("allcols").checked = state.all;
       document.querySelectorAll("[data-st]").forEach(function (b) { b.setAttribute("aria-pressed", String(state.st.indexOf(b.getAttribute("data-st")) >= 0)); });
       document.querySelectorAll("[data-bh]").forEach(function (b) { b.setAttribute("aria-pressed", String(state.bh.indexOf(b.getAttribute("data-bh")) >= 0)); });
       document.querySelectorAll("button[data-pick]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-pick") === state.cli)); });
-      try { history.replaceState({ pg: state }, ""); } catch (e) {}
+      reproduce();
+      try { history.replaceState(Object.assign({}, history.state, { pg: state }), ""); } catch (e) {}
     }
     function toggle(list, v) { var i = list.indexOf(v); if (i >= 0) { list.splice(i, 1); } else { list.push(v); } }
     document.querySelectorAll("[data-st]").forEach(function (b) { b.addEventListener("click", function () { toggle(state.st, b.getAttribute("data-st")); apply(); }); });
@@ -784,21 +891,58 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
     });
     q.value = state.q;
     q.addEventListener("input", function () { state.q = q.value; apply(); });
-    document.getElementById("clear").addEventListener("click", function () { state = { q: "", st: [], bh: [], cli: "" }; q.value = ""; apply(); });
+    function clear() { var keep = { ctx: state.ctx, all: state.all }; state = Object.assign(blank(), keep); q.value = ""; apply(); }
+    byId("clear").addEventListener("click", clear);
+    byId("selclear").addEventListener("click", function () { clear(); q.focus(); });
+    byId("ctx").addEventListener("change", function (e) { state.ctx = e.target.checked; apply(); });
+    byId("allcols").addEventListener("change", function (e) { state.all = e.target.checked; apply(); });
     apply();
 
-    /* Details: a fragment such as #srv-2 opens that panel; opening one
-       records it in the address, so reload and back return to it. */
+    /* Details: a fragment such as #srv-2 opens that panel. A link from
+       another panel, or from the banner, records where it came from, and
+       the opened panel offers a way back that keeps the filters. */
     var detailId = /^(srv|cli|idn|fnd|gap)-[0-9]+$/;
+    var origin = null;
+    function label(el) {
+      var t = el.querySelector(".t, summary strong, summary .mono, h2");
+      var text = (t ? t.textContent : el.id).replace(/\s+/g, " ").trim();
+      return text.length > 70 ? text.slice(0, 69) + "…" : text;
+    }
+    document.addEventListener("click", function (e) {
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) { return; }
+      var from = a.closest("details[id], #top");
+      origin = from ? { id: from.id, label: label(from), y: window.scrollY } : null;
+    });
     function openFromHash() {
       var id = location.hash.slice(1);
+      document.querySelectorAll("[data-back]").forEach(function (b) { b.hidden = true; });
       if (!detailId.test(id)) { return; }
-      var el = document.getElementById(id);
+      var el = byId(id);
       if (!el || el.tagName !== "DETAILS") { return; }
       el.open = true;
+      var back = el.querySelector("[data-back]");
+      if (back && origin && origin.id !== id) {
+        back.hidden = false;
+        back.textContent = "← Back to " + origin.label;
+        back.onclick = (function (o) {
+          return function () {
+            history.back();
+            setTimeout(function () {
+              var t = byId(o.id);
+              if (!t) { return; }
+              if (t.tagName === "DETAILS") { t.open = true; }
+              window.scrollTo(0, o.y);
+              var f = t.querySelector("summary, .btn, a");
+              if (f) { f.focus({ preventScroll: true }); }
+            }, 60);
+          };
+        })(origin);
+      }
       var s = el.querySelector("summary");
       if (s) { s.focus({ preventScroll: true }); }
       el.scrollIntoView({ block: "start" });
+      apply();
     }
     window.addEventListener("hashchange", openFromHash);
     document.querySelectorAll("details[id]").forEach(function (d) {
@@ -808,25 +952,25 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
     });
     openFromHash();
 
-    /* Banner actions */
+    /* Banner actions and copying */
     document.querySelectorAll("[data-show-path]").forEach(function (b) {
       b.addEventListener("click", function () {
         state.cli = b.getAttribute("data-show-path");
         apply();
-        document.getElementById("topology").scrollIntoView({ block: "start" });
+        byId("topology").scrollIntoView({ block: "start" });
       });
     });
-    document.querySelectorAll("[data-copy]").forEach(function (b) {
-      b.addEventListener("click", function () {
-        var text = b.getAttribute("data-copy");
-        var done = function () { b.textContent = "Copied"; setTimeout(function () { b.textContent = "Copy command"; }, 1600); };
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(text).then(done, function () { b.textContent = "Select the command to copy it"; });
-        } else {
-          b.textContent = "Select the command to copy it";
-        }
-      });
-    });
+    function copier(b, text) {
+      var was = b.textContent;
+      var done = function () { b.textContent = "Copied"; setTimeout(function () { b.textContent = was; }, 1600); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text()).then(done, function () { b.textContent = "Select the command to copy it"; });
+      } else {
+        b.textContent = "Select the command to copy it";
+      }
+    }
+    document.querySelectorAll("[data-copy]").forEach(function (b) { b.addEventListener("click", function () { copier(b, function () { return b.getAttribute("data-copy"); }); }); });
+    document.querySelectorAll("[data-copy-from]").forEach(function (b) { b.addEventListener("click", function () { copier(b, function () { return byId(b.getAttribute("data-copy-from")).textContent; }); }); });
 
     /* Counters */
     var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;

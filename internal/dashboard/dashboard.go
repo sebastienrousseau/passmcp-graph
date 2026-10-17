@@ -67,6 +67,10 @@ type Summary struct {
 	Topology Topology `json:"-"`
 	// ShareSafe is true when identifying strings were replaced.
 	ShareSafe bool `json:"shareSafe"`
+	// StatusQuery and BehaviourQuery are each filter tag in the query
+	// language, for the page's "reproduce this view" command.
+	StatusQuery    map[string]string `json:"-"`
+	BehaviourQuery map[string]string `json:"-"`
 	// Metrics defines every headline figure: unit, denominator, display.
 	Metrics []Metric `json:"metrics"`
 	// TopIssue is the one thing to look at first, or nil when the evidence
@@ -120,8 +124,10 @@ type AgentRow struct {
 	// Paths and Identities are the agent's details.
 	Paths      []PathInfo `json:"paths"`
 	Identities []Ref      `json:"identities"`
-	// Tags and Text are what the page's filters match.
+	// Tags and Text are what the page's filters match; Query selects the
+	// agent's paths in the query language, or is empty when it cannot.
 	Tags, Text string `json:"-"`
+	Query      string `json:"query,omitempty"`
 }
 
 // Mutating is the writable tools that declare their behaviour.
@@ -183,6 +189,10 @@ func Build(g *graph.Graph, o Options) (*Summary, error) {
 	s.Agents = agentRows(g, reach, s.Risks)
 	s.Totals = totals(g, s.Servers)
 	addDetails(g, s, reach)
+	s.StatusQuery, s.BehaviourQuery = statusQuery(o.StaleDays), behaviourQuery
+	for i := range s.Agents {
+		s.Agents[i].Query = clientQuery(s.Agents[i])
+	}
 	sizeBubbles(s.Servers)
 	s.Hero = buildHero(s)
 	s.Metrics = metrics(s)

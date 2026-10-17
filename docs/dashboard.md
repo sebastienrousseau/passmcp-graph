@@ -63,20 +63,45 @@ related findings.
 
 ## Search, filters and details
 
-The search box and the status and tool chips filter the topology, the
-attention items, the bubbles, the clients, the identities and both tables
+Every count on the page says whether it covers the whole snapshot or the
+current selection. The totals and the overview are always the whole
+snapshot and are labelled so; the topology, attention items, servers,
+identities, clients and both tables are labelled "Current selection"
+while a filter is on, and the attention items and identities give both
+counts, as in "5 attention items in this selection · 6 in the whole
+snapshot".
+
+The search box and the status and tool chips filter those panels
 together; choosing a client in the topology, or "Show affected path" in
-the banner, narrows them to that client's paths. A line under the filters
-says what is shown, as "2 of 6 paths", and that the totals and overview
-count the whole snapshot. The filter state is kept in the browser's
-history entry, not the address, so reloading or going back restores it
-and nothing typed into the search reaches a URL.
+the banner, narrows them to that client's paths. A strip under the
+filters names the selection, clears it, and says what is shown, as
+"3 of 4 servers · 4 of 6 paths · 5 of 6 attention items". Filtering
+removes what is outside the selection from the topology; "Show surrounding
+context" keeps it, faded and labelled as outside. The filter state is
+kept in the browser's history entry, not the address, so reloading or
+going back restores it and nothing typed into the search reaches a URL.
+
+Under the path table, the page prints the `passmcp-graph query` command
+that returns the paths it shows: the client, status and tool filters each
+have an exact equivalent in the query language, and a test runs every
+combination through the query engine and compares the result with the
+page. Search text has no equivalent, so with a search on the page says
+the command is the closest one and why.
 
 Every server, client, identity, finding and evidence gap has a details
 panel. A link anywhere on the page opens it; its address, such as
-`#srv-2`, is an index, not a name, and reopens it on reload. Each finding
-shows its path, where its evidence comes from, what is not known, and a
-read-only next step.
+`#srv-2`, is an index, not a name, and reopens it on reload. Following a
+link from one panel to another, or from the banner, adds "Back to …" to
+the panel opened, which returns to where you were with the filters
+intact. Each finding shows its path, where its evidence comes from, what
+is not known, and a read-only next step.
+
+The topology's legend has three groups that do not share a channel: the
+server's evidence status is the dot on the server, the tool's declared
+behaviour is the node's fill, and its destructive classification is a
+ring around it, solid when declared and dashed when presumed. The server
+evidence table shows its core columns first and keeps the server column
+in place when it scrolls sideways; "Show all columns" adds the rest.
 
 ## Sharing the page
 

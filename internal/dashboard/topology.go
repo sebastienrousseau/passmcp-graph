@@ -143,9 +143,12 @@ func (t *Topology) toolNodes(sv ServerRow) []TNode {
 		Full: sv.Endpoint, Anchor: sv.Anchor, Class: class, Tags: sv.Tags, Text: sv.Text}}
 }
 
+// toolClass keeps the declared behaviour as the node's fill and adds the
+// destructive classification as a ring: solid when declared, dashed when
+// presumed, so one does not hide the other.
 func toolClass(ti ToolInfo) string {
 	if ti.Destructive {
-		return "b-" + ti.Behavior + " destr"
+		return "b-" + ti.Behavior + " destr destr-" + ti.DestructiveBasis
 	}
 	return "b-" + ti.Behavior
 }

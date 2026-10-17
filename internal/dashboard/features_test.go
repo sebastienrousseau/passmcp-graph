@@ -10,6 +10,7 @@ import (
 	"math"
 	"os"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"testing"
@@ -344,18 +345,135 @@ func TestInTheBrowser(t *testing.T) {
 	if chrome == "" {
 		t.Skip("set PASSMCP_GRAPH_BROWSER to a Chrome binary to run the browser check")
 	}
-	got := runProbe(t, chrome, build(t, fixture.Graph(), []policy.Violation{}))
+	g := fixture.Graph()
+	got := runProbe(t, chrome, build(t, g, []policy.Violation{}))
 	for _, want := range []string{
 		"hash srv-1 open: true",
 		"pick cursor: paths 2, servers 2",
-		"search crm: servers 1, paths 2",
+		"2 of 6 paths · 2 of 4 attention items (1 finding, 1 evidence gap)",
+		"attention: 2 attention items in this selection: 1 finding · 1 evidence gap. 4 attention items in the whole snapshot.",
+		"selection pill: true cursor",
+		"topology filtered, hidden: 12 of 12",
+		"topology with context, hidden: 0",
+		"repro label: Reproduce this view:",
+		"search crm: servers 1, paths 2, findings 1",
+		"search repro label: Closest command:",
 		"status stale: servers 1",
 		"unannotated: paths 3",
+		"cleared: paths 6, servers 4, attention 4, hidden topology 0 | Showing the whole snapshot.",
+		"all columns: true",
+		"back shown true, ← Back to A critical check failed",
+		"after back: hash #fnd-0, focus in fnd-0 true",
 		"320px: scrollWidth 320 clientWidth 320",
-		"320px overflowing elements outside scroll containers: 0",
 	} {
 		if !strings.Contains(got, want) {
 			t.Errorf("browser check lacks %q in:\n%s", want, got)
 		}
 	}
+	// The command the page printed for cursor and stale evidence returns the
+	// number of paths the page showed.
+	cmd := regexp.MustCompile(`repro: passmcp-graph query "(.*)"`).FindStringSubmatch(got)
+	shown := regexp.MustCompile(`repro paths shown: (\d+)`).FindStringSubmatch(got)
+	if cmd == nil || shown == nil {
+		t.Fatalf("no command or count in:\n%s", got)
+	}
+	q, err := query.Parse(cmd[1])
+	if err != nil {
+		t.Fatal(err)
+	}
+	paths, err := query.Eval(g, q, query.Context{Now: fixture.Now})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strconv.Itoa(len(paths)) != shown[1] {
+		t.Errorf("the page showed %s path(s); its command %q returns %d", shown[1], cmd[1], len(paths))
+	}
+}
+
+// The page's "reproduce this view" command, assembled as ReproQuery
+// assembles it, returns exactly the paths the page's filters keep, for
+// every client, every set of statuses and every set of tool behaviours.
+func TestReproduceThisViewReturnsTheShownPaths(t *testing.T) {
+	g := fixture.Graph()
+	s := build(t, g, nil)
+	statuses := []string{"st-critical", "st-unattested", "st-stale", "st-ok"}
+	behaviours := []string{"destr", "unann"}
+	clients := append([]AgentRow{{}}, s.Agents...)
+	combos := 0
+	for _, c := range clients {
+		for sm := range 1 << len(statuses) {
+			for bm := range 1 << len(behaviours) {
+				sts, bhs := pick(statuses, sm), pick(behaviours, bm)
+				want := shownPaths(s, c.Anchor, sts, bhs)
+				var stq, bhq []string
+				for _, x := range sts {
+					stq = append(stq, s.StatusQuery[x])
+				}
+				for _, x := range bhs {
+					bhq = append(bhq, s.BehaviourQuery[x])
+				}
+				src := ReproQuery(c.Query, stq, bhq)
+				q, err := query.Parse(src)
+				if err != nil {
+					t.Fatalf("%s: %v", src, err)
+				}
+				paths, err := query.Eval(g, q, query.Context{Now: fixture.Now})
+				if err != nil {
+					t.Fatal(err)
+				}
+				got := map[string]bool{}
+				for _, p := range paths {
+					got[p.String()] = true
+				}
+				if fmt.Sprint(sortedKeys(got)) != fmt.Sprint(sortedKeys(want)) {
+					t.Errorf("%s\n page shows %v\n query gives %v", src, sortedKeys(want), sortedKeys(got))
+				}
+				combos++
+			}
+		}
+	}
+	if combos != 3*16*4 {
+		t.Fatalf("ran %d combinations", combos)
+	}
+}
+
+func pick(all []string, mask int) []string {
+	var out []string
+	for i, x := range all {
+		if mask&(1<<i) != 0 {
+			out = append(out, x)
+		}
+	}
+	return out
+}
+
+// shownPaths mirrors the page script's matches() for the path table.
+func shownPaths(s *Summary, client string, sts, bhs []string) map[string]bool {
+	has := func(tags, t string) bool { return strings.Contains(" "+tags+" ", " "+t+" ") }
+	any := func(tags string, ts []string) bool {
+		for _, t := range ts {
+			if has(tags, t) {
+				return true
+			}
+		}
+		return len(ts) == 0
+	}
+	out := map[string]bool{}
+	for _, a := range s.Agents {
+		for _, p := range a.Paths {
+			if (client == "" || has(p.Tags, client)) && any(p.Tags, sts) && any(p.Tags, bhs) {
+				out[a.Name+" -> "+p.Server.Name+" -> "+p.Name] = true
+			}
+		}
+	}
+	return out
+}
+
+func sortedKeys(m map[string]bool) []string {
+	out := make([]string, 0, len(m))
+	for k := range m {
+		out = append(out, k)
+	}
+	sort.Strings(out)
+	return out
 }

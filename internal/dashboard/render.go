@@ -47,6 +47,8 @@ var tmpl = template.Must(template.New("dashboard").Funcs(template.FuncMap{
 		return fmt.Sprintf("%d %s", n, many)
 	},
 	"commandNote": func() string { return CommandNote },
+	"command":     Command,
+	"repro":       func(client string) string { return ReproQuery(client, nil, nil) },
 	"sum": func(xs ...int) int {
 		t := 0
 		for _, x := range xs {

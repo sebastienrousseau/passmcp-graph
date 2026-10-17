@@ -26,7 +26,10 @@ passmcp-graph release, so this member goes from 0.0.5 to 0.0.7.
   -> tool topology with a path table as its text equivalent; attention
   items, as findings and evidence gaps; and details panels for every
   server, client, identity and finding. Search and filters scope every
-  widget alike and say what they show. `--open` shows it in the default
+  widget alike, every count says whether it covers the whole snapshot or
+  the current selection, and the page prints the `query` command that
+  returns the paths it shows, tested against the query engine for every
+  filter combination. `--open` shows it in the default
   browser, `--out FILE` keeps it, `--share-safe` replaces endpoints,
   identities, local paths and token-shaped strings, `--stale-days` sets
   the staleness threshold (default 30) and `--format json` prints the
