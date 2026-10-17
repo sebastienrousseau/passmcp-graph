@@ -36,6 +36,14 @@ func runProbe(t *testing.T, chrome string, s *Summary) string {
 	if err := f.Close(); err != nil {
 		t.Fatal(err)
 	}
+	return probeDir(t, chrome, dir)
+}
+
+// probeDir copies testdata/probe.html into dir, which holds the page as
+// dashboard.html, opens the probe in headless Chrome with reduced motion,
+// and returns what the probe printed.
+func probeDir(t *testing.T, chrome, dir string) string {
+	t.Helper()
 	probe, err := os.ReadFile("testdata/probe.html")
 	if err != nil {
 		t.Fatal(err)

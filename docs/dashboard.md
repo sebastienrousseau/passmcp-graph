@@ -16,6 +16,7 @@ passmcp-graph dashboard --out estate.html          # keep it, to attach or archi
 passmcp-graph dashboard --policy policy.yaml --stale-days 14 --out estate.html
 passmcp-graph dashboard > estate.html              # or to stdout, for a pipeline
 passmcp-graph dashboard --format json | jq .totals
+passmcp-graph dashboard --share-safe --assets --out site/index.html  # to publish on a web server
 ```
 
 `--open` hands the file to the system's opener (`open` on macOS,
@@ -29,6 +30,7 @@ by you alone.
 | :--- | :--- | :--- |
 | `--out FILE` | stdout | Write the page to `FILE` instead; the path is printed on stderr |
 | `--open` | off | Open the page in the default browser; without `--out`, it is written to a temporary file first |
+| `--assets` | off | With `--out`, write the stylesheet and script beside the page as `dashboard.css` and `dashboard.js`; see [Hosting behind a strict Content-Security-Policy](#hosting-behind-a-strict-content-security-policy) |
 | `--share-safe` | off | Replace identifying details before writing; see [Sharing the page](#sharing-the-page) |
 | `--policy FILE` | none | Also check a [policy](policy.md) and list its violations on the page |
 | `--stale-days N` | `30` | An attestation older than `N` days counts as stale |
@@ -135,6 +137,36 @@ they reproduce nothing until run against your own store.
 
 Redaction removes the values passmcp-graph knows to be identifying and
 the shapes it recognises; read a share-safe page before sending it.
+
+## Hosting behind a strict Content-Security-Policy
+
+By default the page carries its stylesheet and script inline, which is
+what lets one file open anywhere. A web server that sends a
+Content-Security-Policy header without `'unsafe-inline'`, such as
+`script-src 'self'; style-src 'self'`, makes the browser refuse that
+inline code, and the page shows as unstyled shapes that do nothing. Many
+company intranets and static hosts send such a header.
+
+`--assets` writes the page for those hosts:
+
+```bash
+passmcp-graph dashboard --share-safe --assets --out site/index.html
+```
+
+`site/index.html` links `dashboard.css` and `dashboard.js` by relative
+URL, and both are written into `site/` beside it, readable by you alone
+like the page; publish the directory as it is. They hold exactly the
+stylesheet and script the single file inlines, so the page looks and
+behaves the same. Its own policy becomes `default-src 'none';
+style-src 'self'; script-src 'self'; img-src data:`, still loading
+nothing from anywhere else. The share-safe JSON export stays in the page
+as a JSON data block, which a browser never runs and no policy blocks,
+and the logo and favicon stay `data:` images, so the host's policy needs
+`img-src data:`.
+
+No element of the page, in either mode, carries a `style` attribute,
+which such a policy also blocks. `--assets` needs `--out` and the HTML
+format, and refuses an `--out` named `dashboard.css` or `dashboard.js`.
 
 ## What the numbers count
 

@@ -17,6 +17,33 @@ import (
 //go:embed dashboard.html
 var page string
 
+// stylesheet and script are the page's CSS and JavaScript: inline in the
+// single file, or written beside the page by dashboard --assets. One copy
+// of each serves both, so the two modes cannot drift apart. The stylesheet
+// is kept in two files, components and then everything that adapts them,
+// and served as one.
+var stylesheet = baseCSS + adaptCSS
+
+//go:embed dashboard.css
+var baseCSS string
+
+//go:embed dashboard-adapt.css
+var adaptCSS string
+
+//go:embed dashboard.js
+var script string
+
+// Asset is a file a linked page loads from its own directory.
+type Asset struct {
+	Name, Body string
+}
+
+// Assets are the files RenderLinked's page links, by relative URL: its
+// stylesheet and its script.
+func Assets() []Asset {
+	return []Asset{{"dashboard.css", stylesheet}, {"dashboard.js", script}}
+}
+
 // logoFile is passmcp's flame, the mark the family shares. The page inlines
 // it, as the header mark and as a data: favicon, so it still loads nothing.
 //
@@ -28,6 +55,10 @@ var logo = logoFile[strings.Index(logoFile, "<svg"):]
 
 var tmpl = template.Must(template.New("dashboard").Funcs(template.FuncMap{
 	"join": strings.Join,
+	// #nosec G203 -- the embedded stylesheet above, not input
+	"stylesheet": func() template.CSS { return template.CSS(stylesheet) },
+	// #nosec G203 -- the embedded script above, not input
+	"script": func() template.JS { return template.JS(script) },
 	// #nosec G203 -- logo is the embedded file above, not input
 	"logo": func() template.HTML { return template.HTML(logo) },
 	// #nosec G203 -- a data: URL of the embedded logo, not input
@@ -82,8 +113,23 @@ var tmpl = template.Must(template.New("dashboard").Funcs(template.FuncMap{
 	},
 }).Parse(page))
 
+// view is what the template reads: the summary, and whether the page
+// links its assets rather than inlining them.
+type view struct {
+	*Summary
+	Linked bool
+}
+
 // Render writes s as one HTML page. html/template escapes every value, so a
 // label read from a configuration file cannot inject markup.
 func Render(w io.Writer, s *Summary) error {
-	return tmpl.Execute(w, s)
+	return tmpl.Execute(w, view{Summary: s})
+}
+
+// RenderLinked writes s as an HTML page that loads Assets from its own
+// directory instead of inlining them, for a host whose
+// Content-Security-Policy refuses inline script and style. Its own policy
+// allows 'self' for both, and nothing inline.
+func RenderLinked(w io.Writer, s *Summary) error {
+	return tmpl.Execute(w, view{Summary: s, Linked: true})
 }

@@ -16,6 +16,9 @@ function bareClip(doc) { return [].filter.call(doc.querySelectorAll(".hl.srv sma
   var t = s.querySelector("span") || s, cs = getComputedStyle(t);
   return t.scrollWidth > t.clientWidth && (cs.textOverflow !== "ellipsis" || !/^(block|inline-block)$/.test(cs.display));
 }).length; }
+// watched is what a test's securitypolicyviolation listener in the page
+// recorded, when the test put one there.
+function watched(win) { var v = win.cspViolations; return v ? v.length + (v.length ? " " + JSON.stringify(v) : "") : "unwatched"; }
 var loaded = 0;
 function go() { if (++loaded === 2) { setTimeout(step1, 800); } }
 document.getElementById("f").onload = go;
@@ -23,6 +26,7 @@ document.getElementById("n").onload = go;
 var w, d;
 function step1() { try {
   w = document.getElementById("f").contentWindow; d = w.document;
+  log("csp violations at load: " + watched(w));
   log("hash srv-1 open: " + d.getElementById("srv-1").open);
   d.querySelector('button[data-pick="cli-1"]').click();
   log("pick cursor: paths " + vis(d, "tr[data-kind=path]") + ", servers " + vis(d, "tr[data-kind=server]"));
@@ -91,5 +95,6 @@ function step4() { try {
   document.getElementById("f").style.width = "1440px";
   log("320px: scrollWidth " + n.documentElement.scrollWidth + " clientWidth " + n.documentElement.clientWidth +
     "; server status clipped without ellipsis: " + bareClip(n) + ", at 1440px " + bareClip(d));
+  log("csp violations: " + watched(w) + " at 1280px, " + watched(document.getElementById("n").contentWindow) + " at 320px");
 } catch (e) { log("ERR " + e); } }
 </script>

@@ -13,6 +13,17 @@ release moves the patch digit.
 Work towards the family's 0.0.8. Version places stay at 0.0.7 until the
 family's release step.
 
+### Added
+
+- **`dashboard --assets`** writes the page's stylesheet and script beside
+  `--out` as `dashboard.css` and `dashboard.js`, and the page links them,
+  for a web server whose Content-Security-Policy refuses inline code.
+  Under such a header, as satellion.com sends, the single-file page
+  showed as unstyled shapes with no behaviour. The page's own policy
+  allows `'self'` instead of `'unsafe-inline'`; the default single file
+  is unchanged. See
+  [Hosting behind a strict Content-Security-Policy](docs/dashboard.md#hosting-behind-a-strict-content-security-policy).
+
 ### Changed
 
 - The 0.0.1 to 0.0.4 headings in this file use a hyphen between version
@@ -23,6 +34,13 @@ family's release step.
 
 ### Fixed
 
+- **The dashboard sets no `style` attribute.** Its template carried 40,
+  some repeated per row, for colours, margins, animation order and the
+  score bars, and a
+  Content-Security-Policy without `style-src 'unsafe-inline'` blocks
+  every one. Classes, `data-i` order read by the script, and SVG bars
+  replace them, in both the single file and `--assets` output, and the
+  page looks the same.
 - **`dashboard` names a server one way.** The top issue, finding and
   evidence-gap titles, the mitigation steps and the links to a server
   used its endpoint (or, with `--share-safe`, a placeholder such as
