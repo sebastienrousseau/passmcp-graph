@@ -10,7 +10,8 @@ release moves the patch digit.
 
 ## [0.0.7] - 2026-10-17
 
-The family's seventh release. One command is added, `dashboard`; the
+The family's seventh release. One command is added, `dashboard`, and
+`ingest` follows passmcp-reporting's subject-digest rule for sha512; the
 other commands, the query language, the policy file, the graph format and
 the exit statuses are unchanged from 0.0.5. passmcp 0.0.6 had no
 passmcp-graph release, so this member goes from 0.0.5 to 0.0.7.
@@ -42,6 +43,15 @@ passmcp-graph release, so this member goes from 0.0.5 to 0.0.7.
 
 ### Changed
 
+- **In lockstep with passmcp 0.0.7**: passmcp-reporting is required at
+  v0.0.7, and passmcp's trace runs at v0.0.7.
+- **`ingest` accepts a sha512 subject digest.** passmcp-reporting 0.0.6
+  changed how an attestation's subject is validated
+  ([passmcp-reporting#10](https://github.com/sebastienrousseau/passmcp-reporting/issues/10)):
+  a statement whose subject carries only a sha512 digest is now ingested,
+  and one whose sha512 digest does not match its server is now refused
+  even when its sha256 digest does. A server's node ID is still its sha256
+  digest, so graphs already stored keep their IDs.
 - **The manual carries passmcp's flame** as its logo and favicon, as
   passmcp's own manual does; the dashboard page inlines the same mark.
 - **GitHub Actions updated**: `github/codeql-action` 4.38.3,
