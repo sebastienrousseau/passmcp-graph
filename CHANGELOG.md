@@ -27,7 +27,7 @@ family's release step.
   evidence-gap titles, the mitigation steps and the links to a server
   used its endpoint (or, with `--share-safe`, a placeholder such as
   `http-server-1`) while the command centre used the name it reports, so
-  "crm" in the ring was "https://crm.example/mcp" in the banner. They now
+  "crm" in the ring was `https://crm.example/mcp` in the banner. They now
   all use the reported name, or the endpoint when there is none; in
   `--format json`, `server.name` in findings, evidence gaps, paths and
   grants changes the same way. The server's details panel, the evidence
@@ -36,8 +36,8 @@ family's release step.
 - **The ring's key reads with its counts**: "1 with stale evidence"
   instead of "1 Stale evidence".
 - **A server card's status line ends in an ellipsis** when it does not
-  fit, instead of being cut off mid-word ("No failing server checl" at
-  1440 pixels wide); the full status is in its tooltip.
+  fit, instead of being cut off mid-word, as "No failing server checks"
+  was at 1440 pixels wide; the full status is in its tooltip.
 
 ## [0.0.7] - 2026-10-17
 
