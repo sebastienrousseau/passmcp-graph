@@ -158,10 +158,11 @@ that `go.mod` requires it there.
 | Query | Paths of node kinds joined by `->`, filtered by `where` | [Released in 0.0.1](https://github.com/sebastienrousseau/passmcp-graph/releases/tag/v0.0.1) |
 | Policy | `check --policy` with forbidden-path rules; exit 1 on a violation | [Released in 0.0.1](https://github.com/sebastienrousseau/passmcp-graph/releases/tag/v0.0.1) |
 | Export | `json` (schema-valid, re-imports without loss), `graphml`, `cypher`; `import` of a JSON export | [Released in 0.0.1](https://github.com/sebastienrousseau/passmcp-graph/releases/tag/v0.0.1) |
-| Dashboard | `dashboard`: one offline HTML page of reach, attestation state, findings and policy violations | [Not yet released](https://github.com/sebastienrousseau/passmcp-graph/blob/main/CHANGELOG.md#unreleased) |
+| Dashboard | `dashboard`: one offline HTML page of reach, attestation state, findings and policy violations | [Released in 0.0.7](https://github.com/sebastienrousseau/passmcp-graph/releases/tag/v0.0.7) |
+| Dashboard for strict hosts | `dashboard --assets`: the page with its stylesheet and script as files beside it, for a web server whose Content-Security-Policy refuses inline code | [Not yet released](CHANGELOG.md#unreleased) |
 | Network | none; `--offline` refuses every request as well | [Released in 0.0.1](https://github.com/sebastienrousseau/passmcp-graph/releases/tag/v0.0.1) |
-| Shell completions | `completion bash\|zsh\|fish`, installed by `make install` | [Not yet released](https://github.com/sebastienrousseau/passmcp-graph/blob/main/CHANGELOG.md#002) |
-| Release archives | Linux, macOS and Windows on amd64 and arm64, signed checksums, SLSA provenance | [Not yet released](https://github.com/sebastienrousseau/passmcp-graph/blob/main/CHANGELOG.md#002) |
+| Shell completions | `completion bash\|zsh\|fish`, installed by `make install` | [Released in 0.0.2](https://github.com/sebastienrousseau/passmcp-graph/releases/tag/v0.0.2) |
+| Release archives | Linux, macOS and Windows on amd64 and arm64, signed checksums, SLSA provenance | [Released in 0.0.2](https://github.com/sebastienrousseau/passmcp-graph/releases/tag/v0.0.2) |
 
 ---
 

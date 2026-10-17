@@ -79,9 +79,9 @@ func refTags(refs []Ref) tagSet {
 
 // addTags tags every server, client, path, identity and finding.
 func addTags(s *Summary) {
-	own := map[string]tagSet{}
+	own, ep := map[string]tagSet{}, map[string]string{}
 	for i, sv := range s.Servers {
-		own[sv.Anchor] = statusTags(sv)
+		own[sv.Anchor], ep[sv.Anchor] = statusTags(sv), sv.Endpoint
 		s.Servers[i].Tags = tagSet{}.add(own[sv.Anchor].String(), refTags(sv.Clients).String()).String()
 		s.Servers[i].Text = text(sv.Endpoint, sv.Name, sv.Transport, sv.Status, strings.Join(sv.Critical, " "), toolNames(sv.ToolList))
 	}
@@ -90,11 +90,11 @@ func addTags(s *Summary) {
 		for j, p := range a.Paths {
 			pt := tagSet{}.add(a.Anchor, statusOnly(own[p.Server.Anchor]).String(), behaviourTags(p.ToolInfo).String())
 			s.Agents[i].Paths[j].Tags = pt.String()
-			s.Agents[i].Paths[j].Text = text(a.Name, p.Server.Name, p.Name, p.Behavior)
+			s.Agents[i].Paths[j].Text = text(a.Name, p.Server.Name, ep[p.Server.Anchor], p.Name, p.Behavior)
 			t.add(pt.String())
 		}
 		s.Agents[i].Tags = t.String()
-		s.Agents[i].Text = text(a.Name, a.Client, a.ConfigFile, pathText(a.Paths))
+		s.Agents[i].Text = text(a.Name, a.Client, a.ConfigFile, pathText(a.Paths, ep))
 	}
 	for i, id := range s.Identities {
 		t := refTags(id.Clients)
@@ -106,12 +106,12 @@ func addTags(s *Summary) {
 	}
 	for i, g := range s.Gaps {
 		s.Gaps[i].Tags = refTags(g.Clients).add(own[g.Server.Anchor].String()).String()
-		s.Gaps[i].Text = text(g.Title, g.Kind)
+		s.Gaps[i].Text = text(g.Title, ep[g.Server.Anchor], g.Kind)
 	}
 	for i, f := range s.Findings {
 		t := refTags(f.Clients).add(own[f.Server.Anchor].String())
 		s.Findings[i].Tags = t.String()
-		s.Findings[i].Text = text(f.Title, f.Rule, f.Path, f.Kind)
+		s.Findings[i].Text = text(f.Title, ep[f.Server.Anchor], f.Rule, f.Path, f.Kind)
 	}
 }
 
@@ -135,10 +135,10 @@ func toolNames(ts []ToolInfo) string {
 	return strings.Join(names, " ")
 }
 
-func pathText(ps []PathInfo) string {
-	parts := make([]string, 0, 2*len(ps))
+func pathText(ps []PathInfo, endpoints map[string]string) string {
+	parts := make([]string, 0, 3*len(ps))
 	for _, p := range ps {
-		parts = append(parts, p.Server.Name, p.Name)
+		parts = append(parts, p.Server.Name, endpoints[p.Server.Anchor], p.Name)
 	}
 	return strings.Join(parts, " ")
 }

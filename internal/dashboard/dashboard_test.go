@@ -17,6 +17,17 @@ import (
 	"satellion.com/passmcp-reporting/graph"
 )
 
+// endpointOf is the endpoint of the server a link points at: the name the
+// query language gives it.
+func endpointOf(s *Summary, anchor string) string {
+	for _, sv := range s.Servers {
+		if sv.Anchor == anchor {
+			return sv.Endpoint
+		}
+	}
+	return ""
+}
+
 func build(t *testing.T, g *graph.Graph, vs []policy.Violation) *Summary {
 	t.Helper()
 	s, err := Build(g, Options{Now: fixture.Now, StaleDays: 30, Violations: vs, Version: "test"})
@@ -322,7 +333,7 @@ func TestCriticalAndStaleBothShow(t *testing.T) {
 func TestTopIssue(t *testing.T) {
 	s := build(t, fixture.Graph(), []policy.Violation{{Rule: "r", Path: query.Path{{Label: "a"}}}})
 	ti := s.TopIssue
-	if ti == nil || ti.Severity != "critical" || ti.Title != "https://crm.example/mcp failed a critical check in its latest attestation" ||
+	if ti == nil || ti.Severity != "critical" || ti.Title != "crm failed a critical check in its latest attestation" ||
 		ti.Rule != "auth.unauthenticated_tools" || ti.Evidence != "fnd-0" || ti.Client != "cli-0" || ti.Findings != 3 || ti.Gaps != 2 {
 		t.Fatalf("top %+v", ti)
 	}
@@ -360,5 +371,69 @@ func (failing) Write([]byte) (int, error) { return 0, errors.New("disk full") }
 func TestRenderReportsAWriteError(t *testing.T) {
 	if err := Render(failing{}, build(t, fixture.Graph(), nil)); err == nil {
 		t.Fatal("a failed write was not reported")
+	}
+}
+
+// A server is named the same way wherever a reader meets it: the name it
+// reports, or its endpoint when it reports none. The top issue, finding
+// and gap titles, and the links to a server, agree with the ring, in the
+// full page and the share-safe one. Only its details panel shows the
+// endpoint.
+func TestOneNamePerServer(t *testing.T) {
+	for _, safe := range []bool{false, true} {
+		s, err := Build(fixture.Graph(), Options{Now: fixture.Now, StaleDays: 30, ShareSafe: safe})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got := s.TopIssue.Title; got != "crm failed a critical check in its latest attestation" {
+			t.Errorf("share-safe %v: top issue %q", safe, got)
+		}
+		var got []string
+		for _, f := range s.Findings {
+			got = append(got, f.Title+" | "+f.Server.Name)
+		}
+		for _, g := range s.Gaps {
+			got = append(got, g.Title+" | "+g.Server.Name)
+		}
+		shell := server(s, map[bool]string{false: fixture.Shell, true: "stdio-server-2"}[safe]).Endpoint
+		want := []string{
+			"A critical check failed on crm, inherited by claude-desktop | crm",
+			"Identity " + map[bool]string{false: "ops-agent", true: "identity-1"}[safe] + " holds more than files's tools need | files",
+			"No attestation loaded for " + shell + " | " + shell,
+			"Evidence for mail is 40 days old | mail",
+		}
+		if strings.Join(got, "\n") != strings.Join(want, "\n") {
+			t.Errorf("share-safe %v:\n%s\nwant:\n%s", safe, strings.Join(got, "\n"), strings.Join(want, "\n"))
+		}
+		if !strings.Contains(s.Mitigation.Fix, "failing check on crm,") {
+			t.Errorf("share-safe %v: mitigation %q", safe, s.Mitigation.Fix)
+		}
+		// Search still finds a server's items by its endpoint.
+		crm := map[bool]string{false: "crm.example", true: "http-server-1"}[safe]
+		if !strings.Contains(s.Findings[0].Text, crm) || !strings.Contains(s.Agents[0].Text, crm) || !strings.Contains(s.Agents[0].Paths[0].Text, crm) {
+			t.Errorf("share-safe %v: search text lost the endpoint: %q", safe, s.Findings[0].Text)
+		}
+		for _, a := range s.Agents {
+			for _, p := range a.Paths {
+				if strings.Contains(p.Server.Name, "://") || strings.Contains(p.Server.Name, "http-server-") {
+					t.Errorf("share-safe %v: path %s -> %s names the server by its endpoint", safe, a.Name, p.Server.Name)
+				}
+			}
+		}
+	}
+}
+
+// The ring's key reads as a count of servers: "1 with stale evidence", not
+// "1 Stale evidence".
+func TestTheRingKeyReadsWithItsCounts(t *testing.T) {
+	var b bytes.Buffer
+	if err := Render(&b, build(t, fixture.Graph(), nil)); err != nil {
+		t.Fatal(err)
+	}
+	key := regexp.MustCompile(`<p class="ringkey">.*?</p>`).FindString(b.String())
+	key = regexp.MustCompile(`<[^>]+>`).ReplaceAllString(key, "")
+	want := "Ring: servers by status · 1 with a failed critical check · 1 with no evidence · 1 with stale evidence · 1 with no failing server checks"
+	if key != want {
+		t.Errorf("ring key %q, want %q", key, want)
 	}
 }

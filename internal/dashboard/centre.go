@@ -132,6 +132,10 @@ type ScoreBar struct {
 	Pct   int
 }
 
+// Rest is the part of the bar's height above it, where the bar starts
+// when drawn from the top as an SVG rect.
+func (b ScoreBar) Rest() int { return 100 - b.Pct }
+
 func scoreBars(s *Summary) []ScoreBar {
 	var out []ScoreBar
 	for _, sv := range s.Servers {

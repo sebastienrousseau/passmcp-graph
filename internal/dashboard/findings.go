@@ -43,11 +43,11 @@ func buildFindings(s *Summary) []Finding {
 	for _, r := range s.Risks {
 		sv := byEndpoint[r.Server]
 		out = append(out, Finding{Kind: "inherited-critical", Severity: "critical",
-			Title: fmt.Sprintf("A critical check failed on %s, inherited by %s", r.Server, r.Agent),
+			Title: fmt.Sprintf("A critical check failed on %s, inherited by %s", nameOr(sv, r.Server), r.Agent),
 			Rule:  r.Finding, Path: strings.Join(r.Path, " -> "), Evidence: attestationEvidence(sv),
 			Uncertainty: "The check result is passmcp's, from the server's latest attestation. " + configuredReach,
 			Next:        `passmcp-graph query "agents -> servers where critical"`,
-			Server:      Ref{sv.Endpoint, sv.Anchor}, Clients: []Ref{byName[r.Agent]}})
+			Server:      serverRef(sv), Clients: []Ref{byName[r.Agent]}})
 	}
 	for _, v := range s.Violations {
 		out = append(out, violationFinding(v, byEndpoint, byName))
@@ -55,11 +55,11 @@ func buildFindings(s *Summary) []Finding {
 	for _, f := range s.OverPrivileged {
 		sv := byEndpoint[f.Server]
 		out = append(out, Finding{Kind: "over-privileged", Severity: "warning",
-			Title: fmt.Sprintf("Identity %s holds more than %s's tools need", f.Identity, f.Server),
+			Title: fmt.Sprintf("Identity %s holds more than %s's tools need", f.Identity, nameOr(sv, f.Server)),
 			Rule:  f.Flag, Path: f.Identity + " -> " + f.Server,
 			Evidence:    "Scopes " + strings.Join(f.Scopes, ", ") + " on a server whose every tool declares readOnlyHint true.",
 			Uncertainty: "Read-only is what the server declares about its tools, not observed behaviour; the scopes are as recorded at ingest.",
-			Next:        scopeQuery(f.Scopes), Server: Ref{sv.Endpoint, sv.Anchor}, Clients: sv.Clients})
+			Next:        scopeQuery(f.Scopes), Server: serverRef(sv), Clients: sv.Clients})
 	}
 	for i := range out {
 		out[i].Anchor = fmt.Sprintf("fnd-%d", i)
@@ -76,7 +76,7 @@ func violationFinding(v policy.Violation, byEndpoint map[string]ServerRow, byNam
 		Next:        "passmcp-graph check --policy FILE", Clients: []Ref{}}
 	for _, st := range v.Path {
 		if sv, ok := byEndpoint[st.Label]; ok && st.Kind == "server" {
-			f.Server = Ref{sv.Endpoint, sv.Anchor}
+			f.Server = serverRef(sv)
 		}
 		if c, ok := byName[st.Label]; ok && st.Kind == "agent" {
 			f.Clients = append(f.Clients, c)
@@ -84,6 +84,14 @@ func violationFinding(v policy.Violation, byEndpoint map[string]ServerRow, byNam
 	}
 	return f
 }
+
+// serverRef links to a server under the name the rest of the page gives
+// it; see displayName.
+func serverRef(sv ServerRow) Ref { return Ref{displayName(sv), sv.Anchor} }
+
+// nameOr is a server's display name, or label when the server is not in
+// the summary.
+func nameOr(sv ServerRow, label string) string { return orDefault(displayName(sv), label) }
 
 func attestationEvidence(sv ServerRow) string {
 	if sv.Attestation == "" {

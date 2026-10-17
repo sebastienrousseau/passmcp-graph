@@ -183,7 +183,7 @@ func TestTags(t *testing.T) {
 			if has("destr") != p.Destructive || has("unann") != (p.Behavior == unannotated) {
 				t.Errorf("%s -> %s tags %q", a.Name, p.Name, p.Tags)
 			}
-			if p.Server.Name == fixture.Mail && !has("st-stale") {
+			if endpointOf(s, p.Server.Anchor) == fixture.Mail && !has("st-stale") {
 				t.Errorf("a path through the stale server is not tagged stale: %q", p.Tags)
 			}
 		}
@@ -254,8 +254,8 @@ func TestShareSafeRemovesCanaries(t *testing.T) {
 // background and a panel, in both themes, computed from the page's own
 // tokens so a change to a colour is checked when it is made.
 func TestContrast(t *testing.T) {
-	light := tokens(t, page[strings.Index(page, ":root {"):])
-	dark := tokens(t, page[strings.Index(page, `:root[data-theme="dark"] {`):])
+	light := tokens(t, stylesheet[strings.Index(stylesheet, ":root {"):])
+	dark := tokens(t, stylesheet[strings.Index(stylesheet, `:root[data-theme="dark"] {`):])
 	for theme, tk := range map[string]map[string]string{"light": light, "dark": dark} {
 		bg := rgb(t, tk["--bg"])
 		panel := over(rgba(t, tk["--glass"]), bg)
@@ -347,31 +347,7 @@ func TestInTheBrowser(t *testing.T) {
 	}
 	g := fixture.Graph()
 	got := runProbe(t, chrome, build(t, g, []policy.Violation{}))
-	for _, want := range []string{
-		"hash srv-1 open: true",
-		"pick cursor: paths 2, servers 2",
-		"2 of 6 paths · 2 of 4 attention items (1 finding, 1 evidence gap)",
-		"attention: 2 attention items in this selection: 1 finding · 1 evidence gap. 4 attention items in the whole snapshot.",
-		"selection pill: true cursor",
-		"topology filtered, hidden: 12 of 12",
-		"topology with context, hidden: 0",
-		"repro label: Reproduce this view:",
-		"search crm: servers 1, paths 2, findings 1",
-		"search repro label: Closest command:",
-		"status stale: servers 1",
-		"unannotated: paths 3",
-		"cleared: paths 6, servers 4, attention 4, hidden topology 0 | Showing the whole snapshot.",
-		"all columns: true",
-		"back shown true, ← Back to A critical check failed",
-		"after back: hash #fnd-0, focus in fnd-0 true",
-		"320px: scrollWidth 320 clientWidth 320",
-		"flows drawn: 18",
-		"severity low: rows 2",
-		"ctrl-k focuses search: true",
-		"themes: light dark system",
-		"hero pick: cursor, pressed true",
-		"export: blobs 1, CSP violations 0",
-	} {
+	for _, want := range probeWants {
 		if !strings.Contains(got, want) {
 			t.Errorf("browser check lacks %q in:\n%s", want, got)
 		}
@@ -468,7 +444,7 @@ func shownPaths(s *Summary, client string, sts, bhs []string) map[string]bool {
 	for _, a := range s.Agents {
 		for _, p := range a.Paths {
 			if (client == "" || has(p.Tags, client)) && any(p.Tags, sts) && any(p.Tags, bhs) {
-				out[a.Name+" -> "+p.Server.Name+" -> "+p.Name] = true
+				out[a.Name+" -> "+endpointOf(s, p.Server.Anchor)+" -> "+p.Name] = true
 			}
 		}
 	}
@@ -501,7 +477,7 @@ func TestCommandCentre(t *testing.T) {
 	if strings.Join(got, "\n") != strings.Join(want, "\n") {
 		t.Errorf("attention rows:\n%s\nwant:\n%s", strings.Join(got, "\n"), strings.Join(want, "\n"))
 	}
-	if !strings.Contains(s.Mitigation.Fix, "Fix the failing check on https://crm.example/mcp") ||
+	if !strings.Contains(s.Mitigation.Fix, "Fix the failing check on crm,") ||
 		!strings.Contains(s.Mitigation.Verify, `passmcp-graph query "agents -> servers where critical"`) {
 		t.Errorf("mitigation %+v", s.Mitigation)
 	}

@@ -10,6 +10,15 @@ var out = [];
 function log(s) { out.push(s); document.getElementById("out").textContent = out.join("\n"); }
 function vis(d, sel) { return [].filter.call(d.querySelectorAll(sel), function (e) { return !e.classList.contains("out"); }).length; }
 function hiddenTopo(d) { return [].filter.call(d.querySelectorAll(".topo .it.out"), function (e) { return getComputedStyle(e).display === "none"; }).length; }
+// bareClip counts server-card status lines cut off with no ellipsis: an
+// ellipsis needs a block box, and a flex container clips its text bare.
+function bareClip(doc) { return [].filter.call(doc.querySelectorAll(".hl.srv small"), function (s) {
+  var t = s.querySelector("span") || s, cs = getComputedStyle(t);
+  return t.scrollWidth > t.clientWidth && (cs.textOverflow !== "ellipsis" || !/^(block|inline-block)$/.test(cs.display));
+}).length; }
+// watched is what a test's securitypolicyviolation listener in the page
+// recorded, when the test put one there.
+function watched(win) { var v = win.cspViolations; return v ? v.length + (v.length ? " " + JSON.stringify(v) : "") : "unwatched"; }
 var loaded = 0;
 function go() { if (++loaded === 2) { setTimeout(step1, 800); } }
 document.getElementById("f").onload = go;
@@ -17,6 +26,7 @@ document.getElementById("n").onload = go;
 var w, d;
 function step1() { try {
   w = document.getElementById("f").contentWindow; d = w.document;
+  log("csp violations at load: " + watched(w));
   log("hash srv-1 open: " + d.getElementById("srv-1").open);
   d.querySelector('button[data-pick="cli-1"]').click();
   log("pick cursor: paths " + vis(d, "tr[data-kind=path]") + ", servers " + vis(d, "tr[data-kind=server]"));
@@ -82,6 +92,9 @@ function step3() { try {
 } catch (e) { log("ERR " + e); } }
 function step4() { try {
   var n = document.getElementById("n").contentWindow.document;
-  log("320px: scrollWidth " + n.documentElement.scrollWidth + " clientWidth " + n.documentElement.clientWidth);
+  document.getElementById("f").style.width = "1440px";
+  log("320px: scrollWidth " + n.documentElement.scrollWidth + " clientWidth " + n.documentElement.clientWidth +
+    "; server status clipped without ellipsis: " + bareClip(n) + ", at 1440px " + bareClip(d));
+  log("csp violations: " + watched(w) + " at 1280px, " + watched(document.getElementById("n").contentWindow) + " at 320px");
 } catch (e) { log("ERR " + e); } }
 </script>

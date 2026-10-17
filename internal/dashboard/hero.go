@@ -23,20 +23,21 @@ type Hero struct {
 	Groups    []HeroGroup
 }
 
-// HeroGroup is one server status and its share of the servers.
+// HeroGroup is one server status and its share of the servers. Key
+// follows the count in the ring's key: "1 with stale evidence".
 type HeroGroup struct {
-	Status, Label, Note string
-	Count               int
-	Share               Ratio
+	Status, Label, Note, Key string
+	Count                    int
+	Share                    Ratio
 }
 
 // heroGroups are the statuses in precedence order: a server counts once,
 // in the first that applies.
-var heroGroups = []struct{ status, label, note string }{
-	{"critical", "Critical findings", "a critical check failed"},
-	{"unattested", "No evidence", "no attestation read"},
-	{"stale", "Stale evidence", "older than the threshold"},
-	{"ok", "No failing server checks", "in fresh evidence"},
+var heroGroups = []struct{ status, label, note, key string }{
+	{"critical", "Critical findings", "a critical check failed", "with a failed critical check"},
+	{"unattested", "No evidence", "no attestation read", "with no evidence"},
+	{"stale", "Stale evidence", "older than the threshold", "with stale evidence"},
+	{"ok", "No failing server checks", "in fresh evidence", "with no failing server checks"},
 }
 
 func buildHero(s *Summary) Hero {
@@ -58,7 +59,7 @@ func buildHero(s *Summary) Hero {
 	}
 	h.Attention = counts["critical"] + counts["unattested"] + counts["stale"]
 	for _, g := range heroGroups {
-		h.Groups = append(h.Groups, HeroGroup{Status: g.status, Label: g.label, Note: g.note,
+		h.Groups = append(h.Groups, HeroGroup{Status: g.status, Label: g.label, Note: g.note, Key: g.key,
 			Count: counts[g.status], Share: Ratio{counts[g.status], s.Totals.Servers}})
 	}
 	return h
