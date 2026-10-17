@@ -397,7 +397,8 @@ hr.sep { border: 0; border-top: 1px solid var(--line); margin: 12px 8px; }
 .hl.srv { grid-template-columns: 42px minmax(0, 1fr) auto; padding-left: 22px; }
 .hname { min-width: 0; display: grid; }
 .hname b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.hname small { font-size: 13px; color: var(--ink-2); display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hname small { font-size: 13px; color: var(--ink-2); display: flex; align-items: center; gap: 6px; min-width: 0; }
+.hname small > span { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tile, .mtile { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: var(--glass-2); border: 1px solid var(--line-2); color: var(--ink); }
 .mtile { width: 22px; height: 22px; border-radius: 6px; margin-right: 8px; vertical-align: middle; display: inline-grid; }
 .mtile .ico { width: 14px; height: 14px; }
@@ -669,7 +670,7 @@ table.mini .sc { color: var(--c); font-weight: 600; }
         {{range $i, $a := .Agents}}{{if lt $i 8}}
         <button type="button" class="hl" data-pick="{{.Anchor}}" style="--c: var(--f{{$i}})" aria-label="{{.Name}}, {{plural .Tools "tool path" "tool paths"}}: filter to its paths">
           <span class="tile t-{{clientIcon .Client}}" aria-hidden="true"><svg class="ico"><use href="#i-{{clientIcon .Client}}"/></svg></span>
-          <span class="hname"><b>{{.Name}}</b><small>{{plural .Tools "tool path" "tool paths"}}</small></span>
+          <span class="hname"><b>{{.Name}}</b><small><span>{{plural .Tools "tool path" "tool paths"}}</span></small></span>
           <i class="fdot" data-flow="c" aria-hidden="true"></i>
         </button>
         {{end}}{{else}}
@@ -693,7 +694,7 @@ table.mini .sc { color: var(--c); font-weight: 600; }
           <text class="rcap" x="150" y="202" text-anchor="middle">client → server → tool</text>
           <text class="rcap" x="150" y="222" text-anchor="middle">paths</text>
         </svg>
-        <p class="ringkey">Ring: servers by status{{range .Hero.Groups}}{{if .Count}} · <span class="st-{{.Status}}"><i class="dot"></i>{{.Count}} {{.Label}}</span>{{end}}{{end}}</p>
+        <p class="ringkey">Ring: servers by status{{range .Hero.Groups}}{{if .Count}} · <span class="st-{{.Status}}"><i class="dot"></i>{{.Count}} {{.Key}}</span>{{end}}{{end}}</p>
       </div>
       <div class="hcol">
         <div class="hhead"><h3>MCP servers</h3><span class="cnt">{{.Totals.Servers}}</span></div>
@@ -701,7 +702,7 @@ table.mini .sc { color: var(--c); font-weight: 600; }
         <a class="hl srv st-{{.Status}}" href="#{{.Anchor}}">
           <i class="fdot" data-flow="s" aria-hidden="true"></i>
           <span class="tile" aria-hidden="true"><svg class="ico"><use href="#i-{{serverIcon $s}}"/></svg></span>
-          <span class="hname"><b>{{display $s}}</b><small><i class="dot"></i>{{if eq .Status "critical"}}{{plural (len .Critical) "critical finding" "critical findings"}}{{else}}{{.StatusLabel}}{{end}}</small></span>
+          <span class="hname"><b>{{display $s}}</b><small>{{$st := .StatusLabel}}{{if eq .Status "critical"}}{{$st = plural (len .Critical) "critical finding" "critical findings"}}{{end}}<i class="dot"></i><span title="{{$st}}">{{$st}}</span></small></span>
           <span class="score">{{or0 .Score}}</span>
         </a>
         {{end}}{{else}}

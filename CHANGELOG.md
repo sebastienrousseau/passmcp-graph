@@ -8,6 +8,37 @@ All notable changes to passmcp-graph are documented here. The format follows
 [Semantic Versioning](https://semver.org/) shaped; before 1.0 every
 release moves the patch digit.
 
+## [Unreleased]
+
+Work towards the family's 0.0.8. Version places stay at 0.0.7 until the
+family's release step.
+
+### Changed
+
+- The 0.0.1 to 0.0.4 headings in this file use a hyphen between version
+  and date, like the later ones, instead of an em dash.
+- The README's capability table says the dashboard was released in
+  0.0.7, and shell completions and release archives in 0.0.2; those
+  rows still said "Not yet released".
+
+### Fixed
+
+- **`dashboard` names a server one way.** The top issue, finding and
+  evidence-gap titles, the mitigation steps and the links to a server
+  used its endpoint (or, with `--share-safe`, a placeholder such as
+  `http-server-1`) while the command centre used the name it reports, so
+  "crm" in the ring was "https://crm.example/mcp" in the banner. They now
+  all use the reported name, or the endpoint when there is none; in
+  `--format json`, `server.name` in findings, evidence gaps, paths and
+  grants changes the same way. The server's details panel, the evidence
+  table and the topology still show the endpoint, and search still finds
+  a server's items by it.
+- **The ring's key reads with its counts**: "1 with stale evidence"
+  instead of "1 Stale evidence".
+- **A server card's status line ends in an ellipsis** when it does not
+  fit, instead of being cut off mid-word ("No failing server checl" at
+  1440 pixels wide); the full status is in its tooltip.
+
 ## [0.0.7] - 2026-10-17
 
 The family's seventh release. One command is added, `dashboard`, and
@@ -92,7 +123,7 @@ passmcp-graph release, so this member goes from 0.0.5 to 0.0.7.
 - **In lockstep with passmcp 0.0.5**: passmcp-reporting is required at
   v0.0.5, and passmcp's trace runs at v0.0.5.
 
-## [0.0.4] — 2026-09-30
+## [0.0.4] - 2026-09-30
 
 The family's fourth release. The commands, the query language, the policy
 file, the graph format and the exit statuses are unchanged from 0.0.3;
@@ -113,7 +144,7 @@ this member moves with the family and gains a README demo.
   v0.0.4, and passmcp's trace runs at v0.0.4; neither changes what this
   repository reads or writes.
 
-## [0.0.3] — 2026-09-30
+## [0.0.3] - 2026-09-30
 
 The family's third release. The commands, the query language, the policy
 file, the graph format and the exit statuses are unchanged from 0.0.2;
@@ -133,7 +164,7 @@ this member moves with the family and gains fuzz testing.
 - **passmcp-reporting is required at v0.0.3**, and passmcp's trace runs
   at v0.0.3; neither changes what this repository reads or writes.
 
-## [0.0.2] — 2026-09-29
+## [0.0.2] - 2026-09-29
 
 The family's second release. The 0.0.1 commands, the query language, the
 policy file, the graph format and the exit statuses are unchanged; what is
@@ -162,7 +193,7 @@ released.
   lines per function; `query.Eval`, `check` and the licence-header sweep
   were split to meet them, with no change in behaviour.
 
-## [0.0.1] — 2026-09-29
+## [0.0.1] - 2026-09-29
 
 The first release.
 

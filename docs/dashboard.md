@@ -71,6 +71,13 @@ policy findings are attention items of their own, so a server with no
 failing checks can still carry one; its row and its panel count them as
 related findings.
 
+A server goes by one name wherever the page refers to it: the name it
+reports, or its endpoint when it reports none. The command centre,
+finding and evidence-gap titles, mitigation steps and links between
+panels all use it. The server's own panel, the server evidence table and
+the topology show its endpoint, the name the query language matches,
+and search finds a server's items by either.
+
 ## Search, filters and details
 
 Every count on the page says whether it covers the whole snapshot or the

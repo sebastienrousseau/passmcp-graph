@@ -10,6 +10,12 @@ var out = [];
 function log(s) { out.push(s); document.getElementById("out").textContent = out.join("\n"); }
 function vis(d, sel) { return [].filter.call(d.querySelectorAll(sel), function (e) { return !e.classList.contains("out"); }).length; }
 function hiddenTopo(d) { return [].filter.call(d.querySelectorAll(".topo .it.out"), function (e) { return getComputedStyle(e).display === "none"; }).length; }
+// bareClip counts server-card status lines cut off with no ellipsis: an
+// ellipsis needs a block box, and a flex container clips its text bare.
+function bareClip(doc) { return [].filter.call(doc.querySelectorAll(".hl.srv small"), function (s) {
+  var t = s.querySelector("span") || s, cs = getComputedStyle(t);
+  return t.scrollWidth > t.clientWidth && (cs.textOverflow !== "ellipsis" || !/^(block|inline-block)$/.test(cs.display));
+}).length; }
 var loaded = 0;
 function go() { if (++loaded === 2) { setTimeout(step1, 800); } }
 document.getElementById("f").onload = go;
@@ -82,6 +88,8 @@ function step3() { try {
 } catch (e) { log("ERR " + e); } }
 function step4() { try {
   var n = document.getElementById("n").contentWindow.document;
-  log("320px: scrollWidth " + n.documentElement.scrollWidth + " clientWidth " + n.documentElement.clientWidth);
+  document.getElementById("f").style.width = "1440px";
+  log("320px: scrollWidth " + n.documentElement.scrollWidth + " clientWidth " + n.documentElement.clientWidth +
+    "; server status clipped without ellipsis: " + bareClip(n) + ", at 1440px " + bareClip(d));
 } catch (e) { log("ERR " + e); } }
 </script>

@@ -98,7 +98,7 @@ func addDetails(g *graph.Graph, s *Summary, r *reach) {
 	a := anchors{}
 	for i := range s.Servers {
 		s.Servers[i].Anchor = fmt.Sprintf("srv-%d", i)
-		a[s.Servers[i].ID] = Ref{s.Servers[i].Endpoint, s.Servers[i].Anchor}
+		a[s.Servers[i].ID] = serverRef(s.Servers[i])
 	}
 	for i := range s.Agents {
 		s.Agents[i].Anchor = fmt.Sprintf("cli-%d", i)
@@ -188,9 +188,12 @@ func agentDetail(g *graph.Graph, a anchors, r *reach, agentID string) ([]PathInf
 // identityRows lists every identity with its grants, flagging the grants
 // analyze found over-privileged, and the clients that reach its servers.
 func identityRows(g *graph.Graph, a anchors, s *Summary) []IdentityRow {
-	flagged := set{}
+	flagged, endpoint := set{}, map[string]string{}
 	for _, f := range s.OverPrivileged {
 		flagged = flagged.add(f.Identity + "\x00" + f.Server)
+	}
+	for _, sv := range s.Servers {
+		endpoint[sv.ID] = sv.Endpoint
 	}
 	rows := []IdentityRow{}
 	for _, n := range g.Nodes {
@@ -205,7 +208,7 @@ func identityRows(g *graph.Graph, a anchors, s *Summary) []IdentityRow {
 		clients := set{}
 		for _, e := range g.EdgesFrom(n.ID, graph.Authorizes) {
 			gr := Grant{Identity: a[n.ID], Server: a[e.To], Scopes: append([]string{}, e.Scopes...),
-				OverPrivileged: flagged[n.Label+"\x00"+a[e.To].Name]}
+				OverPrivileged: flagged[n.Label+"\x00"+endpoint[e.To]]}
 			row.OverPrivileged = row.OverPrivileged || gr.OverPrivileged
 			row.Grants = append(row.Grants, gr)
 			for _, ae := range g.EdgesTo(e.To, graph.Uses) {
