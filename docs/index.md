@@ -25,6 +25,7 @@ passmcp-graph export --format graphml > estate.graphml
 | `check --policy FILE [--format text\|json]` | Forbidden paths; see [Policies](policy.md) |
 | `export --format json\|graphml\|cypher` | The whole graph, to stdout |
 | `import FILE` | Merges a JSON export into the store, after validating it |
+| `dashboard [--out FILE] [--open] [--policy FILE] [--stale-days N] [--format html\|json]` | One offline HTML page summarising the graph; see [Dashboard](dashboard.md) |
 | `completion bash\|zsh\|fish` | Prints a shell completion script |
 | `version` | Prints the version |
 

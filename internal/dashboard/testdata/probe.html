@@ -1,0 +1,87 @@
+<!-- SPDX-FileCopyrightText: 2026 Sebastien Rousseau <sebastian.rousseau@gmail.com> -->
+<!-- SPDX-License-Identifier: GPL-3.0-only -->
+<!-- Drives dashboard.html in two frames and prints what it observed, one
+     fact per line; TestInTheBrowser reads the lines. -->
+<!doctype html><meta charset="utf-8"><body><pre id="out"></pre>
+<iframe id="f" src="dashboard.html#srv-1" style="width:1280px;height:900px"></iframe>
+<iframe id="n" src="dashboard.html" style="width:320px;height:900px"></iframe>
+<script>
+var out = [];
+function log(s) { out.push(s); document.getElementById("out").textContent = out.join("\n"); }
+function vis(d, sel) { return [].filter.call(d.querySelectorAll(sel), function (e) { return !e.classList.contains("out"); }).length; }
+function hiddenTopo(d) { return [].filter.call(d.querySelectorAll(".topo .it.out"), function (e) { return getComputedStyle(e).display === "none"; }).length; }
+var loaded = 0;
+function go() { if (++loaded === 2) { setTimeout(step1, 800); } }
+document.getElementById("f").onload = go;
+document.getElementById("n").onload = go;
+var w, d;
+function step1() { try {
+  w = document.getElementById("f").contentWindow; d = w.document;
+  log("hash srv-1 open: " + d.getElementById("srv-1").open);
+  d.querySelector('button[data-pick="cli-1"]').click();
+  log("pick cursor: paths " + vis(d, "tr[data-kind=path]") + ", servers " + vis(d, "tr[data-kind=server]"));
+  log("scope: " + d.getElementById("scope").textContent);
+  log("attention: " + d.getElementById("attcount").textContent);
+  log("selection pill: " + (!d.getElementById("selpill").hidden) + " " + d.getElementById("selwhat").textContent);
+  log("topology filtered, hidden: " + hiddenTopo(d) + " of " + d.querySelectorAll(".topo .it.out").length);
+  d.getElementById("ctx").click();
+  log("topology with context, hidden: " + hiddenTopo(d));
+  d.getElementById("ctx").click();
+  d.querySelector('[data-st="st-stale"]').click();
+  log("repro: " + d.getElementById("repro").textContent);
+  log("repro label: " + d.getElementById("reprolabel").textContent);
+  log("repro paths shown: " + vis(d, "tr[data-kind=path]"));
+  d.getElementById("clear").click();
+  var q = d.getElementById("q"); q.value = "crm"; q.dispatchEvent(new w.Event("input"));
+  log("search crm: servers " + vis(d, "tr[data-kind=server]") + ", paths " + vis(d, "tr[data-kind=path]") + ", findings " + vis(d, "[data-kind=finding]"));
+  log("search repro label: " + d.getElementById("reprolabel").textContent);
+  d.getElementById("clear").click();
+  d.querySelector('[data-st="st-stale"]').click();
+  log("status stale: servers " + vis(d, "tr[data-kind=server]"));
+  d.getElementById("clear").click();
+  d.querySelector('[data-bh="unann"]').click();
+  log("unannotated: paths " + vis(d, "tr[data-kind=path]"));
+  log("history state kept: " + JSON.stringify(w.history.state.pg.bh));
+  d.getElementById("clear").click();
+  log("cleared: paths " + vis(d, "tr[data-kind=path]") + ", servers " + vis(d, "tr[data-kind=server]") + ", attention " + vis(d, "[data-kind=finding], [data-kind=gap]") + ", hidden topology " + d.querySelectorAll(".topo .it.out").length + " | " + d.getElementById("scope").textContent);
+  d.getElementById("allcols").click();
+  log("all columns: " + !d.getElementById("evtable").classList.contains("core"));
+  d.getElementById("fnd-0").open = true;
+  setTimeout(function () { d.querySelector('#fnd-0 a[href^="#srv-"]').click(); setTimeout(step2, 300); }, 200);
+} catch (e) { log("ERR " + e); } }
+function step2() { try {
+  var id = w.location.hash.slice(1);
+  var back = d.getElementById(id).querySelector("[data-back]");
+  log("finding to " + id + ": open " + d.getElementById(id).open + ", back shown " + !back.hidden + ", " + back.textContent);
+  back.click();
+  setTimeout(step3, 400);
+} catch (e) { log("ERR " + e); } }
+function step3() { try {
+  log("after back: hash " + w.location.hash + ", focus in fnd-0 " + !!(d.activeElement && d.activeElement.closest("#fnd-0")));
+  log("flows drawn: " + d.querySelectorAll("#flows path").length);
+  d.querySelector('.tab[data-sev="low"]').click();
+  log("severity low: rows " + [].filter.call(d.querySelectorAll("[data-sevrow]"), function (r) { return !r.classList.contains("sevout"); }).length);
+  d.querySelector('.tab[data-sev=""]').click();
+  d.body.dispatchEvent(new w.KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }));
+  log("ctrl-k focuses search: " + (d.activeElement && d.activeElement.id === "q"));
+  d.querySelector('[data-set-theme="light"]').click();
+  var light = d.documentElement.getAttribute("data-theme");
+  d.querySelector('[data-set-theme="dark"]').click();
+  var dark = d.documentElement.getAttribute("data-theme");
+  d.querySelector('[data-set-theme="system"]').click();
+  log("themes: " + light + " " + dark + " " + (d.documentElement.getAttribute("data-theme") || "system"));
+  d.querySelector('.hero .hl[data-pick="cli-1"]').click();
+  log("hero pick: " + d.getElementById("selwhat").textContent + ", pressed " + d.querySelector('.hero .hl[data-pick="cli-1"]').getAttribute("aria-pressed"));
+  d.getElementById("clear").click();
+  var violations = 0;
+  d.addEventListener("securitypolicyviolation", function () { violations++; });
+  var made = 0, real = w.URL.createObjectURL;
+  w.URL.createObjectURL = function (b) { made++; return real.call(w.URL, b); };
+  d.querySelector("[data-export]").click();
+  setTimeout(function () { log("export: blobs " + made + ", CSP violations " + violations); step4(); }, 300);
+} catch (e) { log("ERR " + e); } }
+function step4() { try {
+  var n = document.getElementById("n").contentWindow.document;
+  log("320px: scrollWidth " + n.documentElement.scrollWidth + " clientWidth " + n.documentElement.clientWidth);
+} catch (e) { log("ERR " + e); } }
+</script>

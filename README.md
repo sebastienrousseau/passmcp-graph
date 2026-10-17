@@ -18,7 +18,7 @@
   <a href="https://pkg.go.dev/satellion.com/passmcp-graph"><img src="https://img.shields.io/badge/go.dev-reference-007d9c?style=for-the-badge&labelColor=555555&logo=go&logoColor=white" alt="Docs" /></a>
   <a href="https://scorecard.dev/viewer/?uri=github.com/sebastienrousseau/passmcp-graph"><img src="https://img.shields.io/ossf-scorecard/github.com/sebastienrousseau/passmcp-graph?style=for-the-badge&label=OpenSSF%20Scorecard&logo=openssf" alt="OpenSSF Scorecard" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0--only-blue.svg?style=for-the-badge" alt="License: GPL-3.0-only" /></a>
-  <a href="https://github.com/sebastienrousseau/passmcp-graph/blob/main/DEVELOPMENT.md#requirements"><img src="https://img.shields.io/badge/go-1.26.8%2B-93450a.svg?style=for-the-badge&logo=go" alt="Go 1.26.8+" /></a>
+  <a href="https://github.com/sebastienrousseau/passmcp-graph/blob/main/DEVELOPMENT.md#requirements"><img src="https://img.shields.io/badge/go-1.26.9%2B-93450a.svg?style=for-the-badge&logo=go" alt="Go 1.26.9+" /></a>
 </p>
 
 <p align="center">
@@ -64,7 +64,7 @@
 ### As a Go program
 
 ```bash
-go install satellion.com/passmcp-graph/cmd/passmcp-graph@v0.0.5
+go install satellion.com/passmcp-graph/cmd/passmcp-graph@v0.0.7
 ```
 
 ### From source, with `make install`
@@ -95,7 +95,7 @@ for Linux, macOS and Windows on amd64 and arm64, with a signed
 
 | Requirement | Floor | Enforced by |
 | :--- | :--- | :--- |
-| Go (building from source) | 1.26.8, the `go` directive in [`go.mod`](go.mod) | CI tests on that version and on latest stable, on Linux, macOS and Windows |
+| Go (building from source) | 1.26.9, the `go` directive in [`go.mod`](go.mod) | CI tests on that version and on latest stable, on Linux, macOS and Windows |
 | Evidence | passmcp attestations or `passmcp check --output json` reports, from [passmcp](https://github.com/sebastienrousseau/passmcp) 0.0.1 | `ingest` skips, and names, a file it does not recognise |
 | Network | none | a test runs every command with egress recorded and requires zero requests |
 
@@ -113,6 +113,7 @@ passmcp-graph ingest attestations/ reports/ ~/Library/Application\ Support/Claud
 passmcp-graph analyze
 passmcp-graph query "agents -> tools where destructive and server.auth = none"
 passmcp-graph check --policy policy.yaml   # exit 1 names every forbidden path
+passmcp-graph dashboard --open             # the whole graph as one offline page
 ```
 
 `ingest` reads what it is given into `.passmcp-graph/graph.json` and can be
@@ -126,7 +127,7 @@ scopes on a server whose tools are all read-only.
 
 ## The passmcp-graph ecosystem
 
-Every component is released at **0.0.5** and moves in lockstep: one version across the family, released together ([docs/ecosystem.md](https://github.com/sebastienrousseau/passmcp/blob/main/docs/ecosystem.md)).
+Every component is released at **0.0.7** and moves in lockstep: one version across the family, released together ([docs/ecosystem.md](https://github.com/sebastienrousseau/passmcp/blob/main/docs/ecosystem.md)).
 
 | Component | Purpose | Use case |
 | :--- | :--- | :--- |
@@ -157,6 +158,7 @@ that `go.mod` requires it there.
 | Query | Paths of node kinds joined by `->`, filtered by `where` | [Released in 0.0.1](https://github.com/sebastienrousseau/passmcp-graph/releases/tag/v0.0.1) |
 | Policy | `check --policy` with forbidden-path rules; exit 1 on a violation | [Released in 0.0.1](https://github.com/sebastienrousseau/passmcp-graph/releases/tag/v0.0.1) |
 | Export | `json` (schema-valid, re-imports without loss), `graphml`, `cypher`; `import` of a JSON export | [Released in 0.0.1](https://github.com/sebastienrousseau/passmcp-graph/releases/tag/v0.0.1) |
+| Dashboard | `dashboard`: one offline HTML page of reach, attestation state, findings and policy violations | [Not yet released](https://github.com/sebastienrousseau/passmcp-graph/blob/main/CHANGELOG.md#unreleased) |
 | Network | none; `--offline` refuses every request as well | [Released in 0.0.1](https://github.com/sebastienrousseau/passmcp-graph/releases/tag/v0.0.1) |
 | Shell completions | `completion bash\|zsh\|fish`, installed by `make install` | [Not yet released](https://github.com/sebastienrousseau/passmcp-graph/blob/main/CHANGELOG.md#002) |
 | Release archives | Linux, macOS and Windows on amd64 and arm64, signed checksums, SLSA provenance | [Not yet released](https://github.com/sebastienrousseau/passmcp-graph/blob/main/CHANGELOG.md#002) |
@@ -212,6 +214,11 @@ See [`docs/BENCHMARKS.md`](docs/BENCHMARKS.md) for methodology and full results.
 - **Export.** JSON in the versioned graph format from `passmcp-reporting`,
   validated against its schema on export and on import; GraphML and
   Cypher for existing graph tools.
+- **An offline dashboard.** `dashboard` writes one self-contained HTML
+  page: the tools each agent can reach, every server's attestation state
+  worst first, inherited risks, over-privilege and, with `--policy`, the
+  violations. It loads nothing from the network. See
+  [`docs/dashboard.md`](docs/dashboard.md).
 - **No secrets stored.** Client configurations are read for their server
   names, URLs and commands only; `env` and `headers` are never read, URL
   credentials and secret-named query parameters are dropped, and
