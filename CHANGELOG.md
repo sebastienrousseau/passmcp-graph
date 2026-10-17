@@ -8,7 +8,7 @@ All notable changes to passmcp-graph are documented here. The format follows
 [Semantic Versioning](https://semver.org/) shaped; before 1.0 every
 release moves the patch digit.
 
-## [Unreleased]
+## [0.0.7] - 2026-10-17
 
 The family's seventh release. One command is added, `dashboard`; the
 other commands, the query language, the policy file, the graph format and
