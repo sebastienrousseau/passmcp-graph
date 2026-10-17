@@ -19,7 +19,11 @@ passmcp-graph release, so this member goes from 0.0.5 to 0.0.7.
 ### Added
 
 - **`dashboard`** writes the graph as one self-contained HTML page for
-  an operator to read or share. It leads with the item to look at first,
+  an operator to read or share, opening on a command centre: clients and
+  servers either side of a ring of configured tool paths, the totals,
+  attention items by severity, a mitigation path for the first item, and
+  quick actions to save a PDF report or download the share-safe JSON. It
+  leads with the item to look at first,
   with its evidence age, the client configured to reach the server, and
   links to the evidence and the affected path; then the totals; the
   configured tool paths split into declared read-only, declared mutating

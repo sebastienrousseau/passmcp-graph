@@ -35,6 +35,9 @@
   --ro: #2a6fd0; --wr: #d9531e;
   --shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 28px rgba(15, 23, 42, 0.06);
   --solid: #ffffff;
+  --f0: #f2711c; --f1: #c026d3; --f2: #2563eb; --f3: #0891b2; --f4: #16a34a; --f5: #db2777; --f6: #7c3aed; --f7: #ca8a04;
+  --card: rgba(255, 255, 255, 0.86); --core-1: #eef0ff; --core-2: #ffffff; --halo: rgba(99, 102, 241, 0.35);
+  --grad: linear-gradient(90deg, #f97316, #ec4899);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -50,6 +53,9 @@
     --ro: #4b93ea; --wr: #f0743c;
     --shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
     --solid: #12122a;
+    --f0: #ff9a3c; --f1: #e14bff; --f2: #4d7dff; --f3: #2fd0f5; --f4: #49e08b; --f5: #ff5ca8; --f6: #a78bfa; --f7: #facc15;
+    --card: rgba(18, 17, 46, 0.72); --core-1: #1b1650; --core-2: #070714; --halo: rgba(99, 102, 241, 0.55);
+    --grad: linear-gradient(90deg, #ff9a3c, #ff4d8d);
   }
 }
 :root[data-theme="dark"] {
@@ -65,6 +71,9 @@
   --ro: #4b93ea; --wr: #f0743c;
   --shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
   --solid: #12122a;
+  --f0: #ff9a3c; --f1: #e14bff; --f2: #4d7dff; --f3: #2fd0f5; --f4: #49e08b; --f5: #ff5ca8; --f6: #a78bfa; --f7: #facc15;
+  --card: rgba(18, 17, 46, 0.72); --core-1: #1b1650; --core-2: #070714; --halo: rgba(99, 102, 241, 0.55);
+  --grad: linear-gradient(90deg, #ff9a3c, #ff4d8d);
 }
 
 * { box-sizing: border-box; }
@@ -236,7 +245,7 @@ section { margin-bottom: 18px; }
 .n-tool.destr { stroke: var(--crit); stroke-width: 3; }
 .n-tool.destr-presumed { stroke-dasharray: 3 2.4; }
 .hatch-line { stroke: var(--muted); stroke-width: 1.5; }
-.node-in { opacity: 0; animation: rise .7s cubic-bezier(.2,.7,.2,1) forwards; animation-delay: calc(var(--i, 0) * 50ms + .2s); }
+.node-in { animation: rise .7s cubic-bezier(.2,.7,.2,1) backwards; animation-delay: calc(var(--i, 0) * 50ms + .2s); }
 .legend { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 14px; color: var(--ink-2); margin-top: 12px; }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 .sw { width: 12px; height: 12px; border-radius: 50%; display: inline-block; border: 2px solid transparent; }
@@ -330,23 +339,188 @@ details.drawer dl.kv { margin-left: 0; }
 .refs { display: flex; flex-wrap: wrap; gap: 6px 12px; }
 
 footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
-.reveal { opacity: 0; animation: rise .8s cubic-bezier(.2,.7,.2,1) forwards; animation-delay: calc(var(--i, 0) * 70ms + .1s); }
+
+/* ---- Command centre ---- */
+.brand span { display: grid; line-height: 1.15; }
+.brand small { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-top: 3px; }
+.brand svg { width: 28px; height: 37px; }
+hr.sep { border: 0; border-top: 1px solid var(--line); margin: 12px 8px; }
+.snapcard { margin-top: auto; display: flex; gap: 10px; padding: 14px; border-radius: 16px; background: var(--glass-2); border: 1px solid var(--line); font-size: 13px; }
+.snapcard b { display: block; color: var(--ink); }
+.snapcard span { display: block; color: var(--ink-2); overflow-wrap: anywhere; }
+.snapcard small { display: block; color: var(--muted); margin-top: 6px; font-size: 12.5px; }
+.pulse { width: 10px; height: 10px; border-radius: 50%; background: var(--f0); margin-top: 5px; flex: none; box-shadow: 0 0 0 0 var(--f0); animation: ping 2.4s ease-out infinite; --c: var(--f0); }
+.side-foot { display: none; }
+.hdr { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px 24px; flex-wrap: wrap; margin-bottom: 18px; }
+.hdr-l { display: flex; gap: 12px; align-items: flex-start; min-width: 0; }
+.crumb { font-size: 13px; color: var(--ink-2); }
+.title { margin: 2px 0 2px; font-size: clamp(26px, 3vw, 34px); font-weight: 700; letter-spacing: -0.025em; }
+.subtitle { margin: 0; color: var(--ink-2); font-size: 15px; }
+.hdr-r { display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; }
+.hsearch { flex: 0 1 340px; min-width: 220px; background: var(--card); }
+.hsearch kbd { font: 12px ui-monospace, monospace; color: var(--muted); border: 1px solid var(--line-2); border-radius: 6px; padding: 1px 6px; white-space: nowrap; }
+.iconbtn { position: relative; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--card); border: 1px solid var(--line-2); color: var(--ink); }
+.iconbtn:hover { border-color: var(--accent); }
+.nbadge { position: absolute; top: -3px; right: -3px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--crit); color: #fff; font: 600 11px/18px system-ui, sans-serif; font-style: normal; text-align: center; }
+.safe-note { margin: -6px 0 14px; font-size: 14px; color: var(--ink-2); } .safe-note b { color: var(--ok); }
+
+.banner { --c: var(--crit); display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 8px 16px; align-items: center; padding: 16px 20px; margin-bottom: 18px; border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--c) 55%, transparent);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--c) 18%, var(--card)), var(--card) 55%); box-shadow: 0 0 40px color-mix(in srgb, var(--c) 14%, transparent); }
+.banner.warning { --c: var(--stale); } .banner.none { --c: var(--ok); }
+.bicon { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; font-weight: 800; font-size: 20px; color: var(--c); background: color-mix(in srgb, var(--c) 16%, transparent); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); }
+.btext h2 { margin: 0; font-size: 16.5px; font-weight: 600; overflow-wrap: anywhere; }
+.btext .lead { color: var(--c); }
+.btext p { margin: 3px 0 0; color: var(--ink-2); font-size: 14px; overflow-wrap: anywhere; }
+.bactions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.banner .more { grid-column: 2 / -1; justify-self: end; font-size: 13.5px; color: var(--accent); }
+.btn { min-height: 40px; }
+.btn .ico { width: 16px; height: 16px; }
+.btn.primary { color: #fff; background: var(--grad); border: 0; box-shadow: 0 6px 24px color-mix(in srgb, var(--f0) 35%, transparent); }
+.btn small { display: block; font-size: 11.5px; color: var(--muted); font-weight: 400; }
+.btn span { line-height: 1.15; }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+
+.hero { position: relative; display: grid; grid-template-columns: minmax(230px, 300px) minmax(0, 1fr) minmax(230px, 300px); gap: 20px; align-items: center; margin-bottom: 18px; padding: 18px; border-radius: 22px; background: radial-gradient(60% 80% at 50% 50%, color-mix(in srgb, var(--halo) 45%, transparent), transparent 70%), var(--card); border: 1px solid var(--line); overflow: hidden; }
+.flows { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.flows .fl { fill: none; stroke-width: 2.2; stroke-linecap: round; opacity: .9; }
+.flows .glow { fill: none; stroke-width: 7; opacity: .22; filter: blur(4px); }
+.flows .run { fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-dasharray: 1.4 22; opacity: .8; animation: flowc 2.8s linear infinite; }
+:root[data-theme="light"] .flows .run { stroke: rgba(255, 255, 255, .9); }
+.hcol { position: relative; display: grid; gap: 10px; z-index: 1; align-self: start; }
+.hhead { display: flex; align-items: center; justify-content: space-between; padding: 0 4px; }
+.hhead h3 { margin: 0; font-size: 16px; font-weight: 600; }
+.cnt { min-width: 26px; height: 26px; padding: 0 8px; border-radius: 8px; display: grid; place-items: center; font-size: 13px; background: var(--glass-2); border: 1px solid var(--line-2); color: var(--ink); }
+.hl { all: unset; box-sizing: border-box; position: relative; display: grid; grid-template-columns: 42px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--line-2); cursor: pointer; transition: border-color .25s, transform .25s; }
+.hl:hover, .hl[aria-pressed="true"] { border-color: var(--c, var(--accent)); transform: translateX(2px); }
+.hl:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.hl.srv { grid-template-columns: 42px minmax(0, 1fr) auto; padding-left: 22px; }
+.hname { min-width: 0; display: grid; }
+.hname b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hname small { font-size: 13px; color: var(--ink-2); display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tile, .mtile { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: var(--glass-2); border: 1px solid var(--line-2); color: var(--ink); }
+.mtile { width: 22px; height: 22px; border-radius: 6px; margin-right: 8px; vertical-align: middle; display: inline-grid; }
+.mtile .ico { width: 14px; height: 14px; }
+.t-spark { color: #f97316; } .t-cube { color: var(--ink); } .t-brackets { color: #3b82f6; } .t-code { color: var(--ink-2); }
+.fdot { position: absolute; right: -7px; top: 50%; width: 14px; height: 14px; margin-top: -7px; border-radius: 50%; background: var(--c, var(--accent)); box-shadow: 0 0 0 3px var(--bg), 0 0 16px var(--c, var(--accent)); }
+.hl.srv .fdot { right: auto; left: -7px; }
+.hl.srv { --c: var(--ok); } .hl.srv.st-critical { --c: var(--crit); } .hl.srv.st-unattested { --c: var(--unatt); } .hl.srv.st-stale { --c: var(--stale); }
+.hl.srv small .dot { background: var(--c); }
+.score { min-width: 48px; padding: 4px 10px; border-radius: 9px; text-align: center; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--c); border: 1px solid color-mix(in srgb, var(--c) 60%, transparent); background: color-mix(in srgb, var(--c) 10%, transparent); }
+.hcenter { position: relative; z-index: 1; display: grid; justify-items: center; gap: 6px; }
+.ring { width: min(100%, 340px); height: auto; overflow: visible; }
+.ring .ticks { fill: none; stroke: var(--muted); stroke-opacity: .55; stroke-width: 9; stroke-dasharray: 1.2 6.2; transform-origin: 150px 150px; animation: spin 120s linear infinite; }
+.ring .track { fill: none; stroke: var(--line-2); stroke-width: 12; }
+.ring .halo { fill: none; stroke: var(--halo); stroke-width: 26; }
+.ring .arc { fill: none; stroke-width: 12; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 150px 150px; stroke: var(--c); filter: drop-shadow(0 0 6px var(--c)); }
+.ring .core { fill: url(#g-core); stroke: var(--line-2); }
+.s-core-1 { stop-color: var(--core-1); } .s-core-2 { stop-color: var(--core-2); }
+.ring .rnum { fill: var(--ink); font-size: 84px; font-weight: 700; letter-spacing: -3px; }
+.ring .rcap { fill: var(--ink-2); font-size: 15.5px; }
+.ringkey { margin: 0; font-size: 13.5px; color: var(--ink-2); text-align: center; }
+.ringkey span { white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; }
+.hmore { font-size: 14px; padding: 0 4px; }
+
+.kpi5 { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+.k { position: relative; display: flex; gap: 14px; align-items: flex-start; padding: 16px 18px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); min-width: 0; overflow: hidden; }
+.kic { flex: none; width: 46px; height: 46px; border-radius: 13px; display: grid; place-items: center; color: var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); border: 1px solid color-mix(in srgb, var(--c) 35%, transparent); }
+.kl { display: block; font-size: 14px; color: var(--ink); }
+.kn { display: block; font-size: 32px; font-weight: 600; line-height: 1.2; }
+.ks { display: block; font-size: 13.5px; color: var(--ink-2); }
+.k .tag { display: none; }
+.bars { position: absolute; right: 16px; top: 18px; display: flex; align-items: flex-end; gap: 4px; height: 42px; }
+.bars span { width: 8px; border-radius: 3px; background: linear-gradient(180deg, var(--f5), var(--f0)); transform-origin: bottom; animation: growy 1s cubic-bezier(.2,.7,.2,1) both .5s; }
+
+.cc { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr) minmax(0, .9fr); gap: 16px; margin-bottom: 26px; align-items: start; }
+.cc-mid, .cc-right { display: grid; gap: 16px; min-width: 0; }
+.card { padding: 18px; border-radius: 20px; background: var(--card); border: 1px solid var(--line); min-width: 0; margin: 0; }
+.chead { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
+.chead h2 { margin: 0; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.muted { color: var(--ink-2); font-weight: 400; }
+.pill-link { font-size: 13.5px; padding: 5px 12px; border-radius: 9px; border: 1px solid var(--line-2); color: var(--ink); white-space: nowrap; }
+.pill-link:hover { border-color: var(--accent); }
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.tab { all: unset; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; min-height: 32px; padding: 0 12px; border-radius: 10px; font-size: 14px; color: var(--ink-2); border: 1px solid var(--line-2); }
+.tab i { font-style: normal; font-size: 12px; min-width: 18px; padding: 0 5px; border-radius: 6px; text-align: center; background: color-mix(in srgb, var(--sv, var(--accent)) 25%, transparent); color: var(--ink); }
+.tab[aria-pressed="true"] { color: var(--ink); border-color: var(--sv, var(--accent)); background: color-mix(in srgb, var(--sv, var(--accent)) 14%, transparent); }
+.tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sv-critical { --sv: var(--crit); } .sv-medium { --sv: var(--wr); } .sv-low { --sv: var(--f2); }
+.flist { display: grid; }
+.fr { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto minmax(64px, auto); gap: 12px; align-items: center; padding: 11px 6px; border-bottom: 1px solid var(--line); border-radius: 8px; }
+.fr:hover { background: var(--glass-2); }
+.fr .dot { background: var(--sv); }
+.ft b { display: block; font-weight: 600; font-size: 14.5px; overflow-wrap: anywhere; }
+.ft small { color: var(--ink-2); font-size: 13px; overflow-wrap: anywhere; }
+.sevb { text-transform: capitalize; font-size: 12.5px; padding: 3px 10px; border-radius: 8px; color: var(--ink); border: 1px solid color-mix(in srgb, var(--sv) 70%, transparent); background: color-mix(in srgb, var(--sv) 14%, transparent); }
+.fage { font-size: 13px; color: var(--ink-2); text-align: right; white-space: nowrap; }
+[data-sevrow].sevout { display: none; }
+table.mini { font-size: 14px; }
+table.mini th, table.mini td { padding: 8px 8px; }
+table.mini thead th { font-size: 12px; background: color-mix(in srgb, var(--line) 60%, transparent); }
+table.mini tbody th a { display: inline-flex; align-items: center; font-weight: 500; max-width: 170px; }
+table.mini tbody th a span + * { overflow: hidden; }
+table.mini td.n, table.mini th { white-space: nowrap; }
+table.mini td { white-space: normal; }
+table.mini th, table.mini td { padding: 8px 6px; }
+table.mini tbody th a { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; }
+.chead .tag:not(.sel) { display: none; }
+.qa .btn { font-size: 13.5px; white-space: nowrap; padding: 0 12px; }
+table.mini tr { --c: var(--ok); } table.mini tr.st-critical { --c: var(--crit); } table.mini tr.st-unattested { --c: var(--unatt); } table.mini tr.st-stale { --c: var(--stale); }
+table.mini td .dot { background: var(--c); margin-right: 6px; }
+table.mini .sc { color: var(--c); font-weight: 600; }
+.dot.ok { --c: var(--ok); background: var(--ok); }
+.crit-t { color: var(--crit); }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; position: relative; }
+.steps::before { content: ""; position: absolute; left: 14px; top: 16px; bottom: 16px; width: 2px; background: linear-gradient(180deg, var(--f0), var(--f1), var(--f2), var(--f3)); opacity: .6; }
+.steps li { position: relative; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 12px; }
+.sn { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 600; font-size: 14px; background: var(--card); border: 2px solid var(--c); color: var(--ink); z-index: 1; }
+.steps li:nth-child(1) { --c: var(--f0); } .steps li:nth-child(2) { --c: var(--f1); } .steps li:nth-child(3) { --c: var(--f2); } .steps li:nth-child(4) { --c: var(--f3); }
+.steps b { font-size: 15px; }
+.steps p { margin: 2px 0 0; color: var(--ink-2); font-size: 13.5px; overflow-wrap: anywhere; }
+#mitigation.lit { box-shadow: 0 0 0 3px var(--f0); transition: box-shadow .3s; }
+.qa { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.qa .btn { justify-content: flex-start; }
+.divider { display: flex; align-items: center; gap: 14px; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 8px 0 16px; font-weight: 600; }
+.divider::after { content: ""; flex: 1; height: 1px; background: var(--line-2); }
+@keyframes growy { from { transform: scaleY(0); } }
+/* Entrances slide in; they never start hidden, so content shows even when
+   the browser does not run the animation. */
+.reveal { animation: rise .8s cubic-bezier(.2,.7,.2,1) backwards; animation-delay: calc(var(--i, 0) * 70ms + .1s); }
 .tabbar { display: none; }
 [data-f].out { display: none !important; }
 
 @keyframes draw { to { stroke-dashoffset: 0; } }
 @keyframes flow { to { stroke-dashoffset: -19.2; } }
-@keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes flowc { to { stroke-dashoffset: -23.4; } }
+@keyframes rise { from { transform: translateY(14px); } to { transform: none; } }
 @keyframes float { 50% { transform: translateY(-6px); } }
 @keyframes grow { from { transform: scaleX(0); } }
 @keyframes ping { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--c) 60%, transparent); } 80%, 100% { box-shadow: 0 0 0 10px transparent; } }
 
 @media (max-width: 900px) { .legends { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 1500px) { .banner { grid-template-columns: 48px minmax(0, 1fr); } .bactions { grid-column: 2 / -1; justify-content: flex-start; } }
+@media (max-width: 1440px) { .kpi5 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 1400px) { table.mini tbody th a { max-width: 120px; } .cc { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .cc-right { grid-column: 1 / -1; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+@media (max-width: 1100px) {
+  .hero { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .hcenter { grid-column: 1 / -1; grid-row: 1; }
+  .flows { display: none; }
+  .fdot { display: none; }
+}
+@media (max-width: 760px) {
+  .hero { grid-template-columns: minmax(0, 1fr); padding: 14px; }
+  .kpi5 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cc, .cc-right { grid-template-columns: minmax(0, 1fr); }
+  .hsearch { flex: 1 1 100%; min-width: 0; } .hdr-r { width: 100%; flex-wrap: wrap; }
+  .banner { grid-template-columns: minmax(0, 1fr); } .bicon { display: none; } .banner .more { grid-column: 1; justify-self: start; }
+  .fr { grid-template-columns: 12px minmax(0, 1fr) auto; } .fage { grid-column: 2; text-align: left; }
+}
+@media (max-width: 440px) { .kpi5, .qa { grid-template-columns: minmax(0, 1fr); } .bars { display: none; } .ring .rnum { font-size: 72px; } }
 @media (max-width: 1180px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cols, .ov { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 860px) {
   .app { grid-template-columns: minmax(0, 1fr); }
   .side { display: none; }
-  .mbrand { display: inline-flex; }
+  .mbrand { display: inline-flex; } .mbrand svg { width: 26px; height: 34px; }
   main { padding: 14px 12px calc(100px + env(safe-area-inset-bottom)); }
   .panel { padding: 18px 14px; border-radius: 20px; }
   .theme button span { display: none; }
@@ -375,11 +549,12 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
   .draw { stroke-dashoffset: 0; } .reveal, .node-in { opacity: 1; }
-  .spark { display: none; }
+  .spark, .flows .run { display: none; }
 }
 @media print {
   :root { color-scheme: light; --bg: #fff; --glass: #fff; --glass-2: #fff; --ink: #000; --ink-2: #222; --muted: #444; --line: #ccc; --line-2: #999; }
-  body { background: #fff; } .side, .tabbar, .theme, .filters, .spark { display: none; } .app { display: block; }
+  body { background: #fff; } .side, .tabbar, .theme, .filters, .spark, .flows, .hdr-r, .bactions, .qa, .tabs, .run { display: none; } .app { display: block; }
+  .hero, .k, .card, .banner { background: #fff !important; box-shadow: none !important; break-inside: avoid; }
   .reveal, .node-in { opacity: 1; animation: none; } .panel { box-shadow: none; break-inside: avoid; }
   details.drawer, details.fd { break-inside: avoid; } details:not([open]) > :not(summary) { display: none; }
 }
@@ -402,98 +577,219 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
   <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
   <symbol id="i-sys" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></symbol>
   <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M7 3h7l4 4v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2l1.8 2.6 3.1-.6.6 3.1L20 9l-1.4 3 1.4 3-2.5 1.9-.6 3.1-3.1-.6L12 22l-1.8-2.6-3.1.6-.6-3.1L4 15l1.4-3L4 9l2.5-1.9.6-3.1 3.1.6z"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/></symbol>
+  <symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="5.5" rx="7.5" ry="3"/><path d="M4.5 5.5v13c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3v-13M4.5 12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></symbol>
+  <symbol id="i-braces" viewBox="0 0 24 24"><path d="M8 4c-2 0-2 1.5-2 3s0 3.5-2 5c2 1.5 2 3.5 2 5s0 3 2 3M16 4c2 0 2 1.5 2 3s0 3.5 2 5c-2 1.5-2 3.5-2 5s0 3-2 3"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M8 7h7"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6l8.5 7 8.5-7"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 6a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="i-term" viewBox="0 0 24 24"><path d="M4 7l5 5-5 5M12 18h8"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 2v6M12 16v6M2 12h6M16 12h6M4.9 4.9l4.2 4.2M14.9 14.9l4.2 4.2M4.9 19.1l4.2-4.2M14.9 9.1l4.2-4.2"/></symbol>
+  <symbol id="i-cube" viewBox="0 0 24 24"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></symbol>
+  <symbol id="i-brackets" viewBox="0 0 24 24"><path d="M17 3l4 3v12l-4 3-10-9 10-9zM7 12l-4-3v6z"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></symbol>
   <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></symbol>
 </svg>
 
 <div class="app">
   <aside class="side" aria-label="Sections">
-    <div class="brand">{{logo}}<span>passmcp-graph</span></div>
+    <div class="brand">{{logo}}<span><b>passmcp-graph</b><small>MCP ecosystem</small></span></div>
     <nav class="nav">
-      <a href="#overview" class="on"><svg class="ico"><use href="#i-grid"/></svg>Overview</a>
-      <a href="#topology"><svg class="ico"><use href="#i-graph"/></svg>Topology</a>
-      <a href="#findings"><svg class="ico"><use href="#i-alert"/></svg>Findings<span class="count">{{len .Findings}}</span></a>
-      <a href="#servers"><svg class="ico"><use href="#i-server"/></svg>Servers<span class="count">{{.Totals.Servers}}</span></a>
+      <a href="#overview" class="on"><svg class="ico"><use href="#i-home"/></svg>Command Centre</a>
+      <a href="#topology"><svg class="ico"><use href="#i-target"/></svg>Exposure Analysis</a>
+      <a href="#paths"><svg class="ico"><use href="#i-graph"/></svg>Attack Paths<span class="count">{{.Hero.Paths}}</span></a>
+      <a href="#findings"><svg class="ico"><use href="#i-search"/></svg>Investigations<span class="count">{{sum (len .Findings) (len .Gaps)}}</span></a>
+      <a href="#servers"><svg class="ico"><use href="#i-server"/></svg>MCP servers<span class="count">{{.Totals.Servers}}</span></a>
       <a href="#clients"><svg class="ico"><use href="#i-bot"/></svg>Clients<span class="count">{{.Totals.Agents}}</span></a>
-      <a href="#paths"><svg class="ico"><use href="#i-list"/></svg>Paths<span class="count">{{.Hero.Paths}}</span></a>
-      <a href="#details"><svg class="ico"><use href="#i-key"/></svg>Details</a>
+      <a href="#reports"><svg class="ico"><use href="#i-doc"/></svg>Reports</a>
     </nav>
-    <div class="side-foot">passmcp-graph {{.Version}}<br>Analysis as of {{.Generated}}</div>
+    <hr class="sep">
+    <nav class="nav">
+      <a href="#evidence"><svg class="ico"><use href="#i-list"/></svg>Server evidence</a>
+      <a href="#details"><svg class="ico"><use href="#i-key"/></svg>Details</a>
+      <a href="#settings"><svg class="ico"><use href="#i-gear"/></svg>Settings</a>
+    </nav>
+    <div class="snapcard"><i class="pulse" aria-hidden="true"></i><div><b>Offline snapshot</b><span>{{.Generated}}</span><small>Read-only analysis of captured configuration and evidence data{{if .ShareSafe}}, share-safe{{end}}.</small></div></div>
   </aside>
 
   <main>
-    <div class="top">
-      <div class="badges">
-        <span class="mbrand">{{logo}}passmcp-graph</span>
-        <span class="snap"><b>Offline snapshot</b> analysis as of {{.Generated}}</span>
-        {{if .ShareSafe}}<span class="snap safe" title="Endpoints, identities, local paths and token-shaped strings are replaced"><b>Share-safe</b> identifying details replaced</span>{{end}}
+    <header class="hdr" id="settings">
+      <div class="hdr-l">
+        <span class="mbrand">{{logo}}</span>
+        <div><div class="crumb">PassMCP ecosystem / Command centre</div>
+        <h1 class="title">MCP Command Centre</h1>
+        <p class="subtitle">Understand your MCP exposure. Investigate findings. Plan and track mitigation.</p></div>
       </div>
-      <div class="theme" role="group" aria-label="Theme">
-        <button type="button" data-set-theme="system" aria-pressed="true"><svg class="ico" aria-hidden="true"><use href="#i-sys"/></svg><span>System</span></button>
-        <button type="button" data-set-theme="light" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-sun"/></svg><span>Light</span></button>
-        <button type="button" data-set-theme="dark" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-moon"/></svg><span>Dark</span></button>
+      <div class="hdr-r">
+        <label class="search hsearch"><svg class="ico" aria-hidden="true"><use href="#i-search"/></svg><span class="sr-only">Search</span><input id="q" type="search" placeholder="Search servers, clients, findings..." autocomplete="off" spellcheck="false"><kbd>⌘ K</kbd></label>
+        <a class="iconbtn" href="#findings" aria-label="{{plural (sum (len .Findings) (len .Gaps)) "attention item" "attention items"}}"><svg class="ico" aria-hidden="true"><use href="#i-bell"/></svg>{{if sum (len .Findings) (len .Gaps)}}<i class="nbadge">{{sum (len .Findings) (len .Gaps)}}</i>{{end}}</a>
+        <div class="theme" role="group" aria-label="Theme">
+          <button type="button" data-set-theme="system" aria-pressed="true" title="Follow the system"><svg class="ico" aria-hidden="true"><use href="#i-sys"/></svg><span class="sr-only">System</span></button>
+          <button type="button" data-set-theme="light" aria-pressed="false" title="Light"><svg class="ico" aria-hidden="true"><use href="#i-sun"/></svg><span class="sr-only">Light</span></button>
+          <button type="button" data-set-theme="dark" aria-pressed="false" title="Dark"><svg class="ico" aria-hidden="true"><use href="#i-moon"/></svg><span class="sr-only">Dark</span></button>
+        </div>
       </div>
-    </div>
+    </header>
+    {{if .ShareSafe}}<p class="safe-note"><b>Share-safe</b> endpoints, identities, local paths and token-shaped strings are replaced.</p>{{end}}
 
     {{with .TopIssue}}
-    <section class="panel issue {{.Severity}}" id="top" aria-labelledby="top-issue">
-      <span class="fi" style="--c: var(--{{if eq .Severity "critical"}}crit{{else}}stale{{end}})" aria-hidden="true"><svg class="ico"><use href="#i-{{if eq .Severity "critical"}}flame{{else}}alert{{end}}"/></svg></span>
-      <div>
-        <h2 class="k" id="top-issue">Look at this first · {{.Severity}}</h2>
-        <div class="t">{{.Title}}</div>
-        <div class="d">{{.Context}}{{if .Rule}} Check or rule: <span class="mono">{{.Rule}}</span>.{{end}}</div>
-        <div class="actions">
-          <a class="btn primary" href="#{{.Evidence}}">View evidence</a>
-          {{if .Client}}<button type="button" class="btn" data-show-path="{{.Client}}">Show affected path</button>{{end}}
-          <button type="button" class="btn" data-copy="{{.Command}}" title="{{.Command}}">Copy command</button>
-          <span class="cmdnote"><code>{{.Command}}</code> {{commandNote}}</span>
-        </div>
+    <section class="banner {{.Severity}}" id="top" aria-labelledby="top-issue">
+      <span class="bicon" aria-hidden="true">!</span>
+      <div class="btext">
+        <h2 id="top-issue"><span class="lead">{{if eq .Severity "critical"}}Critical finding:{{else}}Needs attention:{{end}}</span> {{.Title}}</h2>
+        <p>{{.Context}}{{if .Rule}} · <span class="mono">{{.Rule}}</span>{{end}}</p>
+      </div>
+      <div class="bactions">
+        <a class="btn" href="#{{.Evidence}}"><svg class="ico" aria-hidden="true"><use href="#i-doc"/></svg>View evidence</a>
+        {{if .Client}}<button type="button" class="btn" data-show-path="{{.Client}}"><svg class="ico" aria-hidden="true"><use href="#i-graph"/></svg>Show affected path</button>{{end}}
+        <button type="button" class="btn" data-print><svg class="ico" aria-hidden="true"><use href="#i-down"/></svg>Download PDF report</button>
+        <a class="btn primary" href="#mitigation" data-guide>Open mitigation guide →</a>
       </div>
       <a class="more" href="#findings">View all {{sum .Findings .Gaps}} attention item{{if ne (sum .Findings .Gaps) 1}}s{{end}} ({{plural .Findings "finding" "findings"}}, {{plural .Gaps "evidence gap" "evidence gaps"}}) →</a>
     </section>
     {{else}}
-    <section class="panel issue none" aria-labelledby="top-issue">
-      <span class="fi" style="--c: var(--ok)" aria-hidden="true"><svg class="ico"><use href="#i-shield"/></svg></span>
-      <div><h2 class="k" id="top-issue">No open issue in this evidence</h2><div class="d">No inherited critical finding, policy violation, over-privileged identity, or missing or stale evidence. This covers what was ingested, nothing more.</div></div>
+    <section class="banner none" id="top" aria-labelledby="top-issue">
+      <span class="bicon" aria-hidden="true">✓</span>
+      <div class="btext"><h2 id="top-issue">No open issue in this evidence</h2><p>No inherited critical finding, policy violation, over-privileged identity, or missing or stale evidence. This covers what was ingested, nothing more.</p></div>
+      <div class="bactions"><button type="button" class="btn" data-print><svg class="ico" aria-hidden="true"><use href="#i-down"/></svg>Download PDF report</button></div>
     </section>
     {{end}}
 
-    <h2 class="sr-only">Whole snapshot</h2>
-    <section class="kpis" aria-label="Totals for the whole snapshot">
-      <div class="panel kpi reveal" style="--i: 1"><span class="fi" aria-hidden="true"><svg class="ico"><use href="#i-server"/></svg></span><span class="num" data-count="">{{.Totals.Servers}}</span><div class="lbl">MCP servers <span class="tag">Whole snapshot</span></div><div class="hint">{{.Totals.Attested}} with diagnostic evidence</div><div class="hint">{{if .Totals.Scored}}Mean available score {{.Totals.AvgScore}} ({{.Totals.Scored}} scored){{else}}No server scored{{end}}</div></div>
-      <div class="panel kpi reveal" style="--i: 2"><span class="fi" aria-hidden="true"><svg class="ico"><use href="#i-bot"/></svg></span><span class="num" data-count="">{{.Totals.Agents}}</span><div class="lbl">Configured clients</div><div class="hint">Configurations, not running processes</div><div class="hint">{{plural .Totals.Identities "identity" "identities"}} on their servers</div></div>
-      <div class="panel kpi reveal" style="--i: 3"><span class="fi" aria-hidden="true"><svg class="ico"><use href="#i-tool"/></svg></span><span class="num" data-count="">{{.Totals.Tools}}</span><div class="lbl">Tools</div><div class="hint">{{.Totals.DestructiveTools}} potentially destructive</div><div class="hint">Counted per server</div></div>
-      <div class="panel kpi reveal" style="--i: 4"><span class="fi" style="--c: var(--crit)" aria-hidden="true"><svg class="ico"><use href="#i-alert"/></svg></span><span class="num" data-count="">{{sum (len .Findings) (len .Gaps)}}</span><div class="lbl">Attention items</div><div class="hint">{{plural (len .Findings) "finding" "findings"}} · {{plural (len .Gaps) "evidence gap" "evidence gaps"}}</div><div class="hint"><a class="link" href="#findings">View them</a></div></div>
-    </section>
-
-    <section id="overview" class="panel reveal" aria-labelledby="ov-h">
-      <div class="ov">
-        <div>
-          <h1 id="ov-h">MCP security overview <span class="tag">Whole snapshot</span></h1>
-          <p class="lede">What {{plural .Totals.Agents "configured client" "configured clients"}} can reach through {{plural .Totals.Servers "MCP server" "MCP servers"}}, from their configuration files, and what passmcp's evidence says about each server. Reach is configured, not observed: no tool call is recorded. Evidence older than {{.StaleDays}} days counts as stale. These totals count the whole snapshot, whatever the filters.</p>
-          <div class="figure"><span class="num" data-count="">{{.Hero.Paths}}</span><span>configured client → server → tool paths</span></div>
-          <div class="breakdown" role="img" aria-label="{{.Hero.ReadOnly}} declared read-only, {{.Hero.Mutating}} declared mutating, {{.Hero.Unannotated.Num}} unknown">{{if .Hero.ReadOnly}}<span class="ro" style="flex: {{.Hero.ReadOnly}}"></span>{{end}}{{if .Hero.Mutating}}<span class="mu" style="flex: {{.Hero.Mutating}}"></span>{{end}}{{if .Hero.Unannotated.Num}}<span class="un" style="flex: {{.Hero.Unannotated.Num}}"></span>{{end}}</div>
-          <div class="bkeys"><span><i class="sw ro"></i> <b>{{.Hero.ReadOnly}}</b> declared read-only</span><span><i class="sw mu"></i> <b>{{.Hero.Mutating}}</b> declared mutating</span><span><i class="sw un"></i> <b>{{.Hero.Unannotated.Num}}</b> unknown (no annotation)</span></div>
-          <div class="ratios">
-            <div class="ratio" style="--c: var(--wr)"><span>Not declared read-only, including {{.Hero.Unannotated.Num}} unknown</span><span><b>{{.Hero.Changing.Num}} of {{.Hero.Paths}}</b> · {{.Hero.Changing.Pct}}</span><span class="track"><span style="width: {{.Hero.Changing.Value}}%"></span></span></div>
-            <div class="ratio" style="--c: var(--crit)"><span>Potentially destructive: {{.Hero.DeclaredDestructive}} declared, {{.Hero.PresumedDestructive}} presumed by the MCP default</span><span><b>{{.Hero.Destructive.Num}} of {{.Hero.Paths}}</b> · {{.Hero.Destructive.Pct}}</span><span class="track"><span style="width: {{.Hero.Destructive.Value}}%"></span></span></div>
-          </div>
-        </div>
-        <div class="dist">
-          <h3>{{.Hero.Attention}} of {{.Totals.Servers}} servers need diagnostic or evidence review</h3>
-          <div class="stack" role="img" aria-label="{{range .Hero.Groups}}{{.Label}}: {{.Count}}. {{end}}">{{range $i, $g := .Hero.Groups}}{{if .Count}}<span class="st-{{.Status}}" style="width: {{.Share.Value}}%; --i: {{$i}}" title="{{.Label}}: {{.Count}} of {{.Share.Den}}"></span>{{end}}{{end}}</div>
-          <div class="groups">
-            {{range .Hero.Groups}}<div class="scard st-{{.Status}}"><span class="num" data-count="">{{.Count}}</span> <span>{{.Label}}</span><small>{{.Note}} · {{.Share.Pct}} of servers</small></div>{{end}}
-          </div>
-          <p class="prec">Each server counts once, in the first status that applies, left to right. These are the servers' own diagnostics and evidence; identity and policy findings are counted with the attention items, so a server with no failing checks can still have one.</p>
-        </div>
+    <section class="hero reveal" id="overview" aria-labelledby="hero-h">
+      <h2 class="sr-only" id="hero-h">Configured clients, configured tool paths and MCP servers <span>Whole snapshot</span></h2>
+      <svg class="flows" id="flows" aria-hidden="true"></svg>
+      <div class="hcol">
+        <div class="hhead"><h3>Configured clients</h3><span class="cnt">{{.Totals.Agents}}</span></div>
+        {{range $i, $a := .Agents}}{{if lt $i 8}}
+        <button type="button" class="hl" data-pick="{{.Anchor}}" style="--c: var(--f{{$i}})" aria-label="{{.Name}}, {{plural .Tools "tool path" "tool paths"}}: filter to its paths">
+          <span class="tile t-{{clientIcon .Client}}" aria-hidden="true"><svg class="ico"><use href="#i-{{clientIcon .Client}}"/></svg></span>
+          <span class="hname"><b>{{.Name}}</b><small>{{plural .Tools "tool path" "tool paths"}}</small></span>
+          <i class="fdot" data-flow="c" aria-hidden="true"></i>
+        </button>
+        {{end}}{{else}}
+        <div class="empty">No configured client in the graph. Ingest an MCP client configuration.</div>
+        {{end}}
+        {{if gt (len .Agents) 8}}<a class="link hmore" href="#clients">{{len .Agents}} clients in all →</a>{{end}}
+      </div>
+      <div class="hcenter">
+        <svg class="ring" viewBox="0 0 300 300" role="img" aria-label="{{.Hero.Paths}} configured client to server to tool paths. Servers by status: {{range .Hero.Groups}}{{.Label}} {{.Count}}. {{end}}">
+          <defs>
+            <radialGradient id="g-core" cx="50%" cy="45%" r="55%"><stop offset="0" class="s-core-1"/><stop offset="1" class="s-core-2"/></radialGradient>
+            <filter id="f-blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter>
+          </defs>
+          <circle class="ticks" cx="150" cy="150" r="142"/>
+          <circle class="halo" cx="150" cy="150" r="114" filter="url(#f-blur)"/>
+          <circle class="track" cx="150" cy="150" r="114" pathLength="100"/>
+          {{$off := 0.0}}{{range .Hero.Groups}}{{if .Count}}<circle class="arc st-{{.Status}}" cx="150" cy="150" r="114" pathLength="100" stroke-dasharray="{{arcLen .Share.Value}} {{arcGap .Share.Value}}" stroke-dashoffset="{{arcOff $off}}"><title>{{.Label}}: {{.Count}} of {{.Share.Den}} servers</title></circle>{{end}}{{$off = add $off .Share.Value}}{{end}}
+          <circle class="core" cx="150" cy="150" r="98"/>
+          <text class="rnum num" x="150" y="152" text-anchor="middle" data-count="">{{.Hero.Paths}}</text>
+          <text class="rcap" x="150" y="182" text-anchor="middle">configured</text>
+          <text class="rcap" x="150" y="202" text-anchor="middle">client → server → tool</text>
+          <text class="rcap" x="150" y="222" text-anchor="middle">paths</text>
+        </svg>
+        <p class="ringkey">Ring: servers by status{{range .Hero.Groups}}{{if .Count}} · <span class="st-{{.Status}}"><i class="dot"></i>{{.Count}} {{.Label}}</span>{{end}}{{end}}</p>
+      </div>
+      <div class="hcol">
+        <div class="hhead"><h3>MCP servers</h3><span class="cnt">{{.Totals.Servers}}</span></div>
+        {{range $i, $s := .Servers}}{{if lt $i 8}}
+        <a class="hl srv st-{{.Status}}" href="#{{.Anchor}}">
+          <i class="fdot" data-flow="s" aria-hidden="true"></i>
+          <span class="tile" aria-hidden="true"><svg class="ico"><use href="#i-{{serverIcon $s}}"/></svg></span>
+          <span class="hname"><b>{{display $s}}</b><small><i class="dot"></i>{{if eq .Status "critical"}}{{plural (len .Critical) "critical finding" "critical findings"}}{{else}}{{.StatusLabel}}{{end}}</small></span>
+          <span class="score">{{or0 .Score}}</span>
+        </a>
+        {{end}}{{else}}
+        <div class="empty">No server.</div>
+        {{end}}
+        {{if gt (len .Servers) 8}}<a class="link hmore" href="#evidence">{{len .Servers}} servers in all →</a>{{end}}
       </div>
     </section>
 
+    <section class="kpi5" aria-label="Totals for the whole snapshot">
+      <div class="k reveal" style="--i: 1"><span class="kic" style="--c: var(--f0)" aria-hidden="true"><svg class="ico"><use href="#i-db"/></svg></span><div><span class="kl">MCP servers <span class="tag">Whole snapshot</span></span><span class="num kn" data-count="">{{.Totals.Servers}}</span><span class="ks">{{.Totals.Attested}} with supplied evidence</span></div></div>
+      <div class="k reveal" style="--i: 2"><span class="kic" style="--c: var(--f1)" aria-hidden="true"><svg class="ico"><use href="#i-users"/></svg></span><div><span class="kl">Configured clients</span><span class="num kn" data-count="">{{.Totals.Agents}}</span><span class="ks">{{.Hero.Paths}} total tool paths</span></div></div>
+      <div class="k reveal" style="--i: 3"><span class="kic" style="--c: var(--f0)" aria-hidden="true"><svg class="ico"><use href="#i-graph"/></svg></span><div><span class="kl">Tool paths</span><span class="num kn" data-count="">{{.Hero.Paths}}</span><span class="ks">{{.Hero.Changing.Num}} not declared read-only · {{.Hero.Unannotated.Num}} unknown</span></div></div>
+      <div class="k reveal" style="--i: 4"><span class="kic" style="--c: var(--crit)" aria-hidden="true"><svg class="ico"><use href="#i-alert"/></svg></span><div><span class="kl">Attention items</span><span class="num kn" data-count="">{{sum (len .Findings) (len .Gaps)}}</span><span class="ks">{{plural (len .Findings) "finding" "findings"}} · {{plural (len .Gaps) "evidence gap" "evidence gaps"}}</span></div></div>
+      <div class="k reveal" style="--i: 5"><span class="kic" style="--c: var(--f2)" aria-hidden="true"><svg class="ico"><use href="#i-shield"/></svg></span><div><span class="kl">Mean server score</span><span class="num kn">{{or0 .Totals.AvgScore}}</span><span class="ks">{{if .Totals.Scored}}of {{plural .Totals.Scored "scored server" "scored servers"}}, from supplied evidence{{else}}No server scored{{end}}</span></div>
+        {{if .Scores}}<div class="bars" role="img" aria-label="Scores: {{range .Scores}}{{.Name}} {{.Score}}. {{end}}">{{range .Scores}}<span style="height: {{.Pct}}%" title="{{.Name}}: {{.Score}}"></span>{{end}}</div>{{end}}</div>
+    </section>
+
+    <div class="cc">
+      <section class="card reveal" style="--i: 2" aria-labelledby="att-h">
+        <div class="chead"><h2 id="att-h">Findings <span class="muted">({{sum (len .Findings) (len .Gaps)}})</span><span class="tag" data-scope-tag>Whole snapshot</span></h2><a class="pill-link" href="#findings">View all →</a></div>
+        <div class="tabs" role="group" aria-label="Severity">
+          <button type="button" class="tab" data-sev="" aria-pressed="true">All <i>{{len .Attention}}</i></button>
+          <button type="button" class="tab sv-critical" data-sev="critical" aria-pressed="false">Critical <i>{{sev .Attention "critical"}}</i></button>
+          <button type="button" class="tab sv-medium" data-sev="medium" aria-pressed="false">Medium <i>{{sev .Attention "medium"}}</i></button>
+          <button type="button" class="tab sv-low" data-sev="low" aria-pressed="false">Low <i>{{sev .Attention "low"}}</i></button>
+        </div>
+        <div class="flist">
+          {{range .Attention}}
+          <a class="fr sv-{{.Severity}}" href="#{{.Anchor}}" data-f data-sevrow="{{.Severity}}" data-tags="{{.Tags}}">
+            <i class="dot" aria-hidden="true"></i>
+            <span class="ft"><b>{{.Title}}</b><small>{{.Path}}</small></span>
+            <span class="sevb">{{.Severity}}</span>
+            <span class="fage">{{.Age}}</span>
+          </a>
+          {{else}}
+          <div class="empty">No finding in this evidence, and every server has an attestation within {{$.StaleDays}} days.</div>
+          {{end}}
+        </div>
+      </section>
+
+      <div class="cc-mid">
+        <section class="card reveal" style="--i: 3" id="servers" aria-labelledby="srv-h">
+          <div class="chead"><h2 id="srv-h">MCP servers <span class="muted">({{.Totals.Servers}})</span><span class="tag" data-scope-tag>Whole snapshot</span></h2><a class="pill-link" href="#evidence">View all →</a></div>
+          <div class="scroll"><table class="mini">
+            <thead><tr><th scope="col">Server</th><th scope="col">Evidence status</th><th scope="col" class="n">Score</th><th scope="col" class="n">Age</th></tr></thead>
+            <tbody>{{range $s := .Servers}}
+              <tr class="st-{{.Status}}" data-f data-tags="{{.Tags}}"><th scope="row"><a href="#{{.Anchor}}"><span class="mtile" aria-hidden="true"><svg class="ico"><use href="#i-{{serverIcon $s}}"/></svg></span>{{display $s}}</a></th><td><i class="dot"></i>{{.StatusLabel}}</td><td class="n sc">{{or0 .Score}}</td><td class="n">{{if .AgeDays}}{{.AgeDays}} days{{else}}None{{end}}</td></tr>{{else}}
+              <tr><td colspan="4">No server.</td></tr>{{end}}
+            </tbody>
+          </table></div>
+        </section>
+        <section class="card reveal" style="--i: 4" id="clients" aria-labelledby="cli-h">
+          <div class="chead"><h2 id="cli-h">Configured clients <span class="muted">({{.Totals.Agents}})</span><span class="tag" data-scope-tag>Whole snapshot</span></h2><a class="pill-link" href="#paths">View all →</a></div>
+          <div class="scroll"><table class="mini">
+            <thead><tr><th scope="col">Client</th><th scope="col" class="n">Tool paths</th><th scope="col">Status</th></tr></thead>
+            <tbody>{{range $i, $a := .Agents}}
+              <tr data-f data-kind="client" data-tags="{{.Tags}}" data-text="{{.Text}}"><th scope="row"><a href="#{{.Anchor}}"><span class="mtile t-{{clientIcon .Client}}" aria-hidden="true"><svg class="ico"><use href="#i-{{clientIcon .Client}}"/></svg></span>{{.Name}}</a></th><td class="n">{{.Tools}}</td><td><i class="dot ok" aria-hidden="true"></i>Configured</td></tr>{{else}}
+              <tr><td colspan="3">No configured client in the graph. Ingest an MCP client configuration.</td></tr>{{end}}
+            </tbody>
+          </table></div>
+        </section>
+      </div>
+
+      <div class="cc-right">
+        <section class="card reveal" style="--i: 5" id="mitigation" aria-labelledby="mit-h">
+          <div class="chead"><h2 id="mit-h">Mitigation Path</h2><span class="cnt">4 steps</span></div>
+          <ol class="steps">
+            <li><span class="sn">1</span><div><b>Review evidence</b><p>{{.Mitigation.Review}}</p></div></li>
+            <li><span class="sn">2</span><div><b>Apply fix</b><p>{{.Mitigation.Fix}}</p></div></li>
+            <li><span class="sn">3</span><div><b>Verify resolution</b><p>{{.Mitigation.Verify}}</p></div></li>
+            <li><span class="sn">4</span><div><b>Document closure</b><p>{{.Mitigation.Document}}</p></div></li>
+          </ol>
+        </section>
+        <section class="card reveal" style="--i: 6" id="reports" aria-labelledby="qa-h">
+          <div class="chead"><h2 id="qa-h">Quick actions</h2></div>
+          <div class="qa">
+            <button type="button" class="btn primary" data-print><svg class="ico" aria-hidden="true"><use href="#i-down"/></svg>Download PDF report</button>
+            <button type="button" class="btn" data-export><svg class="ico" aria-hidden="true"><use href="#i-braces"/></svg><span>Export JSON<small>share-safe</small></span></button>
+            <button type="button" class="btn" data-show-path="{{with .TopIssue}}{{.Client}}{{end}}"{{if not .TopIssue}} disabled title="No affected path in this evidence"{{end}}><svg class="ico" aria-hidden="true"><use href="#i-graph"/></svg>Show affected path</button>
+            <a class="btn" href="#mitigation" data-guide><svg class="ico" aria-hidden="true"><use href="#i-book"/></svg>Open mitigation guide</a>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <h2 class="divider" id="investigate">Investigate</h2>
     <section class="panel filters" aria-label="Filter the page">
-      <div class="frow">
-        <label class="search"><svg class="ico" aria-hidden="true"><use href="#i-search"/></svg><span class="sr-only">Search</span><input id="q" type="search" placeholder="Search servers, tools, clients, identities, findings" autocomplete="off" spellcheck="false"></label>
-        <button type="button" class="chip" id="clear">Clear filters</button>
-      </div>
       <div class="frow">
         <div class="chips" role="group" aria-label="Server status">
           <span class="lbl">Server status</span>
@@ -507,6 +803,7 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
           <button type="button" class="chip" data-bh="destr" data-q="{{index $.BehaviourQuery "destr"}}" aria-pressed="false"><i class="sw de"></i>Potentially destructive</button>
           <button type="button" class="chip" data-bh="unann" data-q="{{index $.BehaviourQuery "unann"}}" aria-pressed="false"><i class="sw un"></i>Unannotated</button>
         </div>
+        <button type="button" class="chip" id="clear">Clear filters</button>
       </div>
       <div class="scopebar">
         <span class="selpill" id="selpill" hidden>Current selection: <b id="selwhat"></b><button type="button" class="x" id="selclear" aria-label="Clear the selection">×</button></span>
@@ -556,7 +853,7 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
 
     <div class="cols">
       <section id="findings" class="panel reveal" style="--i: 2" aria-labelledby="fnd-h">
-        <h2 id="fnd-h"><svg class="ico" aria-hidden="true"><use href="#i-alert"/></svg>Attention items<span class="tag" data-scope-tag>Whole snapshot</span></h2>
+        <h2 id="fnd-h"><svg class="ico" aria-hidden="true"><use href="#i-alert"/></svg>Investigations: attention items<span class="tag" data-scope-tag>Whole snapshot</span></h2>
         <p class="sub"><span id="attcount" data-findings="{{len .Findings}}" data-gaps="{{len .Gaps}}">{{plural (sum (len .Findings) (len .Gaps)) "attention item" "attention items"}}: {{plural (len .Findings) "finding" "findings"}} · {{plural (len .Gaps) "evidence gap" "evidence gaps"}}.</span> Open one for its path, its evidence, what is not known, and a read-only next step.</p>
         <h3>Findings</h3>
         {{range .Findings}}
@@ -598,20 +895,6 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
       </section>
 
       <div class="stack-col">
-      <section id="servers" class="panel reveal" style="--i: 3" aria-labelledby="srv-h">
-        <h2 id="srv-h"><svg class="ico" aria-hidden="true"><use href="#i-server"/></svg>Servers<span class="tag" data-scope-tag>Whole snapshot</span></h2>
-        <p class="sub">One bubble per server. Its area is proportional to the tools it exposes; the letter is its grade, a dash when it has none. Select one for its details.</p>
-        <div class="bubbles">
-          {{range $i, $s := .Servers}}
-          <a href="#{{.Anchor}}" class="bwrap st-{{.Status}}" data-f data-tags="{{.Tags}}" data-text="{{.Text}}" style="--s: {{.Bubble}}px; --i: {{$i}}" title="{{.Endpoint}}" aria-label="{{.Endpoint}}: {{.StatusLabel}}{{if and .Stale (ne .Status "stale")}}, stale evidence{{end}}, grade {{or0 .Grade}}, {{plural .Tools "tool" "tools"}}{{if .RelatedFindings}}, {{plural .RelatedFindings "related finding" "related findings"}}{{end}}">
-            <span class="bubble"><span><span class="num">{{or0 .Grade}}</span><b>{{if .Name}}{{.Name}}{{else}}{{.Endpoint}}{{end}}</b></span></span>
-            <span class="bcap"><i class="dot"></i>{{.StatusLabel}}{{if and .Stale (ne .Status "stale")}} · stale{{end}}<br>{{plural .Tools "tool" "tools"}}{{if .RelatedFindings}} · {{plural .RelatedFindings "finding" "findings"}}{{end}}</span>
-          </a>
-          {{else}}
-          <div class="empty"><span class="fi" aria-hidden="true"><svg class="ico"><use href="#i-server"/></svg></span>No server yet. Ingest attestations or a client configuration.</div>
-          {{end}}
-        </div>
-      </section>
       <section id="identities" class="panel reveal" style="--i: 4" aria-labelledby="idn-h">
         <h2 id="idn-h"><svg class="ico" aria-hidden="true"><use href="#i-key"/></svg>Identities<span class="tag" data-scope-tag>Whole snapshot</span></h2>
         <p class="sub">OAuth identities recorded on the servers, and the clients configured to reach those servers.</p>
@@ -630,36 +913,6 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
       </div>
     </div>
 
-    <section id="clients" class="panel reveal" style="--i: 4" aria-labelledby="cli-h">
-      <h2 id="cli-h"><svg class="ico" aria-hidden="true"><use href="#i-bot"/></svg>Configured clients<span class="tag" data-scope-tag>Whole snapshot</span></h2>
-      <p class="sub">Every client read from a configuration file and the tools its configuration reaches, widest reach first. A client here is a configuration, not a running agent.</p>
-      <div class="legend" style="margin: -6px 0 14px"><span><i class="sw ro"></i>Declared read-only</span><span><i class="sw mu"></i>Declared mutating</span><span><i class="sw un"></i>No annotation: unknown</span></div>
-      <div class="rows">
-        {{range $i, $a := .Agents}}
-        <a href="#{{.Anchor}}" class="row" data-f data-kind="client" data-tags="{{.Tags}}" data-text="{{.Text}}">
-          <div class="avatar{{if .Risks}} alert{{end}}" aria-hidden="true">{{initial .Name}}</div>
-          <div style="min-width: 0">
-            <div class="t">{{.Name}}</div>
-            <div class="d mono">{{if .ConfigFile}}{{.ConfigFile}}{{else}}{{.Client}}{{end}}</div>
-            <div class="pills">
-              <span class="pill">{{plural .Servers "server" "servers"}}</span>
-              {{if .DeclaredDestructive}}<span class="pill" style="--c: var(--wr)">{{.DeclaredDestructive}} declared destructive</span>{{end}}
-              {{if .PresumedDestructive}}<span class="pill" style="--c: var(--wr)">{{.PresumedDestructive}} presumed destructive (MCP default)</span>{{end}}
-              {{if .Unannotated}}<span class="pill">{{.Unannotated}} without annotations</span>{{end}}
-              {{if .Unattested}}<span class="pill st-unattested"><i class="dot"></i>{{plural .Unattested "server" "servers"}} without evidence</span>{{end}}
-              {{if .Risks}}<span class="pill st-critical"><i class="dot"></i>{{plural .Risks "critical finding" "critical findings"}}</span>{{end}}
-            </div>
-          </div>
-          <div class="reach" title="{{.ReadOnly}} declared read-only, {{.Mutating}} declared mutating, {{.Unannotated}} unknown; {{.Destructive}} potentially destructive">
-            <span class="num">{{.Tools}}</span> <small>tool paths</small>
-            <div class="bar">{{if .ReadOnly}}<span class="ro" style="width: {{.ReadOnlyPct}}%"></span>{{end}}{{if .Mutating}}<span class="mu" style="width: {{.MutatingPct}}%"></span>{{end}}{{if .Unannotated}}<span class="un" style="width: {{.UnannotatedPct}}%"></span>{{end}}</div>
-          </div>
-        </a>
-        {{else}}
-        <div class="empty"><span class="fi" aria-hidden="true"><svg class="ico"><use href="#i-bot"/></svg></span>No configured client in the graph. Ingest an MCP client configuration.</div>
-        {{end}}
-      </div>
-    </section>
 
     <section id="paths" class="panel reveal" style="--i: 5" aria-labelledby="path-h">
       <h2 id="path-h"><svg class="ico" aria-hidden="true"><use href="#i-list"/></svg>Paths<span class="tag" data-scope-tag>Whole snapshot</span></h2>
@@ -752,11 +1005,12 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
 </div>
 
 <nav class="tabbar" aria-label="Sections">
-  <a href="#overview" class="on"><svg class="ico" aria-hidden="true"><use href="#i-grid"/></svg>Overview</a>
-  <a href="#topology"><svg class="ico" aria-hidden="true"><use href="#i-graph"/></svg>Topology</a>
+  <a href="#overview" class="on"><svg class="ico" aria-hidden="true"><use href="#i-home"/></svg>Centre</a>
+  <a href="#topology"><svg class="ico" aria-hidden="true"><use href="#i-target"/></svg>Exposure</a>
   <a href="#findings"><svg class="ico" aria-hidden="true"><use href="#i-alert"/></svg>Findings</a>
-  <a href="#clients"><svg class="ico" aria-hidden="true"><use href="#i-bot"/></svg>Clients</a>
+  <a href="#reports"><svg class="ico" aria-hidden="true"><use href="#i-doc"/></svg>Reports</a>
 </nav>
+<script type="application/json" id="export">{{.ExportJSON}}</script>
 
 <script>
   (function () {
@@ -802,7 +1056,7 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
     function chipLabel(sel) { var b = document.querySelector(sel); return b ? b.textContent.trim() : ""; }
     function selection() {
       var parts = [];
-      if (state.cli) { parts.push(chipLabel('button[data-pick="' + state.cli + '"]')); }
+      if (state.cli) { parts.push(chipLabel('.chips button[data-pick="' + state.cli + '"]')); }
       state.st.forEach(function (t) { parts.push(chipLabel('[data-st="' + t + '"]')); });
       state.bh.forEach(function (t) { parts.push(chipLabel('[data-bh="' + t + '"]')); });
       if (state.q) { parts.push("“" + state.q + "”"); }
@@ -835,7 +1089,7 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
       if (!box) { return; }
       var groups = [], gaps = [];
       if (state.cli) {
-        var pick = document.querySelector('button[data-pick="' + state.cli + '"]');
+        var pick = document.querySelector('.chips button[data-pick="' + state.cli + '"]');
         var cq = pick ? pick.getAttribute("data-q") : "";
         if (cq) { groups.push(cq); } else { gaps.push("this client's configuration path cannot be quoted in the query language"); }
       }
@@ -971,6 +1225,71 @@ footer { color: var(--muted); font-size: 13px; margin-top: 26px; }
     }
     document.querySelectorAll("[data-copy]").forEach(function (b) { b.addEventListener("click", function () { copier(b, function () { return b.getAttribute("data-copy"); }); }); });
     document.querySelectorAll("[data-copy-from]").forEach(function (b) { b.addEventListener("click", function () { copier(b, function () { return byId(b.getAttribute("data-copy-from")).textContent; }); }); });
+
+    /* Command centre */
+    document.querySelectorAll(".tab[data-sev]").forEach(function (t) {
+      t.addEventListener("click", function () {
+        var sev = t.getAttribute("data-sev");
+        document.querySelectorAll(".tab[data-sev]").forEach(function (o) { o.setAttribute("aria-pressed", String(o === t)); });
+        document.querySelectorAll("[data-sevrow]").forEach(function (row) { row.classList.toggle("sevout", !!sev && row.getAttribute("data-sevrow") !== sev); });
+      });
+    });
+    document.addEventListener("keydown", function (e) {
+      var typing = /^(INPUT|TEXTAREA|SELECT)$/.test((e.target && e.target.tagName) || "");
+      if ((e.key === "k" && (e.metaKey || e.ctrlKey)) || (e.key === "/" && !typing)) { e.preventDefault(); q.focus(); q.select(); }
+    });
+    document.querySelectorAll("[data-print]").forEach(function (b) { b.addEventListener("click", function () { window.print(); }); });
+    document.querySelectorAll("[data-export]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var el = byId("export");
+        var text = el ? JSON.parse(el.textContent) : "";
+        if (!text) { return; }
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(new Blob([text], { type: "application/json" }));
+        a.download = "passmcp-graph-share-safe.json";
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+      });
+    });
+    document.querySelectorAll("[data-guide]").forEach(function (a) {
+      a.addEventListener("click", function () {
+        var m = byId("mitigation");
+        m.classList.add("lit");
+        setTimeout(function () { m.classList.remove("lit"); }, 1600);
+      });
+    });
+
+    /* Flows: measured from the laid-out page, so they meet the dots and the
+       ring at every width; redrawn when the hero resizes. */
+    var svgNS = "http://www.w3.org/2000/svg";
+    function drawFlows() {
+      var hero = byId("overview"), svg = byId("flows");
+      if (!hero || !svg) { return; }
+      while (svg.firstChild) { svg.removeChild(svg.firstChild); }
+      if (getComputedStyle(svg).display === "none") { return; }
+      var hb = hero.getBoundingClientRect(), rb = hero.querySelector(".ring").getBoundingClientRect();
+      var cx = rb.left + rb.width / 2 - hb.left, cy = rb.top + rb.height / 2 - hb.top, R = rb.width * 0.42;
+      svg.setAttribute("viewBox", "0 0 " + hb.width + " " + hb.height);
+      hero.querySelectorAll(".fdot").forEach(function (dot, i) {
+        var b = dot.getBoundingClientRect();
+        var x = b.left + b.width / 2 - hb.left, y = b.top + b.height / 2 - hb.top;
+        var left = dot.getAttribute("data-flow") === "c";
+        var tx = left ? cx - R : cx + R, ty = cy + (y - cy) * 0.22;
+        var dx = (tx - x) * 0.55;
+        var d = "M" + x + "," + y + " C" + (x + dx) + "," + y + " " + (tx - dx) + "," + ty + " " + tx + "," + ty;
+        var colour = getComputedStyle(dot).backgroundColor;
+        ["glow", "fl", "run"].forEach(function (cls) {
+          var p = document.createElementNS(svgNS, "path");
+          p.setAttribute("d", d);
+          p.setAttribute("class", cls);
+          if (cls === "run") { p.setAttribute("pathLength", "23.4"); p.style.animationDelay = (-i * 0.45) + "s"; } else { p.style.stroke = colour; }
+          svg.appendChild(p);
+        });
+      });
+    }
+    drawFlows();
+    if ("ResizeObserver" in window) { new ResizeObserver(function () { drawFlows(); }).observe(byId("overview")); }
+    window.addEventListener("load", drawFlows);
 
     /* Counters */
     var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;

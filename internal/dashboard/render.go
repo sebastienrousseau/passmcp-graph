@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"math"
+	"strconv"
 	"strings"
 )
 
@@ -48,7 +50,23 @@ var tmpl = template.Must(template.New("dashboard").Funcs(template.FuncMap{
 	},
 	"commandNote": func() string { return CommandNote },
 	"command":     Command,
-	"repro":       func(client string) string { return ReproQuery(client, nil, nil) },
+	"serverIcon":  serverIcon,
+	"clientIcon":  clientIcon,
+	"display":     displayName,
+	// Ring arcs share a 100-unit circumference, a small gap between them.
+	"arcLen": func(v float64) string { return strconv.FormatFloat(math.Max(v-1.5, 0.6), 'f', 2, 64) },
+	"arcGap": func(v float64) string { return strconv.FormatFloat(100-math.Max(v-1.5, 0.6), 'f', 2, 64) },
+	"arcOff": func(off float64) string { return strconv.FormatFloat(-off, 'f', 2, 64) },
+	"sev": func(rows []AttentionRow, sev string) int {
+		n := 0
+		for _, r := range rows {
+			if r.Severity == sev {
+				n++
+			}
+		}
+		return n
+	},
+	"repro": func(client string) string { return ReproQuery(client, nil, nil) },
 	"sum": func(xs ...int) int {
 		t := 0
 		for _, x := range xs {

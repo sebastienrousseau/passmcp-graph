@@ -192,11 +192,15 @@ func TestThePageLoadsNothing(t *testing.T) {
 		t.Fatal(err)
 	}
 	out := b.String()
-	loads := regexp.MustCompile(`(?i)<script[^>]*\bsrc|<img|<iframe|<object|<embed|@import|url\((?:[^#)]|$)`)
+	// A CSS or attribute url() follows ':', a space, ',' or '('; the
+	// script's URL.createObjectURL( does not, and loads nothing.
+	loads := regexp.MustCompile(`(?i)<script[^>]*\bsrc|<img|<iframe|<object|<embed|@import|[:\s,(]url\((?:[^#)]|$)`)
 	if m := loads.FindString(out); m != "" {
 		t.Fatalf("the page loads something: %q", m)
 	}
-	refs := regexp.MustCompile(`(?i)\b(?:src|href|xlink:href)\s*=\s*"?([^"\s>]*)`).FindAllStringSubmatch(out, -1)
+	// Attributes, which the template always quotes; the script's
+	// a.href = URL.createObjectURL(...) builds the export download in memory.
+	refs := regexp.MustCompile(`(?i)\s(?:src|href|xlink:href)="([^"]*)"`).FindAllStringSubmatch(out, -1)
 	data := 0
 	for _, m := range refs {
 		switch {
@@ -306,8 +310,10 @@ func TestCriticalAndStaleBothShow(t *testing.T) {
 	if err := Render(&b, s); err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(b.String(), "Critical findings · stale") {
-		t.Error("the critical server's staleness is hidden")
+	// The evidence table keeps both on the critical server's row.
+	row := regexp.MustCompile(`(?s)<tr data-f data-kind="server"[^>]*>.*?</tr>`).FindString(b.String())
+	if !strings.Contains(row, "Critical findings") || !strings.Contains(row, "Stale evidence") {
+		t.Errorf("the critical server's staleness is hidden: %s", row)
 	}
 }
 
@@ -327,7 +333,8 @@ func TestTopIssue(t *testing.T) {
 	if err := Render(&b, s); err != nil {
 		t.Fatal(err)
 	}
-	for _, want := range []string{"View all 5 attention items (3 findings, 2 evidence gaps)", `href="#fnd-0">View evidence`, `data-show-path="cli-0"`, CommandNote} {
+	for _, want := range []string{"View all 5 attention items (3 findings, 2 evidence gaps)", `href="#fnd-0"`, ">View evidence<",
+		`data-show-path="cli-0"`, "Download PDF report", `href="#mitigation" data-guide`} {
 		if !strings.Contains(b.String(), want) {
 			t.Errorf("banner lacks %q", want)
 		}

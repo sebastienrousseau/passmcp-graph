@@ -40,9 +40,19 @@ want a red build and a page to read.
 
 ## What the page shows
 
-The page reads top to bottom from mode and scope, to the item to look at
-first, to the summary, to the relationships and findings, to the full
-evidence.
+The page opens on the command centre: the item to look at first, with
+buttons to view its evidence, show the affected path, save the page as a
+PDF report, and open a mitigation path for it; the configured clients and
+MCP servers either side of a ring counting every configured tool path,
+whose coloured arcs are the servers' status split; five totals; the
+attention items by severity (critical and policy findings, identity
+findings, evidence gaps); compact server and client tables; and quick
+actions, including a download of the share-safe JSON. Below it, under
+"Investigate", sit the filters, the exact topology and the detailed
+sections. The command centre shows only what the evidence supports: the
+score card is the mean of the servers that carry a score, not a trend,
+and a client's status is "Configured", because the report cannot know
+whether it is running.
 
 | Section | Derived from |
 | :--- | :--- |

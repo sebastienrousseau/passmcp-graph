@@ -58,6 +58,29 @@ function step2() { try {
 } catch (e) { log("ERR " + e); } }
 function step3() { try {
   log("after back: hash " + w.location.hash + ", focus in fnd-0 " + !!(d.activeElement && d.activeElement.closest("#fnd-0")));
+  log("flows drawn: " + d.querySelectorAll("#flows path").length);
+  d.querySelector('.tab[data-sev="low"]').click();
+  log("severity low: rows " + [].filter.call(d.querySelectorAll("[data-sevrow]"), function (r) { return !r.classList.contains("sevout"); }).length);
+  d.querySelector('.tab[data-sev=""]').click();
+  d.body.dispatchEvent(new w.KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }));
+  log("ctrl-k focuses search: " + (d.activeElement && d.activeElement.id === "q"));
+  d.querySelector('[data-set-theme="light"]').click();
+  var light = d.documentElement.getAttribute("data-theme");
+  d.querySelector('[data-set-theme="dark"]').click();
+  var dark = d.documentElement.getAttribute("data-theme");
+  d.querySelector('[data-set-theme="system"]').click();
+  log("themes: " + light + " " + dark + " " + (d.documentElement.getAttribute("data-theme") || "system"));
+  d.querySelector('.hero .hl[data-pick="cli-1"]').click();
+  log("hero pick: " + d.getElementById("selwhat").textContent + ", pressed " + d.querySelector('.hero .hl[data-pick="cli-1"]').getAttribute("aria-pressed"));
+  d.getElementById("clear").click();
+  var violations = 0;
+  d.addEventListener("securitypolicyviolation", function () { violations++; });
+  var made = 0, real = w.URL.createObjectURL;
+  w.URL.createObjectURL = function (b) { made++; return real.call(w.URL, b); };
+  d.querySelector("[data-export]").click();
+  setTimeout(function () { log("export: blobs " + made + ", CSP violations " + violations); step4(); }, 300);
+} catch (e) { log("ERR " + e); } }
+function step4() { try {
   var n = document.getElementById("n").contentWindow.document;
   log("320px: scrollWidth " + n.documentElement.scrollWidth + " clientWidth " + n.documentElement.clientWidth);
 } catch (e) { log("ERR " + e); } }

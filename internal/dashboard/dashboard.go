@@ -37,6 +37,9 @@ type Options struct {
 	// ShareSafe replaces endpoints, identities, local paths and
 	// token-shaped strings, so the page or JSON can leave the machine.
 	ShareSafe bool
+	// skipExport leaves out the embedded share-safe export, for the build
+	// that produces it.
+	skipExport bool
 }
 
 // Summary is everything the page shows.
@@ -76,6 +79,12 @@ type Summary struct {
 	// TopIssue is the one thing to look at first, or nil when the evidence
 	// shows none.
 	TopIssue *Issue `json:"topIssue"`
+	// Attention, Mitigation and Scores feed the command centre; ExportJSON
+	// is the share-safe summary the page offers as a download.
+	Attention  []AttentionRow `json:"-"`
+	Mitigation Mitigation     `json:"-"`
+	Scores     []ScoreBar     `json:"-"`
+	ExportJSON string         `json:"-"`
 }
 
 // Totals are the headline counts.
@@ -204,6 +213,12 @@ func Build(g *graph.Graph, o Options) (*Summary, error) {
 	s.Topology = buildTopology(s)
 	if o.ShareSafe {
 		shareSafe(s)
+	}
+	s.Attention, s.Mitigation, s.Scores = attentionRows(s), mitigation(s), scoreBars(s)
+	if !o.skipExport {
+		if s.ExportJSON, err = exportJSON(g, o); err != nil {
+			return nil, err
+		}
 	}
 	return s, nil
 }

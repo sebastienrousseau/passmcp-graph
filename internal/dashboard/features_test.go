@@ -365,6 +365,12 @@ func TestInTheBrowser(t *testing.T) {
 		"back shown true, ← Back to A critical check failed",
 		"after back: hash #fnd-0, focus in fnd-0 true",
 		"320px: scrollWidth 320 clientWidth 320",
+		"flows drawn: 18",
+		"severity low: rows 2",
+		"ctrl-k focuses search: true",
+		"themes: light dark system",
+		"hero pick: cursor, pressed true",
+		"export: blobs 1, CSP violations 0",
 	} {
 		if !strings.Contains(got, want) {
 			t.Errorf("browser check lacks %q in:\n%s", want, got)
@@ -476,4 +482,85 @@ func sortedKeys(m map[string]bool) []string {
 	}
 	sort.Strings(out)
 	return out
+}
+
+// The command centre's list, mitigation path and score bars come from the
+// summary, and its icons are chosen from what is known about each entity.
+func TestCommandCentre(t *testing.T) {
+	s := build(t, fixture.Graph(), nil)
+	var got []string
+	for _, r := range s.Attention {
+		got = append(got, r.Severity+": "+r.Title+" | "+r.Path+" | "+r.Age)
+	}
+	want := []string{
+		"critical: crm failed a critical check | claude-desktop → crm | 2 days",
+		"medium: Over-privileged identity on files | cursor → files | 1 day",
+		"low: No attestation for npx @example/shell-mcp | claude-desktop → npx @example/shell-mcp | Not supplied",
+		"low: Stale evidence for mail | claude-desktop and 1 more → mail | 40 days",
+	}
+	if strings.Join(got, "\n") != strings.Join(want, "\n") {
+		t.Errorf("attention rows:\n%s\nwant:\n%s", strings.Join(got, "\n"), strings.Join(want, "\n"))
+	}
+	if !strings.Contains(s.Mitigation.Fix, "Fix the failing check on https://crm.example/mcp") ||
+		!strings.Contains(s.Mitigation.Verify, `passmcp-graph query "agents -> servers where critical"`) {
+		t.Errorf("mitigation %+v", s.Mitigation)
+	}
+	gapsOnly := build(t, fixture.Graph(), nil)
+	gapsOnly.Findings = nil
+	if m := mitigation(gapsOnly); !strings.HasPrefix(m.Fix, "Run passmcp against npx @example/shell-mcp") {
+		t.Errorf("gap mitigation %+v", m)
+	}
+	if none := mitigation(&Summary{}); !strings.HasPrefix(none.Review, "Open the evidence") {
+		t.Errorf("default mitigation %+v", none)
+	}
+	if len(s.Scores) != 3 || s.Scores[0].Name != "crm" || s.Scores[0].Pct != 41 {
+		t.Errorf("score bars %+v", s.Scores)
+	}
+	for _, c := range []struct {
+		sv   ServerRow
+		icon string
+	}{{ServerRow{Transport: "stdio", Endpoint: "npx x"}, "term"}, {ServerRow{Name: "mail"}, "mail"}, {ServerRow{Name: "files"}, "folder"}, {ServerRow{Name: "crm"}, "db"}} {
+		if got := serverIcon(c.sv); got != c.icon {
+			t.Errorf("serverIcon(%s) = %q, want %q", c.sv.Name, got, c.icon)
+		}
+	}
+	for c, icon := range map[string]string{"claude-desktop": "spark", "cursor": "cube", "vscode": "brackets", "zed": "code"} {
+		if got := clientIcon(c); got != icon {
+			t.Errorf("clientIcon(%q) = %q, want %q", c, got, icon)
+		}
+	}
+	if ageText(ServerRow{ServerDetail: ServerDetail{Attestation: "d"}}) != "Unknown" || refPath(nil, Ref{Name: "s"}) != "s" {
+		t.Error("ageText or refPath")
+	}
+	if shortTitle(Finding{Kind: "other", Title: "T"}, "s") != "T" {
+		t.Error("shortTitle falls back to the title")
+	}
+}
+
+// The page's "Export JSON (share-safe)" carries the share-safe summary even
+// when the page itself is not share-safe.
+func TestTheEmbeddedExportIsShareSafe(t *testing.T) {
+	s := build(t, fixture.Graph(), nil)
+	var doc map[string]any
+	if err := json.Unmarshal([]byte(s.ExportJSON), &doc); err != nil {
+		t.Fatalf("the export is not JSON: %v", err)
+	}
+	if doc["shareSafe"] != true || strings.Contains(s.ExportJSON, "/home/dev/") || strings.Contains(s.ExportJSON, "crm.example") {
+		t.Error("the embedded export is not share-safe")
+	}
+	var b bytes.Buffer
+	if err := Render(&b, s); err != nil {
+		t.Fatal(err)
+	}
+	m := regexp.MustCompile(`(?s)<script type="application/json" id="export">(.*?)</script>`).FindStringSubmatch(b.String())
+	if m == nil {
+		t.Fatal("the page carries no export")
+	}
+	var text string
+	if err := json.Unmarshal([]byte(m[1]), &text); err != nil || text != s.ExportJSON {
+		t.Errorf("the page's export does not decode to the summary: %v", err)
+	}
+	if !strings.Contains(b.String(), "/home/dev/") {
+		t.Error("the page itself was redacted; only the export should be")
+	}
 }
