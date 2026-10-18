@@ -64,7 +64,7 @@
 ### As a Go program
 
 ```bash
-go install satellion.com/passmcp-graph/cmd/passmcp-graph@v0.0.7
+go install satellion.com/passmcp-graph/cmd/passmcp-graph@v0.0.8
 ```
 
 ### From source, with `make install`
@@ -127,7 +127,7 @@ scopes on a server whose tools are all read-only.
 
 ## The passmcp-graph ecosystem
 
-Every component is released at **0.0.7** and moves in lockstep: one version across the family, released together ([docs/ecosystem.md](https://github.com/sebastienrousseau/passmcp/blob/main/docs/ecosystem.md)).
+Every component is released at **0.0.8** and moves in lockstep: one version across the family, released together ([docs/ecosystem.md](https://github.com/sebastienrousseau/passmcp/blob/main/docs/ecosystem.md)).
 
 | Component | Purpose | Use case |
 | :--- | :--- | :--- |
@@ -159,7 +159,7 @@ that `go.mod` requires it there.
 | Policy | `check --policy` with forbidden-path rules; exit 1 on a violation | [Released in 0.0.1](https://github.com/sebastienrousseau/passmcp-graph/releases/tag/v0.0.1) |
 | Export | `json` (schema-valid, re-imports without loss), `graphml`, `cypher`; `import` of a JSON export | [Released in 0.0.1](https://github.com/sebastienrousseau/passmcp-graph/releases/tag/v0.0.1) |
 | Dashboard | `dashboard`: one offline HTML page of reach, attestation state, findings and policy violations | [Released in 0.0.7](https://github.com/sebastienrousseau/passmcp-graph/releases/tag/v0.0.7) |
-| Dashboard for strict hosts | `dashboard --assets`: the page with its stylesheet and script as files beside it, for a web server whose Content-Security-Policy refuses inline code | [Not yet released](CHANGELOG.md#unreleased) |
+| Dashboard for strict hosts | `dashboard --assets`: the page with its stylesheet and script as files beside it, for a web server whose Content-Security-Policy refuses inline code | [Released in 0.0.8](https://github.com/sebastienrousseau/passmcp-graph/releases/tag/v0.0.8) |
 | Network | none; `--offline` refuses every request as well | [Released in 0.0.1](https://github.com/sebastienrousseau/passmcp-graph/releases/tag/v0.0.1) |
 | Shell completions | `completion bash\|zsh\|fish`, installed by `make install` | [Released in 0.0.2](https://github.com/sebastienrousseau/passmcp-graph/releases/tag/v0.0.2) |
 | Release archives | Linux, macOS and Windows on amd64 and arm64, signed checksums, SLSA provenance | [Released in 0.0.2](https://github.com/sebastienrousseau/passmcp-graph/releases/tag/v0.0.2) |
