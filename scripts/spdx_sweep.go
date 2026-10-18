@@ -16,7 +16,11 @@ import (
 	"strings"
 )
 
-var skipDirs = map[string]bool{".git": true, "build": true, "dist": true, "vendor": true, "node_modules": true, "site": true}
+// skipDirs are generated output and third-party code. Files under
+// third_party are kept byte for byte as their projects release them, so
+// they cannot carry this repository's header; REUSE.toml records each one's
+// copyright and licence instead.
+var skipDirs = map[string]bool{".git": true, "build": true, "dist": true, "vendor": true, "third_party": true, "node_modules": true, "site": true}
 
 func main() {
 	var missing []string
@@ -66,7 +70,7 @@ func wants(path string) bool {
 		return false
 	}
 	switch filepath.Ext(path) {
-	case ".go", ".sh", ".yml", ".yaml", ".md", ".toml", ".jsonc", ".nix", ".svg":
+	case ".go", ".sh", ".yml", ".yaml", ".md", ".toml", ".jsonc", ".nix", ".svg", ".css", ".js":
 		return true
 	}
 	return base == "Makefile" || base == "GNUmakefile" || base == "Dockerfile" || strings.HasPrefix(base, ".editorconfig")

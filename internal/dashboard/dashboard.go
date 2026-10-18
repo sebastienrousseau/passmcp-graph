@@ -137,6 +137,11 @@ type AgentRow struct {
 	// agent's paths in the query language, or is empty when it cannot.
 	Tags, Text string `json:"-"`
 	Query      string `json:"query,omitempty"`
+	// Status is the worst status among the servers the agent is
+	// configured to reach, "" when it reaches none; StatusLabel names it.
+	// The command centre colours the agent's entry and flow with it.
+	Status      string `json:"-"`
+	StatusLabel string `json:"-"`
 }
 
 // Mutating is the writable tools that declare their behaviour.
@@ -196,6 +201,7 @@ func Build(g *graph.Graph, o Options) (*Summary, error) {
 	}
 	s.Servers = serverRows(g, o, reach)
 	s.Agents = agentRows(g, reach, s.Risks)
+	worstReached(s.Agents, s.Servers, reach)
 	s.Totals = totals(g, s.Servers)
 	addDetails(g, s, reach)
 	s.StatusQuery, s.BehaviourQuery = statusQuery(o.StaleDays), behaviourQuery
@@ -330,6 +336,24 @@ func agentRows(g *graph.Graph, r *reach, risks []analyze.Risk) []AgentRow {
 	})
 	scaleBars(rows)
 	return rows
+}
+
+// worstReached sets each agent's Status to the worst status among the
+// servers its configuration names.
+func worstReached(agents []AgentRow, servers []ServerRow, r *reach) {
+	byID := map[string]string{}
+	for _, sv := range servers {
+		byID[sv.ID] = sv.Status
+	}
+	for i := range agents {
+		for sid := range r.agentServers[agents[i].ID] {
+			st, ok := byID[sid]
+			if ok && (agents[i].Status == "" || statusRank[st] < statusRank[agents[i].Status]) {
+				agents[i].Status = st
+			}
+		}
+		agents[i].StatusLabel = statusLabel[agents[i].Status]
+	}
 }
 
 // scaleBars sets each row's bar widths relative to the widest row.

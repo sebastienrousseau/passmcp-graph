@@ -49,14 +49,14 @@ const CommandNote = "Re-reads the local graph; collects no new evidence."
 func buildGaps(s *Summary) []Gap {
 	out := []Gap{}
 	for _, sv := range s.Servers {
-		g := Gap{Server: Ref{sv.Endpoint, sv.Anchor}, Clients: sv.Clients}
+		g := Gap{Server: serverRef(sv), Clients: sv.Clients}
 		switch {
 		case sv.Status == "unattested":
-			g.Kind, g.Title = "no-evidence", "No attestation loaded for "+sv.Endpoint
+			g.Kind, g.Title = "no-evidence", "No attestation loaded for "+g.Server.Name
 			g.Detail = fmt.Sprintf("%s configured to reach it; no passmcp attestation for it was read.", clientCount(len(sv.Clients)))
 			g.Next = `passmcp-graph query "agents -> servers where not attested"`
 		case sv.Stale:
-			g.Kind, g.Title = "stale-evidence", fmt.Sprintf("Evidence for %s is %s days old", sv.Endpoint, sv.AgeDays)
+			g.Kind, g.Title = "stale-evidence", fmt.Sprintf("Evidence for %s is %s days old", g.Server.Name, sv.AgeDays)
 			g.Detail = fmt.Sprintf("Its latest attestation is older than the %d-day threshold. %s configured to reach it.", s.StaleDays, clientCount(len(sv.Clients)))
 			g.Next = fmt.Sprintf(`passmcp-graph query "agents -> servers where attestation_age_days > %d"`, s.StaleDays)
 		default:

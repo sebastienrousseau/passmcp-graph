@@ -57,7 +57,7 @@ Commands:
   check --policy FILE [--format text|json]
   export --format json|graphml|cypher
   import FILE                    read a graph exported as JSON
-  dashboard [--out FILE] [--open] [--share-safe] [--policy FILE] [--stale-days N] [--format html|json]
+  dashboard [--out FILE [--assets]] [--open] [--share-safe] [--policy FILE] [--stale-days N] [--format html|json]
                                  one offline HTML page summarising the graph
   completion bash|zsh|fish       print a shell completion script
   version

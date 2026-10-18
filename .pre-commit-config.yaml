@@ -11,9 +11,12 @@ repos:
     rev: v6.0.0
     hooks:
       # The licence texts are verbatim copies and are never rewritten.
+      # The vendored Skeletonic core is kept byte for byte as released,
+      # without a final newline.
       - id: end-of-file-fixer
-        exclude: ^(LICENSE$|LICENSES/)
+        exclude: ^(LICENSE$|LICENSES/|internal/dashboard/third_party/)
       - id: trailing-whitespace
+        exclude: ^internal/dashboard/third_party/
       - id: check-merge-conflict
       - id: check-yaml
       # devcontainer.json is JSON with comments, as the Dev Container
@@ -22,6 +25,7 @@ repos:
         exclude: ^\.devcontainer/devcontainer\.json$
       - id: mixed-line-ending
         args: [--fix=lf]
+        exclude: ^internal/dashboard/third_party/
 
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.1

@@ -16,6 +16,7 @@ passmcp-graph dashboard --out estate.html          # keep it, to attach or archi
 passmcp-graph dashboard --policy policy.yaml --stale-days 14 --out estate.html
 passmcp-graph dashboard > estate.html              # or to stdout, for a pipeline
 passmcp-graph dashboard --format json | jq .totals
+passmcp-graph dashboard --share-safe --assets --out site/index.html  # to publish on a web server
 ```
 
 `--open` hands the file to the system's opener (`open` on macOS,
@@ -29,6 +30,7 @@ by you alone.
 | :--- | :--- | :--- |
 | `--out FILE` | stdout | Write the page to `FILE` instead; the path is printed on stderr |
 | `--open` | off | Open the page in the default browser; without `--out`, it is written to a temporary file first |
+| `--assets` | off | With `--out`, write the stylesheet and script beside the page as `dashboard.css` and `dashboard.js`; see [Hosting behind a strict Content-Security-Policy](#hosting-behind-a-strict-content-security-policy) |
 | `--share-safe` | off | Replace identifying details before writing; see [Sharing the page](#sharing-the-page) |
 | `--policy FILE` | none | Also check a [policy](policy.md) and list its violations on the page |
 | `--stale-days N` | `30` | An attestation older than `N` days counts as stale |
@@ -40,11 +42,18 @@ want a red build and a page to read.
 
 ## What the page shows
 
+The page is laid out on [Skeletonic Stylus](https://skeletonic.com)'s
+core stylesheet, embedded unmodified, with the Control Centre theme's
+tokens and components over it: a sidebar, a top bar with search, the
+theme switch and the attention count, then the command centre.
+
 The page opens on the command centre: the item to look at first, with
 buttons to view its evidence, show the affected path, save the page as a
 PDF report, and open a mitigation path for it; the configured clients and
 MCP servers either side of a ring counting every configured tool path,
-whose coloured arcs are the servers' status split; five totals; the
+whose coloured arcs are the servers' status split, each joined to the ring
+by a flow in its status colour (a client's is the worst status among the
+servers it is configured to reach, named beside it); five totals; the
 attention items by severity (critical and policy findings, identity
 findings, evidence gaps); compact server and client tables; and quick
 actions, including a download of the share-safe JSON. Below it, under
@@ -70,6 +79,13 @@ no evidence, stale evidence, or no failing server checks. Identity and
 policy findings are attention items of their own, so a server with no
 failing checks can still carry one; its row and its panel count them as
 related findings.
+
+A server goes by one name wherever the page refers to it: the name it
+reports, or its endpoint when it reports none. The command centre,
+finding and evidence-gap titles, mitigation steps and links between
+panels all use it. The server's own panel, the server evidence table and
+the topology show its endpoint, the name the query language matches,
+and search finds a server's items by either.
 
 ## Search, filters and details
 
@@ -129,6 +145,36 @@ they reproduce nothing until run against your own store.
 Redaction removes the values passmcp-graph knows to be identifying and
 the shapes it recognises; read a share-safe page before sending it.
 
+## Hosting behind a strict Content-Security-Policy
+
+By default the page carries its stylesheet and script inline, which is
+what lets one file open anywhere. A web server that sends a
+Content-Security-Policy header without `'unsafe-inline'`, such as
+`script-src 'self'; style-src 'self'`, makes the browser refuse that
+inline code, and the page shows as unstyled shapes that do nothing. Many
+company intranets and static hosts send such a header.
+
+`--assets` writes the page for those hosts:
+
+```bash
+passmcp-graph dashboard --share-safe --assets --out site/index.html
+```
+
+`site/index.html` links `dashboard.css` and `dashboard.js` by relative
+URL, and both are written into `site/` beside it, readable by you alone
+like the page; publish the directory as it is. They hold exactly the
+stylesheet and script the single file inlines, so the page looks and
+behaves the same. Its own policy becomes `default-src 'none';
+style-src 'self'; script-src 'self'; img-src data:`, still loading
+nothing from anywhere else. The share-safe JSON export stays in the page
+as a JSON data block, which a browser never runs and no policy blocks,
+and the logo and favicon stay `data:` images, so the host's policy needs
+`img-src data:`.
+
+No element of the page, in either mode, carries a `style` attribute,
+which such a policy also blocks. `--assets` needs `--out` and the HTML
+format, and refuses an `--out` named `dashboard.css` or `dashboard.js`.
+
 ## What the numbers count
 
 A client is a configuration that names servers, not a running agent, and
@@ -172,7 +218,9 @@ Every figure comes from the same query and analysis code as `query`,
 
 The page follows the system's light or dark mode; the System, Light and
 Dark switch in its top bar overrides it and is remembered in the browser.
-It lays out for phones with a bottom tab bar and reflows at 320 CSS
+Below 64rem (1024 CSS pixels) the sidebar becomes a menu under the top
+bar, opened by its Menu button and closed by a link or Escape; with
+scripts off it stays open as a list of links. The page reflows at 320 CSS
 pixels, with the topology and the tables scrolling inside their own
 panels. Flows, counters and bars animate, and every animation stops when
 the system asks for reduced motion. Its text and status colours meet
