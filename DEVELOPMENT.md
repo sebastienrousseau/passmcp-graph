@@ -102,7 +102,7 @@ write to `build/`; goreleaser writes release archives and checksums to
 The family moves in lockstep: every repository is released at the same
 version. A release is cut on a `feat/vX.Y.Z` branch:
 
-1. Move the `## [Unreleased]` entries under a `## [X.Y.Z] — date` heading
+1. Move the `## [Unreleased]` entries under a `## [X.Y.Z] - date` heading
    in `CHANGELOG.md`, write `docs/releases/vX.Y.Z.md` with its
    `## Highlights ⭐️`, and move every version-bearing place to X.Y.Z: the
    README's install lines, ecosystem sentence and status links,

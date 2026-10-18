@@ -8,10 +8,13 @@ All notable changes to passmcp-graph are documented here. The format follows
 [Semantic Versioning](https://semver.org/) shaped; before 1.0 every
 release moves the patch digit.
 
-## [Unreleased]
+## [0.0.8] - 2026-10-18
 
-Work towards the family's 0.0.8. Version places stay at 0.0.7 until the
-family's release step.
+The family's eighth release. `dashboard` gains `--assets`, for a web
+server whose Content-Security-Policy refuses inline code, and is rebuilt
+on the Control Centre theme; the other commands, the query language, the
+policy file, the graph format and the exit statuses are unchanged from
+0.0.7.
 
 ### Added
 
@@ -26,6 +29,10 @@ family's release step.
 
 ### Changed
 
+- **In lockstep with passmcp 0.0.8**: passmcp-reporting is required at
+  v0.0.8, and passmcp's trace runs at v0.0.8. passmcp-reporting's `graph`
+  package is unchanged from v0.0.7, so the graph format and stored graphs
+  are unaffected.
 - **The dashboard is built on Skeletonic Stylus and the Control Centre
   theme.** Its stylesheet now opens with Skeletonic Stylus 3.0.0's core,
   embedded unmodified (`internal/dashboard/third_party`, MIT OR
@@ -42,7 +49,8 @@ family's release step.
   and a test now also checks each severity pill's text against its tint
   and that the system and switched dark modes share one palette.
 - The 0.0.1 to 0.0.4 headings in this file use a hyphen between version
-  and date, like the later ones, instead of an em dash.
+  and date, like the later ones, instead of an em dash, and
+  `DEVELOPMENT.md`'s release steps name that heading form.
 - The README's capability table says the dashboard was released in
   0.0.7, and shell completions and release archives in 0.0.2; those
   rows still said "Not yet released".
