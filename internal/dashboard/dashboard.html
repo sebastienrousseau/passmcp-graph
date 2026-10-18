@@ -1,5 +1,7 @@
-{{- /* SPDX-FileCopyrightText: 2026 Sebastien Rousseau <sebastian.rousseau@gmail.com> */ -}}
-{{- /* SPDX-License-Identifier: GPL-3.0-only */ -}}
+{{- /*
+SPDX-FileCopyrightText: 2026 Sebastien Rousseau <sebastian.rousseau@gmail.com>
+SPDX-License-Identifier: GPL-3.0-only
+*/ -}}
 {{- /* The page loads nothing from anywhere, and its Content-Security-Policy
        has the browser enforce that: the styles and the one script are
        inline, the logo and favicon are inlined, and every figure is in the
@@ -7,9 +9,15 @@
        (dashboard --assets), the styles and script are dashboard.css and
        dashboard.js beside the page instead, and the policy allows 'self'
        rather than inline code. No element carries a style attribute in
-       either mode, so a host's stricter policy blocks none of the look. */ -}}
+       either mode, so a host's stricter policy blocks none of the look.
+
+       The layout is the Control Centre theme's on Skeletonic Stylus: a
+       sidebar shell that becomes a drawer on narrow screens, a top bar, the
+       critical-finding banner, the status ring with the clients and servers
+       either side, KPI tiles and a board of panels. Every value in it comes
+       from the summary. */ -}}
 <!doctype html>
-<html lang="en">
+<html lang="en" class="no-js">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -27,6 +35,7 @@
 {{- end}}
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to the command centre</a>
 <svg class="sprite" width="0" height="0" aria-hidden="true" focusable="false">
   <defs><linearGradient id="bar-fill" x1="0" y1="0" x2="0" y2="1"><stop class="bf-top" offset="0"/><stop class="bf-end" offset="1"/></linearGradient></defs>
   <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></symbol>
@@ -64,132 +73,142 @@
   <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></symbol>
 </svg>
 
-<div class="app">
-  <aside class="side" aria-label="Sections">
-    <div class="brand">{{logo}}<span><b>passmcp-graph</b><small>MCP ecosystem</small></span></div>
-    <nav class="nav">
-      <a href="#overview" class="on"><svg class="ico"><use href="#i-home"/></svg>Command Centre</a>
-      <a href="#topology"><svg class="ico"><use href="#i-target"/></svg>Exposure Analysis</a>
-      <a href="#paths"><svg class="ico"><use href="#i-graph"/></svg>Attack Paths<span class="count">{{.Hero.Paths}}</span></a>
-      <a href="#findings"><svg class="ico"><use href="#i-search"/></svg>Investigations<span class="count">{{sum (len .Findings) (len .Gaps)}}</span></a>
-      <a href="#servers"><svg class="ico"><use href="#i-server"/></svg>MCP servers<span class="count">{{.Totals.Servers}}</span></a>
-      <a href="#clients"><svg class="ico"><use href="#i-bot"/></svg>Clients<span class="count">{{.Totals.Agents}}</span></a>
-      <a href="#reports"><svg class="ico"><use href="#i-doc"/></svg>Reports</a>
-    </nav>
-    <hr class="sep">
-    <nav class="nav">
-      <a href="#evidence"><svg class="ico"><use href="#i-list"/></svg>Server evidence</a>
-      <a href="#details"><svg class="ico"><use href="#i-key"/></svg>Details</a>
-      <a href="#settings"><svg class="ico"><use href="#i-gear"/></svg>Settings</a>
-    </nav>
-    <div class="snapcard"><i class="pulse" aria-hidden="true"></i><div><b>Offline snapshot</b><span>{{.Generated}}</span><small>Read-only analysis of captured configuration and evidence data{{if .ShareSafe}}, share-safe{{end}}.</small></div></div>
-  </aside>
+<div class="cc-app">
+  <header class="site-header cc-top" id="settings">
+    <div class="header-inner">
+      <button class="nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="navMenu"><svg class="ico" aria-hidden="true"><use href="#i-list"/></svg><span>Menu</span></button>
+      <a class="brand cc-brand-top" href="#overview" aria-label="passmcp-graph command centre"><span class="brand-mark" aria-hidden="true">{{logo}}</span><span>passmcp-graph</span></a>
+      <p class="cc-crumb">PassMCP ecosystem / Command centre</p>
+      <label class="cc-search"><svg class="ico" aria-hidden="true"><use href="#i-search"/></svg><span class="sr-only">Search</span><input id="q" type="search" placeholder="Search servers, clients, findings..." autocomplete="off" spellcheck="false"><kbd aria-hidden="true">⌘ K</kbd></label>
+      <a class="iconbtn" href="#findings" aria-label="{{plural (sum (len .Findings) (len .Gaps)) "attention item" "attention items"}}"><svg class="ico" aria-hidden="true"><use href="#i-bell"/></svg>{{if sum (len .Findings) (len .Gaps)}}<i class="nbadge">{{sum (len .Findings) (len .Gaps)}}</i>{{end}}</a>
+      <div class="theme" role="group" aria-label="Theme">
+        <button type="button" data-set-theme="system" aria-pressed="true" title="Follow the system"><svg class="ico" aria-hidden="true"><use href="#i-sys"/></svg><span class="sr-only">System</span></button>
+        <button type="button" data-set-theme="light" aria-pressed="false" title="Light"><svg class="ico" aria-hidden="true"><use href="#i-sun"/></svg><span class="sr-only">Light</span></button>
+        <button type="button" data-set-theme="dark" aria-pressed="false" title="Dark"><svg class="ico" aria-hidden="true"><use href="#i-moon"/></svg><span class="sr-only">Dark</span></button>
+      </div>
+    </div>
+  </header>
 
-  <main>
-    <header class="hdr" id="settings">
-      <div class="hdr-l">
-        <span class="mbrand">{{logo}}</span>
-        <div><div class="crumb">PassMCP ecosystem / Command centre</div>
-        <h1 class="title">MCP Command Centre</h1>
-        <p class="subtitle">Understand your MCP exposure. Investigate findings. Plan and track mitigation.</p></div>
+  <nav class="cc-side" id="navMenu" aria-label="Sections">
+    <div class="cc-side-inner">
+      <a class="brand cc-brand-side" href="#overview"><span class="brand-mark" aria-hidden="true">{{logo}}</span><span class="cc-brand-text"><span>passmcp-graph</span><small>MCP ecosystem</small></span></a>
+      <p class="cc-side-label">Command centre</p>
+      <ul class="cc-side-list nav">
+        <li><a href="#overview" class="on"><svg class="ico" aria-hidden="true"><use href="#i-home"/></svg><span>Command Centre</span></a></li>
+        <li><a href="#topology"><svg class="ico" aria-hidden="true"><use href="#i-target"/></svg><span>Exposure Analysis</span></a></li>
+        <li><a href="#paths"><svg class="ico" aria-hidden="true"><use href="#i-graph"/></svg><span>Attack Paths</span><b class="cc-count">{{.Hero.Paths}}</b></a></li>
+        <li><a href="#findings"><svg class="ico" aria-hidden="true"><use href="#i-alert"/></svg><span>Investigations</span><b class="cc-count">{{sum (len .Findings) (len .Gaps)}}</b></a></li>
+        <li><a href="#servers"><svg class="ico" aria-hidden="true"><use href="#i-server"/></svg><span>MCP servers</span><b class="cc-count">{{.Totals.Servers}}</b></a></li>
+        <li><a href="#clients"><svg class="ico" aria-hidden="true"><use href="#i-bot"/></svg><span>Clients</span><b class="cc-count">{{.Totals.Agents}}</b></a></li>
+        <li><a href="#reports"><svg class="ico" aria-hidden="true"><use href="#i-doc"/></svg><span>Reports</span></a></li>
+      </ul>
+      <p class="cc-side-label">Evidence</p>
+      <ul class="cc-side-list nav">
+        <li><a href="#evidence"><svg class="ico" aria-hidden="true"><use href="#i-list"/></svg><span>Server evidence</span></a></li>
+        <li><a href="#details"><svg class="ico" aria-hidden="true"><use href="#i-key"/></svg><span>Details</span></a></li>
+        <li><a href="#settings"><svg class="ico" aria-hidden="true"><use href="#i-gear"/></svg><span>Settings</span></a></li>
+      </ul>
+      <div class="cc-snapshot">
+        <p class="cc-snapshot-title"><span class="cc-dot pulse" aria-hidden="true"></span>Offline snapshot</p>
+        <p class="cc-snapshot-time">{{.Generated}}</p>
+        <p>Read-only analysis of captured configuration and evidence data{{if .ShareSafe}}, share-safe{{end}}.</p>
       </div>
-      <div class="hdr-r">
-        <label class="search hsearch"><svg class="ico" aria-hidden="true"><use href="#i-search"/></svg><span class="sr-only">Search</span><input id="q" type="search" placeholder="Search servers, clients, findings..." autocomplete="off" spellcheck="false"><kbd>⌘ K</kbd></label>
-        <a class="iconbtn" href="#findings" aria-label="{{plural (sum (len .Findings) (len .Gaps)) "attention item" "attention items"}}"><svg class="ico" aria-hidden="true"><use href="#i-bell"/></svg>{{if sum (len .Findings) (len .Gaps)}}<i class="nbadge">{{sum (len .Findings) (len .Gaps)}}</i>{{end}}</a>
-        <div class="theme" role="group" aria-label="Theme">
-          <button type="button" data-set-theme="system" aria-pressed="true" title="Follow the system"><svg class="ico" aria-hidden="true"><use href="#i-sys"/></svg><span class="sr-only">System</span></button>
-          <button type="button" data-set-theme="light" aria-pressed="false" title="Light"><svg class="ico" aria-hidden="true"><use href="#i-sun"/></svg><span class="sr-only">Light</span></button>
-          <button type="button" data-set-theme="dark" aria-pressed="false" title="Dark"><svg class="ico" aria-hidden="true"><use href="#i-moon"/></svg><span class="sr-only">Dark</span></button>
-        </div>
-      </div>
-    </header>
-    {{if .ShareSafe}}<p class="safe-note"><b>Share-safe</b> endpoints, identities, local paths and token-shaped strings are replaced.</p>{{end}}
+    </div>
+  </nav>
+
+  <main id="main" class="cc-main">
+    <section class="cc-intro" aria-labelledby="page-h">
+      <p class="eyebrow">Command centre</p>
+      <h1 id="page-h">MCP Command Centre</h1>
+      <p class="lead">Understand your MCP exposure. Investigate findings. Plan and track mitigation.</p>
+      {{if .ShareSafe}}<p class="cc-note"><b>Share-safe</b> endpoints, identities, local paths and token-shaped strings are replaced.</p>{{end}}
+    </section>
 
     {{with .TopIssue}}
-    <section class="banner {{.Severity}}" id="top" aria-labelledby="top-issue">
-      <span class="bicon" aria-hidden="true">!</span>
-      <div class="btext">
-        <h2 id="top-issue"><span class="lead">{{if eq .Severity "critical"}}Critical finding:{{else}}Needs attention:{{end}}</span> {{.Title}}</h2>
+    <section class="cc-alert {{if eq .Severity "critical"}}sev-critical{{else}}sev-medium{{end}}" id="top" aria-labelledby="top-issue">
+      <span class="cc-alert-icon" aria-hidden="true">!</span>
+      <div class="cc-alert-body">
+        <h2 id="top-issue"><span class="cc-alert-kicker">{{if eq .Severity "critical"}}Critical finding:{{else}}Needs attention:{{end}}</span> {{.Title}}</h2>
         <p>{{.Context}}{{if .Rule}} · <span class="mono">{{.Rule}}</span>{{end}}</p>
+        <div class="cc-actions">
+          <a class="button button-primary" href="#mitigation" data-guide>Open mitigation guide →</a>
+          <a class="button button-secondary" href="#{{.Evidence}}"><svg class="ico" aria-hidden="true"><use href="#i-doc"/></svg>View evidence</a>
+          {{if .Client}}<button type="button" class="button button-secondary" data-show-path="{{.Client}}"><svg class="ico" aria-hidden="true"><use href="#i-graph"/></svg>Show affected path</button>{{end}}
+          <button type="button" class="button button-secondary" data-print><svg class="ico" aria-hidden="true"><use href="#i-down"/></svg>Download PDF report</button>
+        </div>
+        <a class="more" href="#findings">View all {{sum .Findings .Gaps}} attention item{{if ne (sum .Findings .Gaps) 1}}s{{end}} ({{plural .Findings "finding" "findings"}}, {{plural .Gaps "evidence gap" "evidence gaps"}}) →</a>
       </div>
-      <div class="bactions">
-        <a class="btn" href="#{{.Evidence}}"><svg class="ico" aria-hidden="true"><use href="#i-doc"/></svg>View evidence</a>
-        {{if .Client}}<button type="button" class="btn" data-show-path="{{.Client}}"><svg class="ico" aria-hidden="true"><use href="#i-graph"/></svg>Show affected path</button>{{end}}
-        <button type="button" class="btn" data-print><svg class="ico" aria-hidden="true"><use href="#i-down"/></svg>Download PDF report</button>
-        <a class="btn primary" href="#mitigation" data-guide>Open mitigation guide →</a>
-      </div>
-      <a class="more" href="#findings">View all {{sum .Findings .Gaps}} attention item{{if ne (sum .Findings .Gaps) 1}}s{{end}} ({{plural .Findings "finding" "findings"}}, {{plural .Gaps "evidence gap" "evidence gaps"}}) →</a>
     </section>
     {{else}}
-    <section class="banner none" id="top" aria-labelledby="top-issue">
-      <span class="bicon" aria-hidden="true">✓</span>
-      <div class="btext"><h2 id="top-issue">No open issue in this evidence</h2><p>No inherited critical finding, policy violation, over-privileged identity, or missing or stale evidence. This covers what was ingested, nothing more.</p></div>
-      <div class="bactions"><button type="button" class="btn" data-print><svg class="ico" aria-hidden="true"><use href="#i-down"/></svg>Download PDF report</button></div>
+    <section class="cc-alert sev-ok" id="top" aria-labelledby="top-issue">
+      <span class="cc-alert-icon" aria-hidden="true">✓</span>
+      <div class="cc-alert-body"><h2 id="top-issue">No open issue in this evidence</h2><p>No inherited critical finding, policy violation, over-privileged identity, or missing or stale evidence. This covers what was ingested, nothing more.</p>
+        <div class="cc-actions"><button type="button" class="button button-secondary" data-print><svg class="ico" aria-hidden="true"><use href="#i-down"/></svg>Download PDF report</button></div></div>
     </section>
     {{end}}
 
-    <section class="hero reveal" id="overview" aria-labelledby="hero-h">
+    <section class="cc-panel cc-map hero reveal" id="overview" aria-labelledby="hero-h">
       <h2 class="sr-only" id="hero-h">Configured clients, configured tool paths and MCP servers <span>Whole snapshot</span></h2>
-      <svg class="flows" id="flows" aria-hidden="true"></svg>
-      <div class="hcol">
-        <div class="hhead"><h3>Configured clients</h3><span class="cnt">{{.Totals.Agents}}</span></div>
-        {{range $i, $a := .Agents}}{{if lt $i 8}}
-        <button type="button" class="hl c-f{{$i}}" data-pick="{{.Anchor}}" aria-label="{{.Name}}, {{plural .Tools "tool path" "tool paths"}}: filter to its paths">
-          <span class="tile t-{{clientIcon .Client}}" aria-hidden="true"><svg class="ico"><use href="#i-{{clientIcon .Client}}"/></svg></span>
-          <span class="hname"><b>{{.Name}}</b><small><span>{{plural .Tools "tool path" "tool paths"}}</span></small></span>
-          <i class="fdot" data-flow="c" aria-hidden="true"></i>
-        </button>
-        {{end}}{{else}}
-        <div class="empty">No configured client in the graph. Ingest an MCP client configuration.</div>
-        {{end}}
-        {{if gt (len .Agents) 8}}<a class="link hmore" href="#clients">{{len .Agents}} clients in all →</a>{{end}}
-      </div>
-      <div class="hcenter">
-        <svg class="ring" viewBox="0 0 300 300" role="img" aria-label="{{.Hero.Paths}} configured client to server to tool paths. Servers by status: {{range .Hero.Groups}}{{.Label}} {{.Count}}. {{end}}">
-          <defs>
-            <radialGradient id="g-core" cx="50%" cy="45%" r="55%"><stop offset="0" class="s-core-1"/><stop offset="1" class="s-core-2"/></radialGradient>
-            <filter id="f-blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter>
-          </defs>
-          <circle class="ticks" cx="150" cy="150" r="142"/>
-          <circle class="halo" cx="150" cy="150" r="114" filter="url(#f-blur)"/>
-          <circle class="track" cx="150" cy="150" r="114" pathLength="100"/>
-          {{$off := 0.0}}{{range .Hero.Groups}}{{if .Count}}<circle class="arc st-{{.Status}}" cx="150" cy="150" r="114" pathLength="100" stroke-dasharray="{{arcLen .Share.Value}} {{arcGap .Share.Value}}" stroke-dashoffset="{{arcOff $off}}"><title>{{.Label}}: {{.Count}} of {{.Share.Den}} servers</title></circle>{{end}}{{$off = add $off .Share.Value}}{{end}}
-          <circle class="core" cx="150" cy="150" r="98"/>
-          <text class="rnum num" x="150" y="152" text-anchor="middle" data-count="">{{.Hero.Paths}}</text>
-          <text class="rcap" x="150" y="182" text-anchor="middle">configured</text>
-          <text class="rcap" x="150" y="202" text-anchor="middle">client → server → tool</text>
-          <text class="rcap" x="150" y="222" text-anchor="middle">paths</text>
-        </svg>
-        <p class="ringkey">Ring: servers by status{{range .Hero.Groups}}{{if .Count}} · <span class="st-{{.Status}}"><i class="dot"></i>{{.Count}} {{.Key}}</span>{{end}}{{end}}</p>
-      </div>
-      <div class="hcol">
-        <div class="hhead"><h3>MCP servers</h3><span class="cnt">{{.Totals.Servers}}</span></div>
-        {{range $i, $s := .Servers}}{{if lt $i 8}}
-        <a class="hl srv st-{{.Status}}" href="#{{.Anchor}}">
-          <i class="fdot" data-flow="s" aria-hidden="true"></i>
-          <span class="tile" aria-hidden="true"><svg class="ico"><use href="#i-{{serverIcon $s}}"/></svg></span>
-          <span class="hname"><b>{{display $s}}</b><small>{{$st := .StatusLabel}}{{if eq .Status "critical"}}{{$st = plural (len .Critical) "critical finding" "critical findings"}}{{end}}<i class="dot"></i><span title="{{$st}}">{{$st}}</span></small></span>
-          <span class="score">{{or0 .Score}}</span>
-        </a>
-        {{end}}{{else}}
-        <div class="empty">No server.</div>
-        {{end}}
-        {{if gt (len .Servers) 8}}<a class="link hmore" href="#evidence">{{len .Servers}} servers in all →</a>{{end}}
+      <div class="cc-map-grid">
+        <div class="cc-list cc-list-in">
+          <h3>Configured clients <span class="cc-count">{{.Totals.Agents}}</span></h3>
+          <ul>
+          {{range $i, $a := .Agents}}{{if lt $i 8}}
+            <li><button type="button" class="cc-node hl st-{{or .Status "none"}}" data-pick="{{.Anchor}}" aria-label="{{.Name}}, {{plural .Tools "tool path" "tool paths"}}{{if .StatusLabel}}, worst server status {{.StatusLabel}}{{end}}: filter to its paths">
+              <span class="cc-node-icon t-{{clientIcon .Client}}" aria-hidden="true"><svg class="ico"><use href="#i-{{clientIcon .Client}}"/></svg></span>
+              <span class="cc-node-text hname"><b>{{.Name}}</b><small><span>{{plural .Tools "tool path" "tool paths"}}</span>{{if .StatusLabel}}<span>Worst server: {{.StatusLabel}}</span>{{end}}</small></span>
+            </button></li>
+          {{end}}{{else}}
+            <li class="empty">No configured client in the graph. Ingest an MCP client configuration.</li>
+          {{end}}
+          </ul>
+          {{if gt (len .Agents) 8}}<a class="hmore" href="#clients">{{len .Agents}} clients in all →</a>{{end}}
+        </div>
+        <svg class="cc-flows cc-flows-in" aria-hidden="true" focusable="false"></svg>
+        <figure class="cc-ring">
+          <div class="cc-ring-dial" role="img" aria-label="{{.Hero.Paths}} configured client to server to tool paths. Servers by status: {{range .Hero.Groups}}{{.Label}} {{.Count}}. {{end}}">
+            <svg viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+              <circle class="cc-ring-ticks" cx="100" cy="100" r="94" pathLength="100"/>
+              <circle class="cc-ring-track" cx="100" cy="100" r="80"/>
+              {{$off := 0.0}}{{range .Hero.Groups}}{{if .Count}}<circle class="cc-ring-arc st-{{.Status}}" cx="100" cy="100" r="80" pathLength="100" stroke-dasharray="{{arcLen .Share.Value}} {{arcGap .Share.Value}}" stroke-dashoffset="{{arcOff $off}}" transform="rotate(-90 100 100)"><title>{{.Label}}: {{.Count}} of {{.Share.Den}} servers</title></circle>{{end}}{{$off = add $off .Share.Value}}{{end}}
+            </svg>
+            <div class="cc-ring-core" aria-hidden="true"><p class="cc-ring-value"><strong class="num" data-count="">{{.Hero.Paths}}</strong><span>configured client → server → tool paths</span></p></div>
+          </div>
+          <figcaption><p class="ringkey">Ring: servers by status{{range .Hero.Groups}}{{if .Count}} · <span class="cc-legend-item st-{{.Status}}"><span class="cc-dot"></span>{{.Count}} {{.Key}}</span>{{end}}{{end}}</p></figcaption>
+        </figure>
+        <svg class="cc-flows cc-flows-out" aria-hidden="true" focusable="false"></svg>
+        <div class="cc-list cc-list-out">
+          <h3>MCP servers <span class="cc-count">{{.Totals.Servers}}</span></h3>
+          <ul>
+          {{range $i, $s := .Servers}}{{if lt $i 8}}
+            <li><a class="cc-node hl srv st-{{.Status}}" href="#{{.Anchor}}">
+              <span class="cc-node-icon" aria-hidden="true"><svg class="ico"><use href="#i-{{serverIcon $s}}"/></svg></span>
+              <span class="cc-node-text hname"><b>{{display $s}}</b><small>{{$st := .StatusLabel}}{{if eq .Status "critical"}}{{$st = plural (len .Critical) "critical finding" "critical findings"}}{{end}}<span title="{{$st}}">{{$st}}</span></small></span>
+              <span class="pill score st-{{.Status}}">{{or0 .Score}}</span>
+            </a></li>
+          {{end}}{{else}}
+            <li class="empty">No server.</li>
+          {{end}}
+          </ul>
+          {{if gt (len .Servers) 8}}<a class="hmore" href="#evidence">{{len .Servers}} servers in all →</a>{{end}}
+        </div>
       </div>
     </section>
 
-    <section class="kpi5" aria-label="Totals for the whole snapshot">
-      <div class="k reveal" data-i="1"><span class="kic c-f0" aria-hidden="true"><svg class="ico"><use href="#i-db"/></svg></span><div><span class="kl">MCP servers <span class="tag">Whole snapshot</span></span><span class="num kn" data-count="">{{.Totals.Servers}}</span><span class="ks">{{.Totals.Attested}} with supplied evidence</span></div></div>
-      <div class="k reveal" data-i="2"><span class="kic c-f1" aria-hidden="true"><svg class="ico"><use href="#i-users"/></svg></span><div><span class="kl">Configured clients</span><span class="num kn" data-count="">{{.Totals.Agents}}</span><span class="ks">{{.Hero.Paths}} total tool paths</span></div></div>
-      <div class="k reveal" data-i="3"><span class="kic c-f0" aria-hidden="true"><svg class="ico"><use href="#i-graph"/></svg></span><div><span class="kl">Tool paths</span><span class="num kn" data-count="">{{.Hero.Paths}}</span><span class="ks">{{.Hero.Changing.Num}} not declared read-only · {{.Hero.Unannotated.Num}} unknown</span></div></div>
-      <div class="k reveal" data-i="4"><span class="kic c-crit" aria-hidden="true"><svg class="ico"><use href="#i-alert"/></svg></span><div><span class="kl">Attention items</span><span class="num kn" data-count="">{{sum (len .Findings) (len .Gaps)}}</span><span class="ks">{{plural (len .Findings) "finding" "findings"}} · {{plural (len .Gaps) "evidence gap" "evidence gaps"}}</span></div></div>
-      <div class="k reveal" data-i="5"><span class="kic c-f2" aria-hidden="true"><svg class="ico"><use href="#i-shield"/></svg></span><div><span class="kl">Mean server score</span><span class="num kn">{{or0 .Totals.AvgScore}}</span><span class="ks">{{if .Totals.Scored}}of {{plural .Totals.Scored "scored server" "scored servers"}}, from supplied evidence{{else}}No server scored{{end}}</span></div>
-        {{if .Scores}}<div class="bars" role="img" aria-label="Scores: {{range .Scores}}{{.Name}} {{.Score}}. {{end}}">{{range .Scores}}<svg><rect y="{{.Rest}}%" width="8" height="{{.Pct}}%" rx="3" fill="url(#bar-fill)"><title>{{.Name}}: {{.Score}}</title></rect></svg>{{end}}</div>{{end}}</div>
+    <section class="cc-kpis" aria-label="Totals for the whole snapshot">
+      <dl class="cc-kpi-grid">
+        <div class="cc-kpi reveal" data-i="1"><dt>MCP servers</dt><dd><strong class="num" data-count="">{{.Totals.Servers}}</strong><span>{{.Totals.Attested}} with supplied evidence</span></dd></div>
+        <div class="cc-kpi reveal" data-i="2"><dt>Configured clients</dt><dd><strong class="num" data-count="">{{.Totals.Agents}}</strong><span>{{.Hero.Paths}} total tool paths</span></dd></div>
+        <div class="cc-kpi {{if .Hero.Changing.Num}}sev-high{{else}}sev-ok{{end}} reveal" data-i="3"><dt>Tool paths</dt><dd><strong class="num" data-count="">{{.Hero.Paths}}</strong><span>{{.Hero.Changing.Num}} not declared read-only · {{.Hero.Unannotated.Num}} unknown</span></dd></div>
+        <div class="cc-kpi {{if sev .Attention "critical"}}sev-critical{{else if .Attention}}sev-medium{{else}}sev-ok{{end}} reveal" data-i="4"><dt>Attention items</dt><dd><strong class="num" data-count="">{{sum (len .Findings) (len .Gaps)}}</strong><span>{{plural (len .Findings) "finding" "findings"}} · {{plural (len .Gaps) "evidence gap" "evidence gaps"}}</span></dd></div>
+        <div class="cc-kpi reveal" data-i="5"><dt>Mean server score</dt><dd><strong class="num">{{or0 .Totals.AvgScore}}</strong><span>{{if .Totals.Scored}}of {{plural .Totals.Scored "scored server" "scored servers"}}, from supplied evidence{{else}}No server scored{{end}}</span>
+          {{if .Scores}}<span class="bars" role="img" aria-label="Scores: {{range .Scores}}{{.Name}} {{.Score}}. {{end}}">{{range .Scores}}<svg><rect y="{{.Rest}}%" width="8" height="{{.Pct}}%" rx="3" fill="url(#bar-fill)"><title>{{.Name}}: {{.Score}}</title></rect></svg>{{end}}</span>{{end}}</dd></div>
+      </dl>
     </section>
 
-    <div class="cc">
-      <section class="card reveal" data-i="2" aria-labelledby="att-h">
-        <div class="chead"><h2 id="att-h">Findings <span class="muted">({{sum (len .Findings) (len .Gaps)}})</span><span class="tag" data-scope-tag>Whole snapshot</span></h2><a class="pill-link" href="#findings">View all →</a></div>
+    <div class="cc-board">
+      <section class="cc-panel cc-span-7 reveal" data-i="2" aria-labelledby="att-h">
+        <div class="cc-panel-head"><h2 id="att-h">Findings <span class="muted">({{sum (len .Findings) (len .Gaps)}})</span><span class="tag" data-scope-tag>Whole snapshot</span></h2><a class="pill-link" href="#findings">View all →</a></div>
         <div class="tabs" role="group" aria-label="Severity">
           <button type="button" class="tab" data-sev="" aria-pressed="true">All <i>{{len .Attention}}</i></button>
           <button type="button" class="tab sv-critical" data-sev="critical" aria-pressed="false">Critical <i>{{sev .Attention "critical"}}</i></button>
@@ -199,9 +218,9 @@
         <div class="flist">
           {{range .Attention}}
           <a class="fr sv-{{.Severity}}" href="#{{.Anchor}}" data-f data-sevrow="{{.Severity}}" data-tags="{{.Tags}}">
-            <i class="dot" aria-hidden="true"></i>
+            <span class="cc-dot" aria-hidden="true"></span>
             <span class="ft"><b>{{.Title}}</b><small>{{.Path}}</small></span>
-            <span class="sevb">{{.Severity}}</span>
+            <span class="pill sevb">{{.Severity}}</span>
             <span class="fage">{{.Age}}</span>
           </a>
           {{else}}
@@ -210,53 +229,52 @@
         </div>
       </section>
 
-      <div class="cc-mid">
-        <section class="card reveal" data-i="3" id="servers" aria-labelledby="srv-h">
-          <div class="chead"><h2 id="srv-h">MCP servers <span class="muted">({{.Totals.Servers}})</span><span class="tag" data-scope-tag>Whole snapshot</span></h2><a class="pill-link" href="#evidence">View all →</a></div>
-          <div class="scroll"><table class="mini">
-            <thead><tr><th scope="col">Server</th><th scope="col">Evidence status</th><th scope="col" class="n">Score</th><th scope="col" class="n">Age</th></tr></thead>
-            <tbody>{{range $s := .Servers}}
-              <tr class="st-{{.Status}}" data-f data-tags="{{.Tags}}"><th scope="row"><a href="#{{.Anchor}}"><span class="mtile" aria-hidden="true"><svg class="ico"><use href="#i-{{serverIcon $s}}"/></svg></span>{{display $s}}</a></th><td><i class="dot"></i>{{.StatusLabel}}</td><td class="n sc">{{or0 .Score}}</td><td class="n">{{if .AgeDays}}{{.AgeDays}} days{{else}}None{{end}}</td></tr>{{else}}
-              <tr><td colspan="4">No server.</td></tr>{{end}}
-            </tbody>
-          </table></div>
-        </section>
-        <section class="card reveal" data-i="4" id="clients" aria-labelledby="cli-h">
-          <div class="chead"><h2 id="cli-h">Configured clients <span class="muted">({{.Totals.Agents}})</span><span class="tag" data-scope-tag>Whole snapshot</span></h2><a class="pill-link" href="#paths">View all →</a></div>
-          <div class="scroll"><table class="mini">
+      <section class="cc-panel cc-span-5 reveal" data-i="3" id="mitigation" aria-labelledby="mit-h">
+        <div class="cc-panel-head"><h2 id="mit-h">Mitigation Path</h2><span class="cc-count">4 steps</span></div>
+        <ol class="cc-steps">
+          <li><strong>Review evidence</strong>{{.Mitigation.Review}}</li>
+          <li><strong>Apply fix</strong>{{.Mitigation.Fix}}</li>
+          <li><strong>Verify resolution</strong>{{.Mitigation.Verify}}</li>
+          <li><strong>Document closure</strong>{{.Mitigation.Document}}</li>
+        </ol>
+      </section>
+
+      <section class="cc-panel cc-span-7 reveal" data-i="4" id="servers" aria-labelledby="srv-h">
+        <div class="cc-panel-head"><h2 id="srv-h">MCP servers <span class="muted">({{.Totals.Servers}})</span><span class="tag" data-scope-tag>Whole snapshot</span></h2><a class="pill-link" href="#evidence">View all →</a></div>
+        <div class="cc-table" role="region" tabindex="0" aria-label="MCP servers"><table class="mini">
+          <thead><tr><th scope="col">Server</th><th scope="col">Evidence status</th><th scope="col" class="n">Score</th><th scope="col" class="n">Age</th></tr></thead>
+          <tbody>{{range $s := .Servers}}
+            <tr data-f data-tags="{{.Tags}}"><th scope="row"><a href="#{{.Anchor}}"><span class="mtile" aria-hidden="true"><svg class="ico"><use href="#i-{{serverIcon $s}}"/></svg></span>{{display $s}}</a></th><td><span class="pill st-{{.Status}}">{{.StatusLabel}}</span></td><td class="n">{{or0 .Score}}</td><td class="n">{{if .AgeDays}}{{.AgeDays}} days{{else}}None{{end}}</td></tr>{{else}}
+            <tr><td colspan="4">No server.</td></tr>{{end}}
+          </tbody>
+        </table></div>
+      </section>
+
+      <div class="cc-span-5 cc-stack">
+        <section class="cc-panel reveal" data-i="5" id="clients" aria-labelledby="cli-h">
+          <div class="cc-panel-head"><h2 id="cli-h">Configured clients <span class="muted">({{.Totals.Agents}})</span><span class="tag" data-scope-tag>Whole snapshot</span></h2><a class="pill-link" href="#paths">View all →</a></div>
+          <div class="cc-table" role="region" tabindex="0" aria-label="Configured clients"><table class="mini">
             <thead><tr><th scope="col">Client</th><th scope="col" class="n">Tool paths</th><th scope="col">Status</th></tr></thead>
             <tbody>{{range $i, $a := .Agents}}
-              <tr data-f data-kind="client" data-tags="{{.Tags}}" data-text="{{.Text}}"><th scope="row"><a href="#{{.Anchor}}"><span class="mtile t-{{clientIcon .Client}}" aria-hidden="true"><svg class="ico"><use href="#i-{{clientIcon .Client}}"/></svg></span>{{.Name}}</a></th><td class="n">{{.Tools}}</td><td><i class="dot ok" aria-hidden="true"></i>Configured</td></tr>{{else}}
+              <tr data-f data-kind="client" data-tags="{{.Tags}}" data-text="{{.Text}}"><th scope="row"><a href="#{{.Anchor}}"><span class="mtile t-{{clientIcon .Client}}" aria-hidden="true"><svg class="ico"><use href="#i-{{clientIcon .Client}}"/></svg></span>{{.Name}}</a></th><td class="n">{{.Tools}}</td><td><span class="pill st-ok">Configured</span></td></tr>{{else}}
               <tr><td colspan="3">No configured client in the graph. Ingest an MCP client configuration.</td></tr>{{end}}
             </tbody>
           </table></div>
         </section>
-      </div>
-
-      <div class="cc-right">
-        <section class="card reveal" data-i="5" id="mitigation" aria-labelledby="mit-h">
-          <div class="chead"><h2 id="mit-h">Mitigation Path</h2><span class="cnt">4 steps</span></div>
-          <ol class="steps">
-            <li><span class="sn">1</span><div><b>Review evidence</b><p>{{.Mitigation.Review}}</p></div></li>
-            <li><span class="sn">2</span><div><b>Apply fix</b><p>{{.Mitigation.Fix}}</p></div></li>
-            <li><span class="sn">3</span><div><b>Verify resolution</b><p>{{.Mitigation.Verify}}</p></div></li>
-            <li><span class="sn">4</span><div><b>Document closure</b><p>{{.Mitigation.Document}}</p></div></li>
-          </ol>
-        </section>
-        <section class="card reveal" data-i="6" id="reports" aria-labelledby="qa-h">
-          <div class="chead"><h2 id="qa-h">Quick actions</h2></div>
+        <section class="cc-panel reveal" data-i="6" id="reports" aria-labelledby="qa-h">
+          <div class="cc-panel-head"><h2 id="qa-h">Quick actions</h2></div>
           <div class="qa">
-            <button type="button" class="btn primary" data-print><svg class="ico" aria-hidden="true"><use href="#i-down"/></svg>Download PDF report</button>
-            <button type="button" class="btn" data-export><svg class="ico" aria-hidden="true"><use href="#i-braces"/></svg><span>Export JSON<small>share-safe</small></span></button>
-            <button type="button" class="btn" data-show-path="{{with .TopIssue}}{{.Client}}{{end}}"{{if not .TopIssue}} disabled title="No affected path in this evidence"{{end}}><svg class="ico" aria-hidden="true"><use href="#i-graph"/></svg>Show affected path</button>
-            <a class="btn" href="#mitigation" data-guide><svg class="ico" aria-hidden="true"><use href="#i-book"/></svg>Open mitigation guide</a>
+            <button type="button" class="button button-primary" data-print><svg class="ico" aria-hidden="true"><use href="#i-down"/></svg>Download PDF report</button>
+            <button type="button" class="button button-secondary" data-export><svg class="ico" aria-hidden="true"><use href="#i-braces"/></svg><span>Export JSON <small>share-safe</small></span></button>
+            <button type="button" class="button button-secondary" data-show-path="{{with .TopIssue}}{{.Client}}{{end}}"{{if not .TopIssue}} disabled title="No affected path in this evidence"{{end}}><svg class="ico" aria-hidden="true"><use href="#i-graph"/></svg>Show affected path</button>
+            <a class="button button-secondary" href="#mitigation" data-guide><svg class="ico" aria-hidden="true"><use href="#i-book"/></svg>Open mitigation guide</a>
           </div>
         </section>
       </div>
     </div>
 
     <h2 class="divider" id="investigate">Investigate</h2>
-    <section class="panel filters" aria-label="Filter the page">
+    <section class="cc-panel filters" aria-label="Filter the page">
       <div class="frow">
         <div class="chips" role="group" aria-label="Server status">
           <span class="lbl">Server status</span>
@@ -279,7 +297,7 @@
     </section>
 
 
-    <section id="topology" class="panel reveal" data-i="1" aria-labelledby="topo-h">
+    <section id="topology" class="cc-panel reveal" data-i="1" aria-labelledby="topo-h">
       <div class="topo-head">
         <div><h2 id="topo-h"><svg class="ico" aria-hidden="true"><use href="#i-graph"/></svg>Topology<span class="tag" data-scope-tag>Whole snapshot</span></h2>
           <p class="sub u-m0">Every configured client → server → tool relationship, exactly. Choose a client to filter to its paths, or show the surrounding context faded; select a server or tool for its details. The <a class="link" href="#paths">path table</a> lists the same paths as text.</p></div>
@@ -319,7 +337,7 @@
 
 
     <div class="cols">
-      <section id="findings" class="panel reveal" data-i="2" aria-labelledby="fnd-h">
+      <section id="findings" class="cc-panel reveal" data-i="2" aria-labelledby="fnd-h">
         <h2 id="fnd-h"><svg class="ico" aria-hidden="true"><use href="#i-alert"/></svg>Investigations: attention items<span class="tag" data-scope-tag>Whole snapshot</span></h2>
         <p class="sub"><span id="attcount" data-findings="{{len .Findings}}" data-gaps="{{len .Gaps}}">{{plural (sum (len .Findings) (len .Gaps)) "attention item" "attention items"}}: {{plural (len .Findings) "finding" "findings"}} · {{plural (len .Gaps) "evidence gap" "evidence gaps"}}.</span> Open one for its path, its evidence, what is not known, and a read-only next step.</p>
         <h3>Findings</h3>
@@ -328,7 +346,7 @@
           <summary><span class="fi {{if eq .Severity "critical"}}st-critical{{else}}st-unattested{{end}}" aria-hidden="true"><svg class="ico"><use href="#i-{{if eq .Kind "over-privileged"}}key{{else if eq .Kind "policy"}}lock{{else}}flame{{end}}"/></svg></span>
             <span><span class="t">{{.Title}}</span><br><span class="d"><span class="mono">{{.Rule}}</span> · {{.Severity}}</span></span>
             <svg class="ico chev" aria-hidden="true"><use href="#i-chev"/></svg></summary>
-          <button type="button" class="btn back u-ml48" data-back hidden>← Back</button>
+          <button type="button" class="button button-secondary back u-ml48" data-back hidden>← Back</button>
           <dl class="kv">
             <dt>Path</dt><dd class="mono">{{.Path}}</dd>
             <dt>Evidence</dt><dd>{{.Evidence}}</dd>
@@ -348,7 +366,7 @@
           <summary><span class="fi {{if eq .Kind "no-evidence"}}st-unattested{{else}}st-stale{{end}}" aria-hidden="true"><svg class="ico"><use href="#i-server"/></svg></span>
             <span><span class="t">{{.Title}}</span><br><span class="d">{{if eq .Kind "no-evidence"}}no evidence{{else}}stale evidence{{end}}</span></span>
             <svg class="ico chev" aria-hidden="true"><use href="#i-chev"/></svg></summary>
-          <button type="button" class="btn back u-ml48" data-back hidden>← Back</button>
+          <button type="button" class="button button-secondary back u-ml48" data-back hidden>← Back</button>
           <dl class="kv">
             <dt>What</dt><dd>{{.Detail}}</dd>
             <dt>Server</dt><dd><a class="link mono" href="#{{.Server.Anchor}}">{{.Server.Name}}</a></dd>
@@ -362,7 +380,7 @@
       </section>
 
       <div class="stack-col">
-      <section id="identities" class="panel reveal" data-i="4" aria-labelledby="idn-h">
+      <section id="identities" class="cc-panel reveal" data-i="4" aria-labelledby="idn-h">
         <h2 id="idn-h"><svg class="ico" aria-hidden="true"><use href="#i-key"/></svg>Identities<span class="tag" data-scope-tag>Whole snapshot</span></h2>
         <p class="sub">OAuth identities recorded on the servers, and the clients configured to reach those servers.</p>
       <div class="rows">
@@ -370,7 +388,7 @@
         <a href="#{{.Anchor}}" class="row" data-f data-kind="identity" data-tags="{{.Tags}}" data-text="{{.Text}}">
           <div class="avatar{{if .OverPrivileged}} alert{{end}}" aria-hidden="true">{{initial .Label}}</div>
           <div class="u-minw0"><div class="t">{{.Label}}</div><div class="d mono">{{.Issuer}}</div>
-            <div class="pills"><span class="pill">{{plural (len .Grants) "server" "servers"}}</span>{{if .OverPrivileged}}<span class="pill st-unattested"><i class="dot"></i>over-privileged</span>{{end}}</div></div>
+            <div class="pills"><span class="pill">{{plural (len .Grants) "server" "servers"}}</span>{{if .OverPrivileged}}<span class="pill st-unattested">over-privileged</span>{{end}}</div></div>
           <div class="reach"><span class="num">{{len .Clients}}</span> <small>{{if eq (len .Clients) 1}}client reaches{{else}}clients reach{{end}} its servers</small><small class="idsel" data-clients="{{range .Clients}}{{.Anchor}} {{end}}" data-total="{{len .Clients}}"></small></div>
         </a>
         {{end}}
@@ -381,14 +399,14 @@
     </div>
 
 
-    <section id="paths" class="panel reveal" data-i="5" aria-labelledby="path-h">
+    <section id="paths" class="cc-panel reveal" data-i="5" aria-labelledby="path-h">
       <h2 id="path-h"><svg class="ico" aria-hidden="true"><use href="#i-list"/></svg>Paths<span class="tag" data-scope-tag>Whole snapshot</span></h2>
       <p class="sub">Every configured client → server → tool path, the text equivalent of the topology.</p>
       <div class="repro" data-base="{{repro ""}}">
-        <div class="row1"><span id="reprolabel">Query all configured paths:</span> <code id="repro">{{command (repro "")}}</code> <button type="button" class="btn" data-copy-from="repro">Copy command</button></div>
+        <div class="row1"><span id="reprolabel">Query all configured paths:</span> <code id="repro">{{command (repro "")}}</code> <button type="button" class="button button-secondary" data-copy-from="repro">Copy command</button></div>
         <span class="note" id="repronote">{{commandNote}}</span>
       </div>
-      <div class="scroll"><table>
+      <div class="cc-table" role="region" tabindex="0" aria-label="Paths"><table>
         <caption>Configured paths as of {{.Generated}}, by client, then server, then tool.</caption>
         <thead><tr><th scope="col">Client</th><th scope="col">Server</th><th scope="col">Tool</th><th scope="col">Declared behaviour</th><th scope="col">Potentially destructive</th></tr></thead>
         <tbody>{{range $a := .Agents}}{{range .Paths}}
@@ -398,17 +416,17 @@
       </table></div>
     </section>
 
-    <section id="evidence" class="panel reveal" data-i="6" aria-labelledby="ev-h">
+    <section id="evidence" class="cc-panel reveal" data-i="6" aria-labelledby="ev-h">
       <h2 id="ev-h"><svg class="ico" aria-hidden="true"><use href="#i-server"/></svg>Server evidence<span class="tag" data-scope-tag>Whole snapshot</span></h2>
       <p class="sub">Every server's figures as a table, worst status first.</p>
       <label class="switch u-mb8"><input type="checkbox" id="allcols"> Show all columns</label>
-      <div class="scroll"><table class="core" id="evtable">
+      <div class="cc-table" role="region" tabindex="0" aria-label="Server evidence"><table class="core" id="evtable">
         <caption>Servers as of {{.Generated}}. Server status covers the server's own diagnostics and evidence; staleness is shown as well when it is not the status. A dash means the evidence has no value for it. Turn on all columns for potentially destructive tools, clients, related findings and failing checks; the table scrolls sideways when they do not fit, and the server column stays in place.</caption>
         <thead><tr><th scope="col" class="pin">Server</th><th scope="col">Server status</th><th scope="col">Auth in evidence</th><th scope="col">Grade</th><th scope="col" class="n">Score</th><th scope="col" class="n">Evidence age (days)</th><th scope="col" class="n">Tools</th><th scope="col" class="n x">Potentially destructive</th><th scope="col" class="n x">Configured clients</th><th scope="col" class="n x">Related findings</th><th scope="col" class="x">Failing critical checks</th></tr></thead>
         <tbody>{{range .Servers}}
           <tr data-f data-kind="server" data-tags="{{.Tags}}" data-text="{{.Text}}">
             <th scope="row" class="server pin"><a class="link mono" href="#{{.Anchor}}">{{.Endpoint}}</a><div class="d">{{.Transport}}{{if .Name}} · {{.Name}}{{end}}</div></th>
-            <td><span class="pill st-{{.Status}}"><i class="dot"></i>{{.StatusLabel}}</span>{{if and .Stale (ne .Status "stale")}} <span class="pill st-stale"><i class="dot"></i>Stale evidence</span>{{end}}</td>
+            <td><span class="pill st-{{.Status}}">{{.StatusLabel}}</span>{{if and .Stale (ne .Status "stale")}} <span class="pill st-stale">Stale evidence</span>{{end}}</td>
             <td>{{.AuthLabel}}</td><td>{{or0 .Grade}}</td><td class="n">{{or0 .Score}}</td><td class="n">{{or0 .AgeDays}}</td>
             <td class="n">{{.Tools}}</td><td class="n x">{{.Destructive}}</td><td class="n x">{{.Agents}}</td><td class="n x">{{.RelatedFindings}}</td><td class="mono x">{{join .Critical ", "}}</td></tr>{{else}}
           <tr><td colspan="11" class="d">No server.</td></tr>{{end}}
@@ -416,15 +434,15 @@
       </table></div>
     </section>
 
-    <section id="details" class="panel reveal" data-i="7" aria-labelledby="det-h">
+    <section id="details" class="cc-panel reveal" data-i="7" aria-labelledby="det-h">
       <h2 id="det-h"><svg class="ico" aria-hidden="true"><use href="#i-key"/></svg>Details</h2>
       <p class="sub">Everything recorded about each server, client and identity. A link anywhere on the page opens one here, and reloading keeps it open.</p>
       {{$generated := .Generated}}
       <h3>Servers</h3>
       {{range .Servers}}
       <details class="drawer" id="{{.Anchor}}">
-        <summary><span class="pill st-{{.Status}}"><i class="dot"></i>{{.StatusLabel}}</span>{{if and .Stale (ne .Status "stale")}}<span class="pill st-stale"><i class="dot"></i>Stale evidence</span>{{end}}<span class="mono">{{.Endpoint}}</span></summary>
-        <div class="body"><button type="button" class="btn back" data-back hidden>← Back</button><dl class="kv">
+        <summary><span class="pill st-{{.Status}}">{{.StatusLabel}}</span>{{if and .Stale (ne .Status "stale")}}<span class="pill st-stale">Stale evidence</span>{{end}}<span class="mono">{{.Endpoint}}</span></summary>
+        <div class="body"><button type="button" class="button button-secondary back" data-back hidden>← Back</button><dl class="kv">
           <dt>Transport</dt><dd>{{or0 .Transport}}</dd>
           <dt>Reports itself as</dt><dd>{{or0 .Name}}{{if .Version}} {{.Version}}{{end}}</dd>
           <dt>Auth in evidence</dt><dd>{{.AuthLabel}}</dd>
@@ -443,7 +461,7 @@
       {{range .Agents}}
       <details class="drawer" id="{{.Anchor}}">
         <summary><strong>{{.Name}}</strong><span class="mono">{{.ConfigFile}}</span></summary>
-        <div class="body"><button type="button" class="btn back" data-back hidden>← Back</button><dl class="kv">
+        <div class="body"><button type="button" class="button button-secondary back" data-back hidden>← Back</button><dl class="kv">
           <dt>Client</dt><dd>{{or0 .Client}}, read from configuration; not a running agent</dd>
           <dt>Configuration</dt><dd class="mono">{{or0 .ConfigFile}}</dd>
           <dt>Paths</dt><dd>{{range .Paths}}<div><a class="link mono" href="#{{.Server.Anchor}}">{{.Server.Name}}</a> → <span class="mono">{{.Name}}</span> <span class="pill{{if .Destructive}} c-wr{{end}}">{{if eq .Behavior "unannotated"}}unknown{{else}}{{.Behavior}}{{end}}{{if eq .DestructiveBasis "declared"}} · declared destructive{{else if eq .DestructiveBasis "presumed"}} · presumed destructive{{end}}</span></div>{{else}}none{{end}}</dd>
@@ -455,11 +473,11 @@
       {{if .Identities}}<h3>Identities</h3>{{end}}
       {{range .Identities}}
       <details class="drawer" id="{{.Anchor}}">
-        <summary><strong>{{.Label}}</strong>{{if .OverPrivileged}}<span class="pill st-unattested"><i class="dot"></i>over-privileged</span>{{end}}</summary>
-        <div class="body"><button type="button" class="btn back" data-back hidden>← Back</button><dl class="kv">
+        <summary><strong>{{.Label}}</strong>{{if .OverPrivileged}}<span class="pill st-unattested">over-privileged</span>{{end}}</summary>
+        <div class="body"><button type="button" class="button button-secondary back" data-back hidden>← Back</button><dl class="kv">
           <dt>Issuer</dt><dd class="mono">{{or0 .Issuer}}</dd>
           <dt>Client ID</dt><dd class="mono">{{or0 .ClientID}}</dd>
-          <dt>Grants</dt><dd>{{range .Grants}}<div><a class="link mono" href="#{{.Server.Anchor}}">{{.Server.Name}}</a>: <span class="mono">{{join .Scopes ", "}}</span>{{if .OverPrivileged}} <span class="pill st-unattested"><i class="dot"></i>more than the server's tools need</span>{{end}}</div>{{end}}</dd>
+          <dt>Grants</dt><dd>{{range .Grants}}<div><a class="link mono" href="#{{.Server.Anchor}}">{{.Server.Name}}</a>: <span class="mono">{{join .Scopes ", "}}</span>{{if .OverPrivileged}} <span class="pill st-unattested">more than the server's tools need</span>{{end}}</div>{{end}}</dd>
           <dt>Clients reaching its servers</dt><dd class="refs">{{range .Clients}}<a class="link" href="#{{.Anchor}}">{{.Name}}</a>{{else}}none{{end}}</dd>
           <dt>Reproduce</dt><dd><code>passmcp-graph query "identities -> servers"</code></dd>
         </dl></div>
@@ -467,16 +485,9 @@
       {{end}}
     </section>
 
-    <footer>Built offline from the local graph by <span class="mono">passmcp-graph dashboard</span>. Every figure comes from the same queries and analysis as <span class="mono">query</span>, <span class="mono">analyze</span> and <span class="mono">check</span>; the page loads nothing from the network{{if .ShareSafe}}, and identifying details were replaced before it was written{{end}}.</footer>
   </main>
+  <footer class="site-footer cc-foot"><p>Built offline from the local graph by <span class="mono">passmcp-graph dashboard</span>. Every figure comes from the same queries and analysis as <span class="mono">query</span>, <span class="mono">analyze</span> and <span class="mono">check</span>; the page loads nothing from the network{{if .ShareSafe}}, and identifying details were replaced before it was written{{end}}.</p></footer>
 </div>
-
-<nav class="tabbar" aria-label="Sections">
-  <a href="#overview" class="on"><svg class="ico" aria-hidden="true"><use href="#i-home"/></svg>Centre</a>
-  <a href="#topology"><svg class="ico" aria-hidden="true"><use href="#i-target"/></svg>Exposure</a>
-  <a href="#findings"><svg class="ico" aria-hidden="true"><use href="#i-alert"/></svg>Findings</a>
-  <a href="#reports"><svg class="ico" aria-hidden="true"><use href="#i-doc"/></svg>Reports</a>
-</nav>
 <script type="application/json" id="export">{{.ExportJSON}}</script>
 
 </body>

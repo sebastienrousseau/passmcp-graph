@@ -34,3 +34,14 @@ path = ["docs/requirements.txt"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 Sebastien Rousseau <sebastian.rousseau@gmail.com>"
 SPDX-License-Identifier = "GPL-3.0-only"
+
+# Skeletonic Stylus's core stylesheet, vendored unmodified from the 3.0.0
+# release (@sebastienrousseau/skeletonic-stylus, css/core/skeletonic.min.css,
+# SHA-256 116dcdcf51009485eb2dbb6f5c773856f437d972ef277b31e2ee4ef587e1fb09)
+# and embedded in the dashboard's stylesheet. A minified file kept byte for
+# byte has no room for a header; its package declares MIT OR Apache-2.0.
+[[annotations]]
+path = ["internal/dashboard/third_party/skeletonic/skeletonic.min.css"]
+precedence = "override"
+SPDX-FileCopyrightText = "2023 - 2026 Skeletonic CSS"
+SPDX-License-Identifier = "MIT OR Apache-2.0"

@@ -252,25 +252,42 @@ func TestShareSafeRemovesCanaries(t *testing.T) {
 
 // CC-033: the text and status colours meet WCAG 2.2 AA against the page
 // background and a panel, in both themes, computed from the page's own
-// tokens so a change to a colour is checked when it is made.
+// tokens so a change to a colour is checked when it is made. A severity
+// pill's ink meets 4.5:1 on its tint.
 func TestContrast(t *testing.T) {
 	light := tokens(t, stylesheet[strings.Index(stylesheet, ":root {"):])
 	dark := tokens(t, stylesheet[strings.Index(stylesheet, `:root[data-theme="dark"] {`):])
 	for theme, tk := range map[string]map[string]string{"light": light, "dark": dark} {
-		bg := rgb(t, tk["--bg"])
-		panel := over(rgba(t, tk["--glass"]), bg)
-		for _, name := range []string{"--ink", "--ink-2", "--muted", "--accent"} {
+		bg, panel := rgb(t, tk["--bg"]), rgb(t, tk["--surface"])
+		for _, name := range []string{"--ink", "--ink-soft", "--ink-muted", "--accent"} {
 			for surface, s := range map[string][3]float64{"background": bg, "panel": panel} {
 				if c := contrast(rgb(t, tk[name]), s); c < 4.5 {
 					t.Errorf("%s: text %s on the %s is %.2f:1, under 4.5:1", theme, name, surface, c)
 				}
 			}
 		}
-		for _, name := range []string{"--crit", "--unatt", "--stale", "--ok", "--ro", "--wr"} {
+		for _, sev := range []string{"critical", "high", "medium", "low", "ok"} {
+			if c := contrast(rgb(t, tk["--sev-"+sev]), panel); c < 3 {
+				t.Errorf("%s: graphic --sev-%s on a panel is %.2f:1, under 3:1", theme, sev, c)
+			}
+			if c := contrast(rgb(t, tk["--sev-"+sev+"-ink"]), rgb(t, tk["--sev-"+sev+"-soft"])); c < 4.5 {
+				t.Errorf("%s: pill text --sev-%s-ink on its tint is %.2f:1, under 4.5:1", theme, sev, c)
+			}
+		}
+		for _, name := range []string{"--ro", "--wr", "--line"} {
 			if c := contrast(rgb(t, tk[name]), panel); c < 3 {
 				t.Errorf("%s: graphic %s on a panel is %.2f:1, under 3:1", theme, name, c)
 			}
 		}
+	}
+}
+
+// The system dark mode and the Dark switch use the same tokens.
+func TestBothDarkModesMatch(t *testing.T) {
+	media := stylesheet[strings.Index(stylesheet, `:root:not([data-theme="light"]) {`):]
+	switched := tokens(t, stylesheet[strings.Index(stylesheet, `:root[data-theme="dark"] {`):])
+	if got := tokens(t, media); fmt.Sprint(got) != fmt.Sprint(switched) || len(got) < 30 {
+		t.Errorf("the dark tokens differ:\nmedia  %v\nswitch %v", got, switched)
 	}
 }
 
@@ -298,23 +315,6 @@ func rgb(t *testing.T, hex string) [3]float64 {
 			t.Fatal(err)
 		}
 		c[i] = float64(v)
-	}
-	return c
-}
-
-func rgba(t *testing.T, s string) [4]float64 {
-	t.Helper()
-	var c [4]float64
-	if _, err := fmt.Sscanf(s, "rgba(%g, %g, %g, %g)", &c[0], &c[1], &c[2], &c[3]); err != nil {
-		t.Fatalf("not an rgba() colour: %q", s)
-	}
-	return c
-}
-
-func over(fg [4]float64, bg [3]float64) [3]float64 {
-	var c [3]float64
-	for i := range 3 {
-		c[i] = fg[i]*fg[3] + bg[i]*(1-fg[3])
 	}
 	return c
 }
@@ -538,5 +538,31 @@ func TestTheEmbeddedExportIsShareSafe(t *testing.T) {
 	}
 	if !strings.Contains(b.String(), "/home/dev/") {
 		t.Error("the page itself was redacted; only the export should be")
+	}
+}
+
+// A client's entry in the command centre takes the worst status among the
+// servers its configuration names, and says so beside the colour; a client
+// that names no server has none.
+func TestAClientTakesTheWorstStatusItReaches(t *testing.T) {
+	g := fixture.Graph()
+	g.Upsert(graph.Node{ID: "agent:idle", Kind: graph.KindAgent, Label: "idle"})
+	s := build(t, g, nil)
+	got := map[string]string{}
+	for _, a := range s.Agents {
+		got[a.Name] = a.Status + "|" + a.StatusLabel
+	}
+	want := map[string]string{"claude-desktop": "critical|Critical findings", "cursor": "stale|Stale evidence", "idle": "|"}
+	if fmt.Sprint(got) != fmt.Sprint(want) {
+		t.Errorf("client statuses %v, want %v", got, want)
+	}
+	var b bytes.Buffer
+	if err := Render(&b, s); err != nil {
+		t.Fatal(err)
+	}
+	for _, w := range []string{`class="cc-node hl st-critical" data-pick=`, "<span>4 tool paths</span><span>Worst server: Critical findings</span>", `class="cc-node hl st-none" data-pick=`} {
+		if !strings.Contains(b.String(), w) {
+			t.Errorf("the command centre lacks %q", w)
+		}
 	}
 }

@@ -42,11 +42,18 @@ want a red build and a page to read.
 
 ## What the page shows
 
+The page is laid out on [Skeletonic Stylus](https://skeletonic.com)'s
+core stylesheet, embedded unmodified, with the Control Centre theme's
+tokens and components over it: a sidebar, a top bar with search, the
+theme switch and the attention count, then the command centre.
+
 The page opens on the command centre: the item to look at first, with
 buttons to view its evidence, show the affected path, save the page as a
 PDF report, and open a mitigation path for it; the configured clients and
 MCP servers either side of a ring counting every configured tool path,
-whose coloured arcs are the servers' status split; five totals; the
+whose coloured arcs are the servers' status split, each joined to the ring
+by a flow in its status colour (a client's is the worst status among the
+servers it is configured to reach, named beside it); five totals; the
 attention items by severity (critical and policy findings, identity
 findings, evidence gaps); compact server and client tables; and quick
 actions, including a download of the share-safe JSON. Below it, under
@@ -211,7 +218,9 @@ Every figure comes from the same query and analysis code as `query`,
 
 The page follows the system's light or dark mode; the System, Light and
 Dark switch in its top bar overrides it and is remembered in the browser.
-It lays out for phones with a bottom tab bar and reflows at 320 CSS
+Below 64rem (1024 CSS pixels) the sidebar becomes a menu under the top
+bar, opened by its Menu button and closed by a link or Escape; with
+scripts off it stays open as a list of links. The page reflows at 320 CSS
 pixels, with the topology and the tables scrolling inside their own
 panels. Flows, counters and bars animate, and every animation stops when
 the system asks for reduced motion. Its text and status colours meet

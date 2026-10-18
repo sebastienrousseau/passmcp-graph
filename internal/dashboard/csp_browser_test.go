@@ -36,7 +36,7 @@ var probeWants = []string{
 	"back shown true, ← Back to A critical check failed",
 	"after back: hash #fnd-0, focus in fnd-0 true",
 	"320px: scrollWidth 320 clientWidth 320; server status clipped without ellipsis: 0, at 1440px 0",
-	"flows drawn: 18",
+	"flows drawn: 6",
 	"severity low: rows 2",
 	"ctrl-k focuses search: true",
 	"themes: light dark system",

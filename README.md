@@ -367,4 +367,6 @@ file (`version: 1`) and the exit statuses (0 clean, 1 policy violation,
 
 GPL-3.0-only; see [`LICENSE`](LICENSE). The graph data model it reads and
 writes is Apache-2.0, in
-[`passmcp-reporting`](https://github.com/sebastienrousseau/passmcp-reporting).
+[`passmcp-reporting`](https://github.com/sebastienrousseau/passmcp-reporting). The dashboard's stylesheet
+embeds [Skeletonic Stylus](https://skeletonic.com)'s core, unmodified,
+under MIT OR Apache-2.0; [`REUSE.toml`](REUSE.toml) records it.

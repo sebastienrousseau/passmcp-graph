@@ -19,10 +19,30 @@ var page string
 
 // stylesheet and script are the page's CSS and JavaScript: inline in the
 // single file, or written beside the page by dashboard --assets. One copy
-// of each serves both, so the two modes cannot drift apart. The stylesheet
-// is kept in two files, components and then everything that adapts them,
-// and served as one.
-var stylesheet = baseCSS + adaptCSS
+// of each serves both, so the two modes cannot drift apart.
+//
+// The stylesheet is Skeletonic Stylus's core, byte for byte as its 3.0.0
+// release ships it, then the page's own: the Control Centre tokens and
+// components in dashboard.css, and the investigation panels, widths,
+// motion, colour modes and print in dashboard-adapt.css. Skeletonic
+// declares everything in @layer skeletonic.*, and the page's rules are
+// unlayered, so the page wins every overlap whatever their order.
+var stylesheet = skeletonicNotice + skeletonicCSS + "\n" + baseCSS + adaptCSS
+
+// skeletonicCSS is css/core/skeletonic.min.css from
+// @sebastienrousseau/skeletonic-stylus 3.0.0, unmodified; skeletonicSHA256
+// pins it, and REUSE.toml records its licence.
+//
+//go:embed third_party/skeletonic/skeletonic.min.css
+var skeletonicCSS string
+
+// skeletonicSHA256 is the SHA-256 of the vendored Skeletonic core.
+const skeletonicSHA256 = "116dcdcf51009485eb2dbb6f5c773856f437d972ef277b31e2ee4ef587e1fb09"
+
+// skeletonicNotice carries Skeletonic's copyright and licence into every
+// copy of the stylesheet, which the minified file itself does not.
+const skeletonicNotice = "/*! Skeletonic Stylus 3.0.0 core (css/core/skeletonic.min.css), unmodified. " +
+	"Copyright (c) 2023 - 2026 Skeletonic CSS. MIT OR Apache-2.0. https://skeletonic.com */\n"
 
 //go:embed dashboard.css
 var baseCSS string

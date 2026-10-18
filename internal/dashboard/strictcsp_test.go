@@ -5,6 +5,9 @@ package dashboard
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
+	"os"
 	"regexp"
 	"strings"
 	"testing"
@@ -109,5 +112,25 @@ func TestTheAssetsAreWhatTheSingleFileInlines(t *testing.T) {
 	body := func(p string) string { return p[strings.Index(p, "</head>"):] }
 	if body(single) != body(linked) {
 		t.Error("the two modes render different bodies")
+	}
+}
+
+// Skeletonic Stylus's core is vendored byte for byte as its 3.0.0 release
+// ships it, and the stylesheet both modes serve opens with it, after the
+// notice that carries its copyright and licence.
+func TestSkeletonicIsVendoredUnmodified(t *testing.T) {
+	onDisk, err := os.ReadFile("third_party/skeletonic/skeletonic.min.css")
+	if err != nil {
+		t.Fatal(err)
+	}
+	sum := sha256.Sum256(onDisk)
+	if got := hex.EncodeToString(sum[:]); got != skeletonicSHA256 || string(onDisk) != skeletonicCSS {
+		t.Fatalf("vendored Skeletonic is %s, want %s", got, skeletonicSHA256)
+	}
+	if !strings.HasPrefix(Assets()[0].Body, skeletonicNotice+skeletonicCSS+"\n") {
+		t.Error("the stylesheet does not open with the Skeletonic core")
+	}
+	if !strings.Contains(skeletonicNotice, "MIT OR Apache-2.0") || !strings.Contains(skeletonicNotice, "Skeletonic CSS") {
+		t.Errorf("the notice lacks the copyright or licence: %q", skeletonicNotice)
 	}
 }

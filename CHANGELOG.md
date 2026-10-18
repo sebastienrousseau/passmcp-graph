@@ -26,6 +26,21 @@ family's release step.
 
 ### Changed
 
+- **The dashboard is built on Skeletonic Stylus and the Control Centre
+  theme.** Its stylesheet now opens with Skeletonic Stylus 3.0.0's core,
+  embedded unmodified (`internal/dashboard/third_party`, MIT OR
+  Apache-2.0, recorded in `REUSE.toml`), and the page follows the
+  Control Centre theme's tokens and layout: a sidebar that becomes a menu
+  under the top bar below 1024 pixels (replacing the phone tab bar), the
+  critical-finding banner, the status ring with the clients and servers
+  joined to it by flows in their status colour, KPI tiles, severity
+  pills, scrollable table regions and the mitigation steps. A client's
+  entry takes the worst status among the servers it is configured to
+  reach and names it. Every figure, filter, link, export and theme
+  setting works as before, in the single file and with `--assets`, and
+  no element carries a style attribute. The colours are the theme's,
+  and a test now also checks each severity pill's text against its tint
+  and that the system and switched dark modes share one palette.
 - The 0.0.1 to 0.0.4 headings in this file use a hyphen between version
   and date, like the later ones, instead of an em dash.
 - The README's capability table says the dashboard was released in
