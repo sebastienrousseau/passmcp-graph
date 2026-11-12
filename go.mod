@@ -4,5 +4,5 @@ go 1.26.9
 
 require (
 	go.yaml.in/yaml/v3 v3.0.6
-	satellion.com/passmcp-reporting v0.0.8
+	satellion.com/passmcp-reporting v0.0.9
 )

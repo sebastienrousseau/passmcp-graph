@@ -8,6 +8,30 @@ All notable changes to passmcp-graph are documented here. The format follows
 [Semantic Versioning](https://semver.org/) shaped; before 1.0 every
 release moves the patch digit.
 
+## [0.0.9] - 2026-11-12
+
+The family's ninth release. The commands, the query language, the policy
+file, the dashboard, the graph format and the exit statuses are unchanged
+from 0.0.8; this member moves with the family and updates its YAML parser,
+manual build lock and workflow pins.
+
+### Changed
+
+- **In lockstep with passmcp 0.0.9**: passmcp-reporting is required at
+  v0.0.9, and passmcp's trace runs at v0.0.9. passmcp-reporting's `graph`
+  and `attestation` packages are unchanged from v0.0.8, so stored graphs
+  and ingested attestations are unaffected.
+- **Upgrade `go.yaml.in/yaml/v3` to v3.0.6** (from v3.0.5,
+  [#14](https://github.com/sebastienrousseau/passmcp-graph/pull/14)).
+- **GitHub Actions and manual lock updated**: `goreleaser/goreleaser-action`
+  7.3.0, `DavidAnson/markdownlint-cli2-action` 25.0.0, `actions/setup-python`
+  7.1.0, `github/codeql-action` 4.39.3, and `sigstore/cosign-installer`
+  4.1.3 ([#15](https://github.com/sebastienrousseau/passmcp-graph/pull/15),
+  [#17](https://github.com/sebastienrousseau/passmcp-graph/pull/17),
+  [#18](https://github.com/sebastienrousseau/passmcp-graph/pull/18)), plus
+  `certifi` 2026.10.18 in `docs/requirements.txt`
+  ([#16](https://github.com/sebastienrousseau/passmcp-graph/pull/16)).
+
 ## [0.0.8] - 2026-10-18
 
 The family's eighth release. `dashboard` gains `--assets`, for a web
