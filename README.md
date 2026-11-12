@@ -64,7 +64,7 @@
 ### As a Go program
 
 ```bash
-go install satellion.com/passmcp-graph/cmd/passmcp-graph@v0.0.8
+go install satellion.com/passmcp-graph/cmd/passmcp-graph@v0.0.9
 ```
 
 ### From source, with `make install`
@@ -127,7 +127,7 @@ scopes on a server whose tools are all read-only.
 
 ## The passmcp-graph ecosystem
 
-Every component is released at **0.0.8** and moves in lockstep: one version across the family, released together ([docs/ecosystem.md](https://github.com/sebastienrousseau/passmcp/blob/main/docs/ecosystem.md)).
+Every component is released at **0.0.9** and moves in lockstep: one version across the family, released together ([docs/ecosystem.md](https://github.com/sebastienrousseau/passmcp/blob/main/docs/ecosystem.md)).
 
 | Component | Purpose | Use case |
 | :--- | :--- | :--- |
