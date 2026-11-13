@@ -8,6 +8,23 @@ All notable changes to passmcp-graph are documented here. The format follows
 [Semantic Versioning](https://semver.org/) shaped; before 1.0 every
 release moves the patch digit.
 
+## [0.0.10] - 2026-11-13
+
+The family's tenth release. The commands, the query language, the policy
+file, the dashboard, the graph format and the exit statuses are unchanged
+from 0.0.9; this member moves with the family as the six Apache-2.0 MCP
+language SDKs join the 15-repository lockstep stream.
+
+### Changed
+
+- **In lockstep with passmcp 0.0.10**: passmcp-reporting is required at
+  v0.0.10, and passmcp's trace runs at v0.0.10. passmcp-reporting's `graph`
+  and `attestation` packages are unchanged from v0.0.9, so stored graphs
+  and ingested attestations are unaffected.
+- **README family table lists all 15 lockstep repositories** at `0.0.10`,
+  adding `passmcp-sdk-go`, `passmcp-sdk-python`, `passmcp-sdk-java`,
+  `passmcp-sdk-cpp`, `passmcp-sdk-typescript`, and `passmcp-sdk-rust`.
+
 ## [0.0.9] - 2026-11-12
 
 The family's ninth release. The commands, the query language, the policy
